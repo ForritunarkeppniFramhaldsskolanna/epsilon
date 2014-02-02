@@ -1,0 +1,40 @@
+{% extends "main.html" %}
+{% block content %}
+
+<form class="form-horizontal" action="" method="post">
+    <fieldset>
+        <div id="legend">
+            <legend class="">Log in</legend>
+        </div>
+
+        {% if bad_login %}
+            {# TODO: handle bad login #}
+            <div class="alert alert-error">
+                <h4>Bad credentials!</h4>
+                Make sure you typed in the correct password.
+            </div>
+        {% endif %}
+
+        <div class="control-group">
+            <label class="control-label" for="team">Team name</label>
+            <div class="controls">
+                <input type="text" id="team" name="team" value="{{ team_name }}" class="input-xlarge">
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label" for="password">Password</label>
+            <div class="controls">
+                <input type="password" id="password" name="password" placeholder="" class="input-xlarge">
+            </div>
+        </div>
+
+        <div class="control-group">
+            <div class="controls">
+                <button class="btn btn-success">Log in</button>
+            </div>
+        </div>
+    </fieldset>
+</form>
+
+{% endblock %}

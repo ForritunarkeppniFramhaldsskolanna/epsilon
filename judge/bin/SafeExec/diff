@@ -1,0 +1,552 @@
+Only in .: diff
+Only in ../mooshak/mooshak-1-1/bin/SafeExec/: error.c~
+Only in ../mooshak/mooshak-1-1/bin/SafeExec/: error.h~
+Only in ../mooshak/mooshak-1-1/bin/SafeExec/: error.o
+diff -r ./Makefile ../mooshak/mooshak-1-1/bin/SafeExec/Makefile
+2a3,4
+> 	gcc -c parser.c -Wall -ansi -pedantic
+> 	gcc -c wrapper.c -Wall -ansi -pedantic
+4,7c6,7
+< 	gcc -o os-detect os-detect.c -Wall -ansi -pedantic
+< 	gcc -c safeexec.c `os-detect` -Wall -ansi -pedantic
+< 	gcc -o safeexec error.o safeexec.o safe.o -Wall -ansi -pedantic
+< 
+---
+> 	gcc -c safeexec.c -Wall -ansi -pedantic
+> 	gcc -o safeexec parser.o wrapper.o error.o safeexec.o safe.o -Wall -ansi -pedantic
+9c9
+< 	rm -rf *.o safeexec os-detect
+---
+> 	rm -rf *.o safeexec
+Only in .: os-detect.c
+Only in ../mooshak/mooshak-1-1/bin/SafeExec/: parser.c
+Only in ../mooshak/mooshak-1-1/bin/SafeExec/: parser.c~
+Only in ../mooshak/mooshak-1-1/bin/SafeExec/: parser.h
+Only in ../mooshak/mooshak-1-1/bin/SafeExec/: parser.h~
+Only in ../mooshak/mooshak-1-1/bin/SafeExec/: parser.o
+Only in ../mooshak/mooshak-1-1/bin/SafeExec/: safe.c~
+diff -r ./safeexec.c ../mooshak/mooshak-1-1/bin/SafeExec/safeexec.c
+6c6
+<  *   FILE *redirect
+---
+>  *   stderr. redirecting program stderr to /dev/null
+8c8,26
+<  * Please check out #ifdef LINUX_HACK
+---
+>  * ppereira 17/02/2004 -- total rewrite
+>  *                        memory usage enforcement (and statistics)
+>  *
+>  *          18/02/2004 -- command line parsing
+>  *
+>  *          19/02/2004 -- configuration file parsing
+>  *                        separate the whole thing into modules
+>  *
+>  *          20/02/2004 -- more limit enforcements
+>  *                        wallclock time limit
+>  *
+>  *          30/07/2004 -- several modifications:
+>  *                        return codes, improved output (statistics)
+>  *                        new error condition -- Output Limit Exceeded
+>  *                        SIGHUP meaning Invalid Function
+>  * 02/08/2004
+>  * todo: fix problem resulting in output RE(RV=1) when it should be at least IE!
+>  *       !fixed, the problem is that libclientmysql installs a SIGPIPE handler,
+>  *               installing the default action (TERM) solves the problem
+14,19c32,37
+< #include <sys/types.h>
+< #include <unistd.h>
+< #include <errno.h>
+< #include <stdlib.h>
+< #include <string.h>
+< #include <stdio.h>
+---
+> #include <sys/types.h>		/* fork            */
+> #include <unistd.h>		/* fork, execve    */
+> #include <errno.h>		/* errno           */
+> #include <stdlib.h>		/* exit            */
+> #include <string.h>		/* strerror        */
+> #include <stdio.h>		/* printf, fprintf */
+21,22c39,40
+< #include <ctype.h>
+< #include <sys/select.h>
+---
+> #include <ctype.h>		/* isalpha         */
+> #include <sys/select.h>		/* select          */
+24c42
+< #include <assert.h>
+---
+> #include <assert.h>		/* assert          */
+27c45
+< #include <signal.h>
+---
+> #include <signal.h>		/* kill            */
+34a53,55
+> #include "parser.h"
+> #include "wrapper.h"
+> 
+37,39c58,67
+< #define LARGECONST 4194304
+< #define SIZE          8192	/* buffer size for reading /proc/<pid>/status */
+< #define INTERVAL        67	/* about 15 times a second                    *
+---
+> #define uset(u,v) ((u)=((u)==INFINITY)?(v):(u))
+> #define iset(u,v) ((u)=((v)!=INFINITY)?(v):(u))
+> 
+> #define cdef(u)   if((u)!=INFINITY)\
+>                   error("--conf: Property \"%s\" redefinition on section \"%s\"",\
+>                   property,profile[v].name)
+> 
+> #define NOTFOUND    -1		/* or <0 or >= SLOTS                          */
+> #define SIZE      8192		/* buffer size for reading /proc/<pid>/status */
+> #define INTERVAL    67		/* about 15 times a second                    *
+43,44c71,75
+< struct config profile = { 10, 32768, 0, 8192, 8192, 0, 60, 500, 65535 };
+< struct config *pdefault = &profile;
+---
+> struct config pdefault =
+>   { "default", 10, 32768, 0, 8192, 8192, 0, 60, 500, 65535 };
+> struct config profile[SLOTS];
+> struct config *limit = &pdefault;	/* by default use the "default" */
+> int used = 0;			/* number of used slots */
+57,58c88,90
+<   INPUT2, INPUT4,
+<   ERROR, EXECUTE
+---
+>   INPUT2, INPUT3, INPUT4,
+>   ERROR, CONFIGURE,
+>   EXECUTE
+191,197c223,224
+< 
+< #ifdef LINUX_HACK
+<   /* Linux hack: in freebsd the process will   *
+<    * be killed exactly  after n  seconds. In   *
+<    * linux the behaviour depends on the kernel *
+<    * version (before 2.6 the process is killed *
+<    * after n+1 seconds, in 2.6 is after n.     */
+---
+>   /* linux hack: in freebsd the process will *
+>    *  be killed exactly after n seconds      */
+201,202d227
+< #endif
+< 
+207a233,370
+> /* Replace each field of p by the similar one in q if *
+>  * q->field != NULL                                   */
+> void ireplace (struct config *p, struct config *q)
+> {
+>   assert (p != NULL);
+>   assert (q != NULL);
+>   iset (p->cpu, q->cpu);
+>   iset (p->memory, q->memory);
+>   iset (p->core, q->core);
+>   iset (p->stack, q->stack);
+>   iset (p->fsize, q->fsize);
+>   iset (p->nproc, q->nproc);
+>   iset (p->clock, q->clock);
+>   iset (p->minuid, q->minuid);
+>   iset (p->maxuid, q->maxuid);
+> }
+> 
+> void replace (struct config *p, struct config *q)
+> {
+>   assert (p != NULL);
+>   assert (q != NULL);
+>   uset (p->cpu, q->cpu);
+>   uset (p->memory, q->memory);
+>   uset (p->core, q->core);
+>   uset (p->stack, q->stack);
+>   uset (p->fsize, q->fsize);
+>   uset (p->nproc, q->nproc);
+>   uset (p->clock, q->clock);
+>   uset (p->minuid, q->minuid);
+>   uset (p->maxuid, q->maxuid);
+> }
+> 
+> int search (char *section)
+> {
+>   int v;
+>   assert (section != NULL);
+>   for (v = 0; v < used; v++)
+>     if (strcmp (profile[v].name, section) == 0)
+>       return (v);
+>   return (NOTFOUND);
+> }
+> 
+> void idset (int v, char *property, unsigned int value)
+> {
+>   assert (property != NULL);
+>   assert ((v >= 0) && (v < used));
+>   if (strcmp (property, "cpu") == 0)
+>     {
+>       cdef (profile[v].cpu);
+>       profile[v].cpu = (rlim_t) value;
+>     }
+>   else if (strcmp (property, "memory") == 0)
+>     {
+>       cdef (profile[v].memory);
+>       profile[v].memory = (rlim_t) value;
+>     }
+>   else if (strcmp (property, "core") == 0)
+>     {
+>       cdef (profile[v].core);
+>       profile[v].core = (rlim_t) value;
+>     }
+>   else if (strcmp (property, "stack") == 0)
+>     {
+>       cdef (profile[v].stack);
+>       profile[v].stack = (rlim_t) value;
+>     }
+>   else if (strcmp (property, "fsize") == 0)
+>     {
+>       cdef (profile[v].fsize);
+>       profile[v].fsize = (rlim_t) value;
+>     }
+>   else if (strcmp (property, "nproc") == 0)
+>     {
+>       cdef (profile[v].nproc);
+>       profile[v].nproc = (rlim_t) value;
+>     }
+>   else if (strcmp (property, "clock") == 0)
+>     {
+>       cdef (profile[v].clock);
+>       profile[v].clock = (rlim_t) value;
+>     }
+>   else if (strcmp (property, "minuid") == 0)
+>     {
+>       cdef (profile[v].minuid);
+>       profile[v].minuid = (uid_t) value;
+>     }
+>   else if (strcmp (property, "maxuid") == 0)
+>     {
+>       cdef (profile[v].maxuid);
+>       profile[v].maxuid = (uid_t) value;
+>     }
+>   else
+>     error ("--conf: Unknown property \"%s\" on section \"%s\"", property,
+> 	   profile[v].name);
+> }
+> 
+> void initialize (struct config *p)
+> {
+>   assert (p != NULL);
+>   p->cpu = INFINITY;
+>   p->memory = INFINITY;
+>   p->core = INFINITY;
+>   p->stack = INFINITY;
+>   p->fsize = INFINITY;
+>   p->nproc = INFINITY;
+>   p->clock = INFINITY;
+>   p->minuid = INFINITY;
+>   p->maxuid = INFINITY;
+> }
+> 
+> int install (char *section)
+> {
+>   int v;
+>   assert (section != NULL);
+>   if (strcmp (section, "default") == 0)
+>     error
+>       ("--conf: Atempted to create the reserved name section \"default\"");
+>   v = search (section);
+>   if (v != NOTFOUND)
+>     error ("--conf: Atempted to create an already existing section name");
+>   if (used == SLOTS)
+>     error ("--conf: Too many sections (%u)", SLOTS);
+>   initialize (&profile[used]);
+>   strcpy (profile[used].name, section);
+>   return (used++);
+> }
+> 
+> int strisalpha (char *p)
+> {
+>   while (*p != 0)
+>     {
+>       if (isalpha (*p) == 0)
+> 	return (0);
+>       p++;
+>     }
+>   return (1);
+> }
+> 
+209c372
+< void validate (void)
+---
+> void validate (struct config *p)
+211,232c374,405
+<   if (profile.cpu == 0)
+<     error ("Cpu time must be greater than zero");
+<   if (profile.memory >= LARGECONST)
+<     error ("Memory limit must be smaller than %u", LARGECONST);
+<   if (profile.core >= LARGECONST)
+<     error ("Core limit must be smaller than %u", LARGECONST);
+<   if (profile.stack >= LARGECONST)
+<     error ("Stack limit must be smaller than %u", LARGECONST);
+<   if (profile.fsize >= LARGECONST)
+<     error ("File size limit must be smaller than %u", LARGECONST);
+<   if (profile.nproc >= 65536)
+<     error ("Number of process(es) must be smaller than %u", 65536);
+<   if (profile.clock <= 0)
+<     error ("Wall clock time must be greater than zero");
+<   if (profile.clock >= LARGECONST)
+<     error ("Wall clock time must be smaller than %u", LARGECONST);
+<   if (profile.minuid < 500)
+<     error ("Lower uid limit is smaller than %u", 500);
+<   if (profile.maxuid >= 65536)
+<     error ("Upper uid limit must be smaller than %u", 65536);
+<   if (profile.minuid > profile.maxuid)
+<     error ("Lower uid limit is bigger than upper uid limit");
+---
+>   if (p->cpu == 0)
+>     error ("--profile: \"%s\" Cpu time must be greater than zero", p->name);
+>   if (p->memory >= LARGECONST)
+>     error ("--profile: \"%s\" Memory limit must be smaller than %u", p->name,
+> 	   LARGECONST);
+>   if (p->core >= LARGECONST)
+>     error ("--profile: \"%s\" Core limit must be smaller than %u", p->name,
+> 	   LARGECONST);
+>   if (p->stack >= LARGECONST)
+>     error ("--profile: \"%s\" Stack limit must be smaller than %u", p->name,
+> 	   LARGECONST);
+>   if (p->fsize >= LARGECONST)
+>     error ("--profile: \"%s\" File size limit must be smaller than %u",
+> 	   p->name, LARGECONST);
+>   if (p->nproc >= 65536)
+>     error ("--profile: \"%s\" Number of process(es) must be smaller than %u",
+> 	   p->name, 65536);
+>   if (p->clock <= 0)
+>     error ("--profile: \"%s\" Wall clock time must be greater than zero",
+> 	   p->name);
+>   if (p->clock >= LARGECONST)
+>     error ("--profile: \"%s\" Wall clock time must be smaller than %u",
+> 	   p->name, LARGECONST);
+>   if (p->minuid < 500)
+>     error ("--profile: \"%s\" Lower uid limit is smaller than %u", p->name,
+> 	   500);
+>   if (p->maxuid >= 65536)
+>     error ("--profile: \"%s\" Upper uid limit must be smaller than %u",
+> 	   p->name, 65536);
+>   if (p->minuid > p->maxuid)
+>     error ("--profile: \"%s\" Lower uid limit is bigger than upper uid limit",
+> 	   p->name);
+240,242c413,419
+<   char *function;
+<   int state;
+< 
+---
+>   char *filename, *function, *section;
+>   struct config ahead;
+>   int state, v;
+>   section = "default";
+>   initialize (&ahead);
+>   strcpy (ahead.name, section);
+>   filename = NULL;
+263c440
+< 		input1 = (unsigned int *) &profile.cpu;
+---
+> 		input1 = (unsigned int *) &ahead.cpu;
+265c442
+< 		input1 = (unsigned int *) &profile.memory;
+---
+> 		input1 = (unsigned int *) &ahead.memory;
+268,269c445,446
+< 		  input2 = (unsigned int *) &profile.minuid;
+< 		  input1 = (unsigned int *) &profile.maxuid;
+---
+> 		  input2 = (unsigned int *) &ahead.minuid;
+> 		  input1 = (unsigned int *) &ahead.maxuid;
+273c450
+< 		input1 = (unsigned int *) &profile.minuid;
+---
+> 		input1 = (unsigned int *) &ahead.minuid;
+275c452
+< 		input1 = (unsigned int *) &profile.maxuid;
+---
+> 		input1 = (unsigned int *) &ahead.maxuid;
+277c454
+< 		input1 = (unsigned int *) &profile.core;
+---
+> 		input1 = (unsigned int *) &ahead.core;
+279c456
+< 		input1 = (unsigned int *) &profile.nproc;
+---
+> 		input1 = (unsigned int *) &ahead.nproc;
+281c458
+< 		input1 = (unsigned int *) &profile.fsize;
+---
+> 		input1 = (unsigned int *) &ahead.fsize;
+283c460
+< 		input1 = (unsigned int *) &profile.stack;
+---
+> 		input1 = (unsigned int *) &ahead.stack;
+285c462,466
+< 		input1 = (unsigned int *) &profile.clock;
+---
+> 		input1 = (unsigned int *) &ahead.clock;
+> 	      else if (strcmp (*p, "--profile") == 0)
+> 		state = INPUT3;
+> 	      else if (strcmp (*p, "--conf") == 0)
+> 		state = CONFIGURE;
+300a482,504
+> 	    case CONFIGURE:
+> 	      filename = *p;
+> 	      state = PARSE;
+> 	      break;
+> 	    case INPUT3:
+> 	      if (strlen (*p) > IDLEN)
+> 		{
+> 		  fprintf (stderr, "error: Profile name too large (%u)\n",
+> 			   IDLEN);
+> 		  state = ERROR;
+> 		}
+> 	      else if (strisalpha (*p) == 0)
+> 		{
+> 		  fprintf (stderr,
+> 			   "error: Invalid caracters in profile name\n");
+> 		  state = ERROR;
+> 		}
+> 	      else
+> 		{
+> 		  section = *p;
+> 		  state = PARSE;
+> 		}
+> 	      break;
+336c540,559
+<       validate ();
+---
+>       if (filename != NULL)
+> 	configure (filename);
+>       if (strcmp (section, "default") != 0)
+> 	{
+> 	  v = search (section);
+> 	  if (v == NOTFOUND)
+> 	    error ("--profile: Profile \"%s\" not found", section);
+> 	  /* arguments override settings in profile */
+> 	  ireplace (&profile[v], &ahead);
+> 	  /* if an option isn't defined use the default */
+> 	  replace (&profile[v], &pdefault);
+> 	  limit = &profile[v];
+> 	}
+>       else			/* Fill the non passed options, with the default ones */
+> 	{
+> 	  replace (&ahead, &pdefault);
+> 	  pdefault = ahead;
+> 	  limit = &pdefault;
+> 	}
+>       validate (limit);
+345,348c568,574
+<   fprintf (stderr, "\t--cpu     <seconds>           Default: %lu second(s)\n",
+< 	   pdefault->cpu);
+<   fprintf (stderr, "\t--mem     <kbytes>            Default: %lu kbyte(s)\n",
+< 	   pdefault->memory);
+---
+>   fprintf (stderr, "\t--cpu     <seconds>           Default: %u second(s)\n",
+> 	   (unsigned int) pdefault.cpu);
+>   fprintf (stderr, "\t--mem     <kbytes>            Default: %u kbyte(s)\n",
+> 	   (unsigned int) pdefault.memory);
+>   fprintf (stderr, "\t--conf    <filename>          Load configuration\n");
+>   fprintf (stderr, "\t--profile <name>              Default: \"%s\"\n",
+> 	   pdefault.name);
+350c576
+< 	   pdefault->minuid, pdefault->maxuid);
+---
+> 	   (unsigned int) pdefault.minuid, (unsigned int) pdefault.maxuid);
+352c578
+< 	   pdefault->minuid);
+---
+> 	   (unsigned int) pdefault.minuid);
+354,363c580,582
+< 	   pdefault->maxuid);
+<   fprintf (stderr, "\t--core    <kbytes>            Default: %lu kbyte(s)\n",
+< 	   pdefault->core);
+<   fprintf (stderr,
+< 	   "\t--nproc   <number>            Default: %lu proccess(es)\n",
+< 	   pdefault->nproc);
+<   fprintf (stderr, "\t--fsize   <kbytes>            Default: %lu kbyte(s)\n",
+< 	   pdefault->fsize);
+<   fprintf (stderr, "\t--stack   <kbytes>            Default: %lu kbyte(s)\n",
+< 	   pdefault->stack);
+---
+> 	   (unsigned int) pdefault.maxuid);
+>   fprintf (stderr, "\t--core    <kbytes>            Default: %u kbyte(s)\n",
+> 	   (unsigned int) pdefault.core);
+365,366c584,589
+< 	   "\t--clock   <seconds>           Wall clock timeout (default: %lu)\n",
+< 	   pdefault->clock);
+---
+> 	   "\t--nproc   <number>            Default: %u proccess(es)\n",
+> 	   (unsigned int) pdefault.nproc);
+>   fprintf (stderr, "\t--fsize   <kbytes>            Default: %u kbyte(s)\n",
+> 	   (unsigned int) pdefault.fsize);
+>   fprintf (stderr, "\t--stack   <kbytes>            Default: %u kbyte(s)\n",
+> 	   (unsigned int) pdefault.stack);
+368,371c591,592
+< 	   "\t--usage   <filename>          Report statistics to filename (default: stderr)\n");
+< #ifdef LINUX_HACK
+<   fprintf (stderr, "Compiled with LINUX_HACK for RLIMIT_CPU\n");
+< #endif
+---
+> 	   "\t--clock   <seconds>           Wall clock timeout (default: %u)\n",
+> 	   (unsigned int) pdefault.clock);
+417c638
+<       if (profile.minuid != profile.maxuid)
+---
+>       if (limit->minuid != limit->maxuid)
+420c641
+< 	  profile.minuid += rand () % (profile.maxuid - profile.minuid);
+---
+> 	  limit->minuid += rand () % (limit->maxuid - limit->minuid);
+423c644
+<       if (setuid (profile.minuid) < 0)
+---
+>       if (setuid (limit->minuid) < 0)
+440c661
+<       if (alarm (profile.clock) != 0)
+---
+>       if (alarm (limit->clock) != 0)
+461,465c682,686
+< 	  setlimit (RLIMIT_CORE, profile.core * 1024);
+< 	  setlimit (RLIMIT_STACK, profile.stack * 1024);
+< 	  setlimit (RLIMIT_FSIZE, profile.fsize * 1024);
+< 	  setlimit (RLIMIT_NPROC, profile.nproc);
+< 	  setlimit (RLIMIT_CPU, profile.cpu);
+---
+> 	  setlimit (RLIMIT_CORE, limit->core * 1024);
+> 	  setlimit (RLIMIT_STACK, limit->stack * 1024);
+> 	  setlimit (RLIMIT_FSIZE, limit->fsize * 1024);
+> 	  setlimit (RLIMIT_NPROC, limit->nproc);
+> 	  setlimit (RLIMIT_CPU, limit->cpu);
+486c707
+< 	      if (mem > profile.memory)
+---
+> 	      if (mem > limit->memory)
+544c765
+< 		      usage.ru_utime.tv_sec = profile.cpu;
+---
+> 		      usage.ru_utime.tv_sec = limit->cpu;
+Only in ../mooshak/mooshak-1-1/bin/SafeExec/: safeexec.c~
+diff -r ./safeexec.h ../mooshak/mooshak-1-1/bin/SafeExec/safeexec.h
+3c3
+< 
+---
+> #include "parser.h"
+5c5
+< 
+---
+> #define SLOTS 128
+7a8,9
+>   char name[IDLEN + 1];
+> 
+19d20
+< 
+22d22
+< 
+Only in ../mooshak/mooshak-1-1/bin/SafeExec/: safeexec.h~
+Only in ../mooshak/mooshak-1-1/bin/SafeExec/: safeexec.o
+Only in ../mooshak/mooshak-1-1/bin/SafeExec/: safe.h~
+Only in ../mooshak/mooshak-1-1/bin/SafeExec/: safe.o
+Only in ./tests: execute.sh
+Only in ../mooshak/mooshak-1-1/bin/SafeExec/: wrapper.c
+Only in ../mooshak/mooshak-1-1/bin/SafeExec/: wrapper.c~
+Only in ../mooshak/mooshak-1-1/bin/SafeExec/: wrapper.h
+Only in ../mooshak/mooshak-1-1/bin/SafeExec/: wrapper.h~
+Only in ../mooshak/mooshak-1-1/bin/SafeExec/: wrapper.o

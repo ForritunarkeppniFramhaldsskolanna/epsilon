@@ -1,0 +1,38 @@
+#!/bin/bash
+
+JAIL=/opt/epsilon/judge/jail
+USERS=( epsilon-judge-{1,2,3,4} )
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+mkdir $JAIL
+
+cp $DIR/SafeExec/safeexec /usr/bin/safeexec
+
+jk_init -v -c $DIR/config.ini -j $JAIL basicshell safeexec python2 python3 java mono perl ruby fpc haskell
+
+chmod +s $JAIL/usr/bin/safeexec
+rm -f /usr/bin/safeexec
+
+mkdir $JAIL/tmp
+chmod a+rwx $JAIL/tmp
+
+# for safeexec semaphore
+mkdir -p $JAIL/dev/shm
+chmod a+rwx $JAIL/dev/shm
+
+mkdir -p $JAIL/run
+mount -o bind /run $JAIL/run
+
+mkdir $JAIL/proc
+mount /proc $JAIL/proc -t proc
+
+# For Java
+cp $JAIL/usr/lib/jvm/java-7-openjdk/jre/lib/amd64/jli/libjli.so $JAIL/lib/
+
+for USER in ${USERS[@]}
+do
+    useradd -d /home/$USER -m -s /bin/bash $USER
+    jk_jailuser -m -j $JAIL -s /bin/bash $USER
+    chmod 755 $JAIL/home/$USER
+done
+

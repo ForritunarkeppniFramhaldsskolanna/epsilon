@@ -1,0 +1,39 @@
+{% extends "main.html" %}
+{% block title %}
+{{ contest.title }} - submission {{ submission.id }}
+{% endblock %}
+{% block content %}
+    <h3>Details for submission {{ submission.id }}</h3>
+    <h5>Team {{ submission.team }}, problem {{ contest.problems[submission.problem].title }}, submitted at {{ submission.submitted | format_time }}</h5>
+    {# <pre><code>{{ submission.file }}</code></pre> #}
+    <textarea id="source_code">{{ submission.file }}</textarea>
+    <hr />
+    <h4>Verdict: {{ submission.verdict }}</h4>
+    <hr />
+    {% if submission.judge_response != None %}
+        {{ submission.judge_response | safe }}
+    {% endif %}
+{% endblock %}
+{% block below %}
+<style type="text/css">
+    .CodeMirror {
+        height: auto;
+        overflow-x: auto;
+        overflow-y: hidden;
+    }
+</style>
+<script type="text/javascript">
+
+    jQuery(function ($) {
+
+        CodeMirror.fromTextArea($('#source_code')[0], {
+            'mode': '{{ contest.languages[submission.language].highlight }}',
+            'theme': 'ambiance',
+            'readOnly': 'nocursor',
+            'lineNumbers': true
+        });
+
+    });
+
+</script>
+{% endblock %}

@@ -1,0 +1,244 @@
+{% extends "main.html" %}
+{% block title %}
+{{ contest.title }} - {{ problem.title }}
+{% endblock %}
+{% block content %}
+
+    <div class="problem">
+
+        <div id="problem_description">
+
+            <h1>{{ problem.title }}</h1>
+
+            {{ problem.statement | safe }}
+
+            {% for i, x in enumerate(problem.examples) %}
+                {% if len(problem.examples) > 1 %}
+                    <h2>Example {{ i+1 }}</h2>
+                {% else %}
+                    <h2>Example</h2>
+                {% endif %}
+
+                <table class="example table table-bordered">
+                    <tr>
+                        <th>Input</th>
+                        <th>Output</th>
+                    </tr>
+                    <tr>
+                        <td><pre>{{ x.input }}</pre></td>
+                        <td><pre>{{ x.output }}</pre></td>
+                    </tr>
+                </table>
+            {% endfor %}
+
+        </div>
+
+        {% if problem.id in phase.submit_problems %}
+            <form id="problem_form" class="form-horizontal" action="" method="post" enctype="multipart/form-data">
+                <fieldset>
+                    <div id="legend">
+                        <legend><h2>Submit</h2></legend>
+                    </div>
+
+                    {% if team %}
+                        <div class="control-group">
+                            <label class="control-label" for="language">Language</label>
+                            <div class="controls">
+                                <select name="language" id="language">
+                                    <option value="not selected">Choose language</option>
+                                    {% for _, lang in sorted(contest.languages.items()) %}
+                                        <option {{ 'selected' if lang.name == team.last_used_language else '' }} value="{{ lang.name }}">{{ lang.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="control-label" for="source_code">Source code</label>
+                            <div id="code_wrapper">
+                                <textarea name="source_code" id="source_code" class="clear: both" rows="5"></textarea>
+                            </div>
+                            <div id="code_buttons" class="btn-group">
+                                <button id="code_normal_mode" class="btn btn-default btn-mini active">Normal</button>
+                                <button id="code_vim_mode" class="btn btn-default btn-mini">Vim</button>
+                                <button id="code_emacs_mode" class="btn btn-default btn-mini">Emacs</button>
+                                <button id="code_fullscreen" class="btn btn-default btn-mini"><span class="icon icon-fullscreen"></span></button>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label class="control-label" for="source_file">Or choose file</label>
+                            <div class="controls">
+                                <input type="file" name="source_file" id="source_file" />
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <div class="controls">
+                                <button class="btn btn-success">Submit</button>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div>Sorry. You have to be <a href="{{ url_for('login') }}">logged in</a> to submit your solution.</div>
+                    {% endif %}
+                </fieldset>
+            </form>
+        {% endif %}
+    </div>
+{% endblock %}
+{% block below %}
+<style type="text/css">
+    .CodeMirror {
+        clear: both;
+        position: relative;
+    }
+
+    #code_wrapper {
+        margin-top: 10px;
+        margin-bottom: 30px;
+    }
+
+    #code_buttons {
+        position: absolute;
+        right: 0;
+        top: 0;
+        display: none;
+    }
+
+    body.code_mode #header, body.code_mode #problem-list, body.code_mode #footer {
+        display: none;
+    }
+
+    body.code_mode #problem_description {
+        z-index: 100;
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        right: 50%;
+        background-color: white;
+        overflow: auto;
+        padding: 20px;
+    }
+
+    body.code_mode #code_wrapper {
+        z-index: 100;
+        position: absolute;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        background-color: white;
+        margin: 0;
+    }
+
+    body.code_mode .CodeMirror {
+        height: 100%;
+        width: 100%;
+    }
+
+</style>
+<script type="text/javascript">
+
+    jQuery(function ($) {
+
+        var none = 'not selected';
+
+        var lang_highlight = {
+            none: 'clike',
+            {% for i, lang in enumerate(contest.languages.values()) %}
+                {% if i != 0 %}
+                    ,
+                {% endif %}
+                "{{ lang.name }}":"{{ lang.highlight }}"
+            {% endfor %}
+        };
+
+        var lang_template = {
+            none: '',
+            {% for i, lang in enumerate(contest.languages.values()) %}
+                {% if i != 0 %}
+                    ,
+                {% endif %}
+                "{{ lang.name }}":"{{ lang.template.replace("\\", "\\\\").replace('"', '\"').replace("\n", "\\n") | safe }}"
+            {% endfor %}
+        };
+
+        var code = CodeMirror.fromTextArea($('#source_code')[0], {
+            'mode': 'clike',
+            'theme': 'ambiance',
+            'lineNumbers': true,
+            'indentUnit': 4
+        });
+
+        var last_lang = 'not selected';
+        var update_lang = function (e) {
+
+            lang_template[last_lang] = code.getValue();
+
+            var lang = $('#language').val();
+            code.setOption('mode', lang_highlight[lang]);
+            code.setValue(lang_template[lang]);
+            last_lang = lang;
+        };
+
+        update_lang();
+        $('#language').change(update_lang);
+
+        $('#problem_form').submit(function () {
+
+            if ($('#language').val() === none) {
+                alert('Please choose a language.');
+                return false;
+            }
+
+            return true;
+        });
+
+        $('#code_normal_mode').click(function () {
+            $('#code_normal_mode').removeClass('active');
+            $('#code_vim_mode').removeClass('active');
+            $('#code_emacs_mode').removeClass('active');
+
+            $('#code_normal_mode').addClass('active');
+            code.setOption('keyMap', 'default');
+            code.focus();
+            return false;
+        });
+
+        $('#code_vim_mode').click(function () {
+            $('#code_normal_mode').removeClass('active');
+            $('#code_vim_mode').removeClass('active');
+            $('#code_emacs_mode').removeClass('active');
+
+            $('#code_vim_mode').addClass('active');
+            code.setOption('keyMap', 'vim');
+            code.focus();
+            return false;
+        });
+
+        $('#code_emacs_mode').click(function () {
+            $('#code_normal_mode').removeClass('active');
+            $('#code_vim_mode').removeClass('active');
+            $('#code_emacs_mode').removeClass('active');
+
+            $('#code_emacs_mode').addClass('active');
+            code.setOption('keyMap', 'emacs');
+            code.focus();
+            return false;
+        });
+
+        $('#code_fullscreen').click(function () {
+            $('body').toggleClass('code_mode');
+            $('#code_fullscreen').toggleClass('active');
+            code.refresh();
+            code.focus();
+            return false;
+        });
+
+        $('#code_buttons').detach().appendTo($('.CodeMirror')).css('display', 'block');
+
+    });
+
+</script>
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}
+{{ contest.title }} - scoreboard
+{% endblock %}
+{% block body %}
+
+<div id="content">
+
+    {% if phase.frozen != None %}
+        <h4>The scoreboard has been frozen</h4>
+    {% endif %}
+
+    <table class="table table-bordered table-striped scoreboard">
+        <tr>
+            <th>#</th>
+            <th>Team</th>
+            <th>Points</th>
+            <th>Penalty</th>
+            {% for i, problem in enumerate(phase.scoreboard_problems) %}
+                {# <th>{{ contest.problems[problem].title }}</th> #}
+                <th title="{{ contest.problems[problem].title }}">{{ i+1 }}</th>
+            {% endfor %}
+        </tr>
+        {% for i, (team, points, penalty, sb) in enumerate(scoreboard) %}
+            <tr>
+                <td>
+                    {% if points > 0 %}
+                        {{ i+1 }}
+                    {% endif %}
+                </td>
+                <td>{{ contest.teams[team].title }}</td>
+                <td>{{ points }}</td>
+                <td>{{ penalty | format_time }}</td>
+                {% for p in phase.scoreboard_problems %}
+                    {% set problem = sb[p] %}
+
+                    {% if problem.solved_at != None %}
+                        <td class="ac">
+                    {% elif problem.new_submissions > 0 %}
+                        <td class="new">
+                    {% elif problem.try_count > 0 %}
+                        <td class="wa">
+                    {% else %}
+                        <td>
+                    {% endif %}
+
+                        {% if problem.solved_at == None %}
+                        --:--
+                        {% else %}
+                            {{ problem.solved_at | format_time }}
+                        {% endif %}
+
+                        {% if problem.try_count > 0 or problem.new_submissions > 0 %}
+                        ({{ problem.try_count }}{% if problem.new_submissions > 0 %}+{{ problem.new_submissions }}{% endif %})
+                        {% endif %}
+                    </td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
+
+</div>
+
+{% endblock %}
+
+{% block below %}
+<script type="text/javascript">
+    jQuery(function ($) {
+        var timeout = 10000;
+        var refresh_body = function () {
+            $('#content').load(window.location + " #content", function () {
+                setTimeout(refresh_body, timeout);
+            });
+        };
+
+        setTimeout(refresh_body, timeout);
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,15 @@
+#!/bin/bash
+
+JAIL=/opt/epsilon/judge/jail
+USERS=( epsilon-judge-{1,2,3,4} )
+
+for USER in ${USERS[@]}
+do
+    userdel $USER
+    rm -rf /home/$USER
+done
+
+umount $JAIL/proc
+umount $JAIL/run
+rm -rf $JAIL
+

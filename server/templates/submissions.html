@@ -1,0 +1,34 @@
+{% extends "main.html" %}
+{% block title %}
+{{ contest.title }} - submissions
+{% endblock %}
+{% block content %}
+    <table class="table table-condensed submissions">
+        <tr>
+            <th class="sub_id">ID</th>
+            <th class="sub_submitted">Submitted</th>
+            <th class="sub_team">Team</th>
+            <th class="sub_problem">Problem</th>
+            <th class="sub_language">Language</th>
+            <th class="sub_verdict">Verdict</th>
+            <th class="sub_time">Time</th>
+            <th class="sub_memory">Memory</th>
+        </tr>
+        {% for sub in submissions %}
+            <tr class="row-success {{ format_verdict_classes(sub.verdict) }}">
+                <td class="sub_id"><a href="{{ url_for('view_submission', sub_id=sub.id) }}">{{ sub.id }}</a></td>
+                <td class="sub_submitted">{{ sub.submitted | format_time }}</td>
+                <td class="sub_team">{{ sub.team }}</td>
+                <td class="sub_problem"><a href="{{ url_for('view_problem', problem_id=sub.problem) }}">{{ contest.problems[sub.problem].title }}</a></td>
+                <td class="sub_language">{{ sub.language }}</td>
+                <td class="sub_verdict">
+                    {% for verdict in sub.verdict.split('+') %}
+                        <span class="{{ label_class_for(verdict) }}" title="{{ verdict_explanation.get(verdict, verdict) }}">{{ verdict }}</span>
+                    {% endfor %}
+                </td>
+                <td class="sub_time">{{ '' if sub.time == None else '%d ms' % sub.time }}</td>
+                <td class="sub_memory">{{ '' if sub.memory == None else '%d KB' % sub.memory }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

@@ -1,0 +1,9 @@
+#!/bin/bash
+
+USER=$1
+PASS=$2
+DB=$3
+
+psql -c "CREATE USER $USER WITH PASSWORD '$PASS';"
+psql -c "CREATE DATABASE $DB WITH OWNER $USER";
+

@@ -1,0 +1,30 @@
+{% extends "main.html" %}
+{% block content %}
+    <div class="hero-unit offset2 span7">
+        <h1>Hello there{{ ', %s' % team.name if team else '' }}!</h1>
+        <p>
+            {% if contest.status() == contest.BEFORE_START %}
+                {% set hrs = int(1 + contest.time_to_start() / 60 / 60) %}
+                You feeling excited yet? The contest starts in less than {{ hrs }} hour{{ '' if hrs == 1 else 's' }}.
+                {% if not team %}
+                    You have to be logged in to submit your solutions, so you might as well go ahead and <a href="{{ url_for('login') }}">log in</a> now.
+                {% else %}
+                    I can see that you're already logged in. Awesome!
+                {% endif %}
+                Well, that's all for now. Good luck and may the force be with you!
+            {% elif contest.status() == contest.RUNNING %}
+                The contest has begun. Woohoo!
+                If you haven't already, go ahead and pick a problem from the list to the left.
+                {% if not team %}
+                    You don't seem to be logged in though, so you won't be able to submit your solutions.
+                    Maybe you should go ahead and <a href="{{ url_for('login') }}">log in</a> before you pick a problem?
+                {% endif %}
+                Anyway, we hope you're doing well!
+            {% else %}
+                The contest has finished. That was awesome!
+                You can take take a look at the final standings in the <a href="{{ url_for('view_scoreboard') }}">scoreboard</a>, or pick a problem from the list to the left and try for yourself.
+                We hope you enjoyed the contest!
+            {% endif %}
+        </p>
+    </div>
+{% endblock %}

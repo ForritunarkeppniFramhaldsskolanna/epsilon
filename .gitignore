@@ -1,0 +1,12 @@
+
+*.pyc
+__pycache__
+
+/judge/venv
+/judge/jail
+/judge/submissions/*
+!/judge/submissions/empty
+
+/server/venv
+/server/judges/ideone/venv
+/server/judges/temp
