@@ -84,6 +84,8 @@ class Problem:
 
     @staticmethod
     def load(path, id):
+        path = os.path.abspath(path)
+
         problem = load(path)
         md = os.path.splitext(path)[0] + '.md'
         if not os.path.isfile(md):
