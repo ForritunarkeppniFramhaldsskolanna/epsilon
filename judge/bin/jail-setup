@@ -4,11 +4,14 @@ JAIL=/opt/epsilon/judge/jail
 USERS=( epsilon-judge-{1,2,3,4} )
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-mkdir $JAIL
+#mkdir $JAIL
+#chmod 700 $JAIL
 
 cp $DIR/SafeExec/safeexec /usr/bin/safeexec
 
-jk_init -v -c $DIR/config.ini -j $JAIL basicshell safeexec python2 python3 java mono perl ruby fpc haskell
+jk_init -v -c $DIR/config.ini -j $JAIL basicshell safeexec python2 python3 java mono perl ruby fpc
+
+chmod g-w $JAIL/etc
 
 chmod +s $JAIL/usr/bin/safeexec
 rm -f /usr/bin/safeexec

@@ -12,7 +12,7 @@ FSIZE=8192        # kbytes
 STACK=8192        # kbytes
 CLOCK=60          # seconds
 
-NORMAL_USER=suprdewd:users
+NORMAL_USER=suprdewd:suprdewd
 JAIL=/opt/epsilon/judge/jail
 SUBMISSIONS=/opt/epsilon/judge/submissions
 

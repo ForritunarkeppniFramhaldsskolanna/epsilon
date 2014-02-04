@@ -29,7 +29,7 @@
         CodeMirror.fromTextArea($('#source_code')[0], {
             'mode': '{{ contest.languages[submission.language].highlight }}',
             'theme': 'ambiance',
-            'readOnly': 'nocursor',
+            'readOnly': true,
             'lineNumbers': true
         });
 
