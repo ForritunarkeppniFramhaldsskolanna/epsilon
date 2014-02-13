@@ -9,6 +9,13 @@ sys.path.append(os.path.join(DIR, '../lib'))
 import judgelib as j
 from judgelib import *
 
+def read_file(path):
+    try:
+        with open(path, 'r', encoding='utf8') as f:
+            return f.read()
+    except UnicodeDecodeError as e:
+        with open(path, 'r', encoding='latin1') as f:
+            return f.read()
 
 def execute_submission(sub_id, cpu, mem, nprocs, cmd):
 
@@ -24,9 +31,9 @@ def execute_submission(sub_id, cpu, mem, nprocs, cmd):
     retcode = proc.wait()
 
     try:
-        with open(os.path.join(DIR, '../submissions', sub_id, 'out'), 'r') as f: stdout = f.read()
-        with open(os.path.join(DIR, '../submissions', sub_id, 'err'), 'r') as f: stderr = f.read()
-        with open(os.path.join(DIR, '../submissions', sub_id, 'usage'), 'r') as f: usage = f.read()
+        stdout = read_file(os.path.join(DIR, '../submissions', sub_id, 'out'))
+        stderr = read_file(os.path.join(DIR, '../submissions', sub_id, 'err'))
+        usage = read_file(os.path.join(DIR, '../submissions', sub_id, 'usage'))
 
         os.unlink(os.path.join(DIR, '../submissions', sub_id, 'out'))
         os.unlink(os.path.join(DIR, '../submissions', sub_id, 'err'))

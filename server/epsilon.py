@@ -9,13 +9,15 @@ import yaml
 import datetime
 import time
 import functools
-from flask import Flask, g, redirect, abort, render_template, url_for, request, session, send_from_directory
+from flask import Flask, g, redirect, abort, render_template, url_for as real_url_for, request, session, send_from_directory
 from data import Contest, ScoreboardTeamProblem
 from models import *
 
 
 app = Flask(__name__)
 app.secret_key = "V=7Km+XXkg:}>4dT0('cV>Rp1TG82QEjah+X'v;^w:)a']y)^%"
+# app.config['SERVER_NAME'] = 'mooshak2.ru.is'
+# app.config['APPLICATION_ROOT'] = '/fk_2012_beta'
 
 
 verdict_explanation =  {
@@ -33,6 +35,12 @@ verdict_explanation =  {
     'CJ': 'cannot judge',
 }
 
+def url_for(path, **values):
+    res = real_url_for(path, **values)
+    if opts.prefix:
+        return opts.prefix + res
+    else:
+        return res
 
 def is_logged_in():
     return 'team' in session and session['team'] in contest.teams
@@ -93,6 +101,7 @@ def context_processor():
         enumerate=enumerate,
         len=len,
         map=map,
+        url_for=url_for,
     )
 
 @app.template_filter('format_time')
@@ -284,10 +293,12 @@ def main(argv):
     parser.add_argument('-p', '--port', default=31415, type=int, help='the port to listen on')
     parser.add_argument('-H', '--host', default='', help='the host to listen on')
     parser.add_argument('-d', '--debug', default=False, action='store_true', help='run in debug mode')
+    parser.add_argument('--prefix', default=None, help='run under prefix')
     parser.add_argument('--droptables', default=False, action='store_true', help='drop database tables and exit')
     opts = parser.parse_args(argv)
     contest = Contest.load(opts.contest)
     app.config['SQLALCHEMY_DATABASE_URI'] = contest.db
+    # app.config['APPLICATION_ROOT'] = opts.prefix
 
     for table in db.metadata.tables.values():
         table.name = '%s_%s' % (contest.id, table.name)
