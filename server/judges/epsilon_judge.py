@@ -1,6 +1,7 @@
 import sys, os, argparse, datetime, shutil
 from subprocess import Popen, PIPE
 import yaml
+sys.path.append('../../lib')
 import judgelib as j
 from judgelib import *
 

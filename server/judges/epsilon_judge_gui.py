@@ -1,6 +1,7 @@
 import time, datetime
 import sys, os, shutil
 from subprocess import Popen, PIPE, TimeoutExpired
+sys.path.append('../../lib')
 import judgelib as j
 from judgelib import *
 
