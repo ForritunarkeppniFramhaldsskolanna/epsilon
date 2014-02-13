@@ -284,6 +284,7 @@ def main(argv):
     parser.add_argument('-p', '--port', default=31415, type=int, help='the port to listen on')
     parser.add_argument('-H', '--host', default='', help='the host to listen on')
     parser.add_argument('-d', '--debug', default=False, action='store_true', help='run in debug mode')
+    parser.add_argument('--droptables', default=False, action='store_true', help='drop database tables and exit')
     opts = parser.parse_args(argv)
     contest = Contest.load(opts.contest)
     app.config['SQLALCHEMY_DATABASE_URI'] = contest.db
@@ -292,7 +293,14 @@ def main(argv):
         table.name = '%s_%s' % (contest.id, table.name)
 
     db.init_app(app)
-    # db.drop_all(app=app)
+
+    if opts.droptables:
+        print('You are about to drop the database tables for contest %s!!!' % contest.id)
+        if input('Are you sure you want to continue? (y/N) ').lower() == 'y':
+            db.drop_all(app=app)
+
+        return 0
+
     db.create_all(app=app)
     app.run(host=opts.host, port=opts.port, debug=opts.debug)
 
