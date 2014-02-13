@@ -1,4 +1,4 @@
-import yaml, datetime, imp, time, os
+import yaml, datetime, imp, time, os, random
 from sqlalchemy import create_engine, or_, Column, Integer, String, Text, DateTime, ForeignKey, Boolean
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
@@ -140,7 +140,7 @@ def start(process_submission):
             while True:
                 sess = db()
                 try:
-                    time.sleep(SUBMISSION_WAIT / 1000.0)
+                    time.sleep(SUBMISSION_WAIT / 1000.0 + random.random())
                     get_before = datetime.datetime.now() - datetime.timedelta(0, SUBMISSION_JUDGE_TIMEOUT / 1000.0)
                     # TODO: do something smarter for concurrency
                     qsub = sess.query(SubmissionQueue).filter(or_(SubmissionQueue.last_announce == None, SubmissionQueue.last_announce < get_before)).first()
@@ -204,7 +204,7 @@ def start(process_submission):
             time.sleep(60) # wait for a minute
         except Exception as e:
             logger.exception(e)
-            time.sleep(SUBMISSION_WAIT / 1000.0)
+            time.sleep(SUBMISSION_WAIT / 1000.0 + random.random())
 
 def get_all_submissions():
     db_engine = create_engine(DB_CONN_STRING, convert_unicode=True)
