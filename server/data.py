@@ -66,10 +66,11 @@ class Team:
         return teams, groups
 
 class Example:
-    def __init__(self, input, output, explanation=None):
+    def __init__(self, input, output, explanation=None, display='normal'):
         self.input = input
         self.output = output
         self.explanation = explanation
+        self.display = display
 
 class Problem:
     def __init__(self, id, title, statement, examples, assets):
@@ -114,7 +115,8 @@ class Problem:
                 Example(
                     input=x.get('input', ''),
                     output=x.get('output', ''),
-                    explanation=x.get('explanation')
+                    explanation=x.get('explanation'),
+                    display=x.get('display','normal')
                 ) for x in problem.get('examples', [])
             ],
             assets=assets
@@ -189,7 +191,7 @@ class Contest:
     RUNNING = 1
     FINISHED = 2
 
-    def __init__(self, id, title, db, start, duration, teams, problems, languages, phases, groups):
+    def __init__(self, id, title, db, start, duration, teams, problems, languages, phases, groups, register=False):
         self.id = id
         self.title = title
         self.db = db
@@ -200,6 +202,7 @@ class Contest:
         self.languages = languages
         self.phases = phases
         self.groups = groups
+        self.register = register
 
     def time_elapsed(self):
         return (datetime.datetime.now() - self.start).total_seconds()
@@ -242,6 +245,7 @@ class Contest:
             problems={ problem.id: problem for problem in Problem.load_all(path) },
             languages={ lang.name: lang for lang in Language.load_all(path) },
             phases=None,
+            register=contest.get('register', False)
         )
 
         res.phases = [ (k, Phase.load(res, k, v)) for k,v in sorted(contest['phases'].items()) ]

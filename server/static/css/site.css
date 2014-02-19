@@ -90,6 +90,10 @@ table a {
     padding: 0;
 }
 
+#problem_description {
+    overflow: hidden;
+}
+
 #content table.scoreboard th, #content .scoreboard td {
     text-align: center;
 }

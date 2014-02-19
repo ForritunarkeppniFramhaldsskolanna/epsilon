@@ -21,6 +21,9 @@
                     </li>
                 {% else %}
                     <li><a href="{{ url_for('login') }}"><i class="icon-user"></i> Log in</a></li>
+                    {% if contest.register %}
+                        <li><a href="{{ url_for('register') }}"><i class="icon-plus-sign"></i> Register</a></li>
+                    {% endif %}
                 {% endif %}
             </ul>
         </div>

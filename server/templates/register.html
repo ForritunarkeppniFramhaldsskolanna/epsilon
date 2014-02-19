@@ -4,20 +4,17 @@
 <form class="form-horizontal" action="" method="post">
     <fieldset>
         <div id="legend">
-            <legend class="">Log in</legend>
+            <legend class="">Register</legend>
         </div>
 
-        {% if registered %}
-            <div class="alert alert-success">
-                <h4>Registration successful!</h4>
-                Welcome! Go ahead and log in.
-            </div>
-        {% endif %}
-
-        {% if bad_login %}
+        {% if error %}
             <div class="alert alert-error">
-                <h4>Bad credentials!</h4>
-                Make sure you typed in the correct password.
+                <h4>Registration unsuccessful!</h4>
+                <ul>
+                    {% for e in error %}
+                        <li>{{ e }}</li>
+                    {% endfor %}
+                </ul>
             </div>
         {% endif %}
 
@@ -36,8 +33,15 @@
         </div>
 
         <div class="control-group">
+            <label class="control-label" for="confirm_password">Confirm password</label>
             <div class="controls">
-                <button class="btn btn-success">Log in</button>
+                <input type="password" id="confirm_password" name="confirm_password" placeholder="" class="input-xlarge">
+            </div>
+        </div>
+
+        <div class="control-group">
+            <div class="controls">
+                <button class="btn btn-success">Register</button>
             </div>
         </div>
     </fieldset>

@@ -9,6 +9,7 @@ import yaml
 import datetime
 import time
 import functools
+import re
 from flask import Flask, g, redirect, abort, render_template, url_for as real_url_for, request, session, send_from_directory
 from data import Contest, ScoreboardTeamProblem
 from models import *
@@ -253,8 +254,8 @@ def get_problem_asset(problem_id, asset):
 @app.route('/login/', methods={'GET', 'POST'})
 def login():
     goto = request.args.get('next', url_for('index'))
+    registered = request.args.get('register', 'False') == 'True'
     team_name = ''
-    password = ''
     bad_login = False
     if is_logged_in():
         return redirect(goto)
@@ -267,12 +268,60 @@ def login():
         else:
             session.pop('team', '')
             bad_login = True
-    return render_template('login.html', team_name=team_name, bad_login=bad_login)
+    return render_template('login.html', team_name=team_name, bad_login=bad_login, registered=registered)
 
 @app.route('/logout/')
 def logout():
     session.pop('team', '')
     return redirect(url_for('index'))
+
+def _register_team(name, password):
+    global opts
+    global contest
+
+    with open(os.path.join(opts.contest, 'teams.yml'), 'r') as f:
+        inp = f.read()
+
+    with open(os.path.join(opts.contest, 'teams.yml'), 'w') as f:
+        for line in inp.strip().split('\n'):
+            f.write(line + '\n')
+            if line.strip() == 'teams:':
+                f.write('    "%s": {pass: "%s", location: unknown, groups:[all]}\n' % (name, password))
+
+    contest = Contest.load(opts.contest)
+
+@app.route('/register/', methods={'GET', 'POST'})
+def register():
+    global contest
+    if not contest.register or is_logged_in(): abort(404)
+
+    team_name = ''
+    error = []
+
+    if request.method == 'POST':
+        team_name = request.form['team']
+        password = request.form['password']
+        confirm_password = request.form['confirm_password']
+
+        rx = '^[-_A-Za-z0-9 ]{3,20}$'
+        if not re.match(rx, team_name):
+           error.append('Team name is illegal (it must match %s).' % rx)
+
+        if team_name in contest.teams:
+           error.append('Team name is already taken.')
+
+        rx = '^[-_A-Za-z0-9 ]{5,20}$'
+        if not re.match(rx, password):
+           error.append('Password is illegal (it must match %s).' % rx)
+
+        if password != confirm_password:
+           error.append('Password confirmation was incorrect.')
+
+        if not error:
+            _register_team(team_name, password)
+            return redirect(url_for('login', register='True'))
+
+    return render_template('register.html', team_name=team_name, error=error)
 
 # TODO: make sure only works on localhost, IT DOESNT SEEM TO WORK (probably because of nginx layer)
 @app.route('/_reload/')

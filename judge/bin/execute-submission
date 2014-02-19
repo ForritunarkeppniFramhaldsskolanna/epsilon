@@ -12,7 +12,7 @@ FSIZE=8192        # kbytes
 STACK=8192        # kbytes
 CLOCK=60          # seconds
 
-NORMAL_USER=suprdewd:suprdewd
+NORMAL_USER=suprdewd:users
 JAIL=/opt/epsilon/judge/jail
 SUBMISSIONS=/opt/epsilon/judge/submissions
 
@@ -21,26 +21,13 @@ cp -r "$SUBMISSIONS/$SUB_ID" "$JAIL/home/$USER"
 chown -R "$USER:$GROUP" "$JAIL/home/$USER/$SUB_ID"
 chmod -R a+r "$JAIL/home/$USER/$SUB_ID"       # TODO: is this really necessary?
 chmod -f a+x "$JAIL/home/$USER/$SUB_ID/a.out" # TODO: is this really necessary?
-
-# chroot --userspec="$USER:$GROUP" "$JAIL" /bin/bash -c "
-#     cd /home/$USER/$SUB_ID
-#     /opt/epsilon/safeexec \
-#         --usage /tmp/usage-$USER \
-#         --cpu $CPU \
-#         --mem $MEM \
-#         --core $CORE \
-#         --nproc $NPROC \
-#         --fsize $FSIZE \
-#         --stack $STACK \
-#         --clock $CLOCK \
-#         --exec $CMD <in 1>out 2>err
-# "
-
-# jk_chrootlaunch -j "$JAIL" -u "$USER" -x /bin/bash
+chmod -f a+x "$JAIL/home/$USER/$SUB_ID/Main.exe" # TODO: is this really necessary?
+chmod -f a+x "$JAIL/home/$USER/$SUB_ID/execute.sh" # TODO: is this really necessary?
+chmod -f a+x "$JAIL/home/$USER/$SUB_ID/prog" # TODO: is this really necessary?
 
 jk_chrootlaunch -j "$JAIL" -u "$USER" -x /bin/bash -- -c "
     cd /home/$USER/$SUB_ID
-    safeexec \
+    /opt/epsilon/judge/bin/SafeExec/safeexec \
         --usage /tmp/usage-$USER \
         --cpu $CPU \
         --mem $MEM \

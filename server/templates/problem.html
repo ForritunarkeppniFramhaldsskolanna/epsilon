@@ -19,16 +19,40 @@
                     <h2>Example</h2>
                 {% endif %}
 
-                <table class="example table table-bordered">
-                    <tr>
-                        <th>Input</th>
-                        <th>Output</th>
-                    </tr>
-                    <tr>
-                        <td><pre>{{ x.input }}</pre></td>
-                        <td><pre>{{ x.output }}</pre></td>
-                    </tr>
-                </table>
+                {% if x.display == 'normal' %}
+                    <table class="example table table-bordered">
+                        <tr>
+                            <th>Input</th>
+                            <th>Output</th>
+                        </tr>
+                        <tr>
+                            <td><pre>{{ x.input }}</pre></td>
+                            <td><pre>{{ x.output }}</pre></td>
+                        </tr>
+                    </table>
+                {% elif x.display == 'large' %}
+                    <table class="example table table-bordered">
+                        <tr>
+                            <th>Input</th>
+                        </tr>
+                        <tr>
+                            <td><pre>{{ x.input }}</pre></td>
+                        </tr>
+                    </table>
+                    <table class="example table table-bordered">
+                        <tr>
+                            <th>Output</th>
+                        </tr>
+                        <tr>
+                            <td><pre>{{ x.output }}</pre></td>
+                        </tr>
+                    </table>
+                {% endif %}
+
+                {% if x.explanation %}
+                    <h4>Explanation</h4>
+                    <p>{{ x.explanation }}</p>
+                {% endif %}
             {% endfor %}
 
         </div>
