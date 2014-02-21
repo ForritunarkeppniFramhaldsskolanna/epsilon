@@ -6,7 +6,7 @@ import argparse
 DIR = os.path.abspath(os.path.dirname(__file__))
 
 parser = argparse.ArgumentParser(description='An install script for epsilon.')
-parser.add_argument('--prefix', default='/opt/epsilon2', help='the prefix that epsilon should be insalled under') # TODO: change to /opt/epsilon
+parser.add_argument('--prefix', default='/opt/epsilon2', help='the prefix that epsilon should be installed under') # TODO: change to /opt/epsilon
 parser.add_argument('--noserver', default=False, action='store_true', help='don\'t install server')
 parser.add_argument('--nojudge', default=False, action='store_true', help='don\'t install judge')
 parser.add_argument('--nojail', default=False, action='store_true', help='don\'t build judge jail')
