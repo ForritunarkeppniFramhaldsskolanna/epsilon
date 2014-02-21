@@ -6,8 +6,7 @@ DIR=__EPSILON_PREFIX__/judge
 # TODO: this isn't very neat, maybe copy safeexec manually into the jail?
 cp $DIR/SafeExec/safeexec /usr/bin/safeexec
 
-# jk_init -v -c $DIR/config.ini -j $JAIL basicshell safeexec python2 python3 java mono perl ruby fpc js
-jk_init -v -c $DIR/config.ini -j $JAIL basicshell safeexec js
+jk_init -v -c $DIR/config.ini -j $JAIL basicshell safeexec python2 python3 java mono perl ruby fpc js
 
 chmod g-w $JAIL/etc
 
