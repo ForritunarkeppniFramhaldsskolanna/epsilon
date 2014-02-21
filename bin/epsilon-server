@@ -1,0 +1,5 @@
+#!/bin/bash
+
+source __EPSILON_PREFIX__/server/venv/bin/activate
+python __EPSILON_PREFIX__/server/epsilon.py $*
+

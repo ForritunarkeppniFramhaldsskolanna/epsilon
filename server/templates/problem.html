@@ -51,7 +51,7 @@
 
                 {% if x.explanation %}
                     <h4>Explanation</h4>
-                    <p>{{ x.explanation }}</p>
+                    <p>{{ x.explanation | safe }}</p>
                 {% endif %}
             {% endfor %}
 

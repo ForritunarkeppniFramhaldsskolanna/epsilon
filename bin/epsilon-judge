@@ -1,0 +1,5 @@
+#!/bin/bash
+
+source __EPSILON_PREFIX__/judge/venv/bin/activate
+python __EPSILON_PREFIX__/judge/automatic-judge.py $*
+

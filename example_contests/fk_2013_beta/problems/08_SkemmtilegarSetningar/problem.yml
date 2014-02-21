@@ -1,0 +1,17 @@
+title: "Skemmtilegar Setningar"
+examples:
+    - input: |
+        6
+        Hvernig gengur?
+        Forritunarkeppnin er awesome.
+        Was she early?
+        Abba Abba abba.
+        Abba babba babb.
+        John needs sugar!
+      output: |
+        Fun
+        Boring
+        Fun
+        Fun
+        Boring
+        Fun

@@ -1,0 +1,13 @@
+title: "Frumtölur"
+examples:
+    - input: |
+        4
+        1
+        5
+        15
+        100
+      output: |
+        2
+        11
+        47
+        541

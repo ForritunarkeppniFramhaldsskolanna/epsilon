@@ -1,0 +1,28 @@
+title: "Tic Tac Toe"
+examples:
+    - input: |
+        4
+        3
+        .OX
+        OOX
+        X.X
+        3
+        O.O
+        XOX
+        XXO
+        5
+        O...X
+        O...X
+        O...X
+        O...X
+        O...X
+        4
+        ...O
+        ..OX
+        ..XX
+        O..X
+      output: |
+        X won
+        O won
+        Error
+        Neither won

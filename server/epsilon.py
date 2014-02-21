@@ -1,6 +1,5 @@
-#!/usr/bin/python3
 import os, sys
-DIR = os.path.dirname(os.path.realpath(__file__))
+DIR = "__EPSILON_PREFIX__/server"
 sys.path.append(DIR)
 
 import argparse
@@ -17,9 +16,6 @@ from models import *
 
 app = Flask(__name__)
 app.secret_key = "V=7Km+XXkg:}>4dT0('cV>Rp1TG82QEjah+X'v;^w:)a']y)^%"
-# app.config['SERVER_NAME'] = 'mooshak2.ru.is'
-# app.config['APPLICATION_ROOT'] = '/fk_2012_beta'
-
 
 verdict_explanation =  {
     'QU': 'in queue',
@@ -347,7 +343,6 @@ def main(argv):
     opts = parser.parse_args(argv)
     contest = Contest.load(opts.contest)
     app.config['SQLALCHEMY_DATABASE_URI'] = contest.db
-    # app.config['APPLICATION_ROOT'] = opts.prefix
 
     for table in db.metadata.tables.values():
         table.name = '%s_%s' % (contest.id, table.name)

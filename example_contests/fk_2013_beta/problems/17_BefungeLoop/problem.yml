@@ -1,0 +1,35 @@
+title: "Befunge Loop"
+examples:
+    - input: |
+        6
+        >.............v
+        ^.............<
+        #
+        >.............v
+        ^@............<
+        #
+        ><
+        #
+        >@
+        #
+        >vv.........<
+        v<.v.<...>.v.
+        .v<..........
+        .......@.....
+        .............
+        ...>.....^...
+        .>...^.^...<.
+        >...........^
+        #
+        vv.<v
+        .>v.v
+        .v<.v
+        >>.^@
+        #
+      output: |
+        Infinite loop
+        Terminates
+        Infinite loop
+        Terminates
+        Terminates
+        Infinite loop

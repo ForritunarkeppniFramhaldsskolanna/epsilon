@@ -1,0 +1,3 @@
+sqlalchemy >= 0.8.2
+pyyaml >= 3.10
+psycopg2 >= 2.5.1

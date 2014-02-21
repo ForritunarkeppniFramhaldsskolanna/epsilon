@@ -1,0 +1,114 @@
+id: fk_2013_test
+title: FK 2013 - Beta deild
+# db: postgresql://test_contest_user:JBIkZ?xek04%5Z_k&J04@algo.is:5432/test_contest
+db: postgresql://test_contest_user:JBIkZ?xek04%5Z_k&J04@localhost:5432/test_contest
+# db: postgresql://fk_2013:HvadErIGanginum@algo.is:5432/test_contest
+# start: 2013-08-16 23:25:00.672329
+# start: 2013-11-10 18:17:00.000
+# start: 2013-12-17 05:25:00.000
+start: 2012-01-31 10:27:00.000
+duration: 503700
+balloons: True
+phases:
+    -30:
+        status: "Keppni ekki hafin"
+        countdown: 30
+    0:
+        status: "Fyrir hádegi"
+        countdown: 180
+        problems:
+            - 01_TengdurListi: [visible, submit, scoreboard]
+            - 02_OendanlegRuna: [visible, submit, scoreboard]
+            - 03_FermatsLastTheorem: [visible, submit, scoreboard]
+            - 04_SierpinskiTriangle: [visible, submit, scoreboard]
+            - 05_KonunglegurMatur: [visible, submit, scoreboard]
+            - 06_Frumtolur: [visible, submit, scoreboard]
+            - 07_FatahengiSveinsLitla: [visible, submit, scoreboard]
+            - 08_SkemmtilegarSetningar: [visible, submit, scoreboard]
+            - 09_TicTacToe: [visible, submit, scoreboard]
+            - 10_Bitmask: [visible, submit, scoreboard]
+    180:
+        status: "Hádegishlé"
+        countdown: 60
+    240:
+        status: "Eftir hádegi"
+        countdown: 180
+        problems:
+            - "Eftir hádegi"
+            - 11_Sort: [visible, submit, scoreboard]
+            - 12_Thyngdarflokkur: [visible, submit, scoreboard]
+            - 13_Breytunafn: [visible, submit, scoreboard]
+            - 14_SamliggjandiTolur: [visible, submit, scoreboard]
+            - 15_Margfoldun: [visible, submit, scoreboard]
+            - 16_Sqrt: [visible, submit, scoreboard]
+            - 17_BefungeLoop: [visible, submit, scoreboard]
+            - 18_FostudagurinnThrettandi: [visible, submit, scoreboard]
+            - 19_Maurar: [visible, submit, scoreboard]
+            - 20_Pyramidi: [visible, submit, scoreboard]
+            - "Fyrir hádegi"
+            - 01_TengdurListi: [visible, submit]
+            - 02_OendanlegRuna: [visible, submit]
+            - 03_FermatsLastTheorem: [visible, submit]
+            - 04_SierpinskiTriangle: [visible, submit]
+            - 05_KonunglegurMatur: [visible, submit]
+            - 06_Frumtolur: [visible, submit]
+            - 07_FatahengiSveinsLitla: [visible, submit]
+            - 08_SkemmtilegarSetningar: [visible, submit]
+            - 09_TicTacToe: [visible, submit]
+            - 10_Bitmask: [visible, submit]
+    420:
+        status: "Keppni lokið - Verðlaunaafhending"
+        countdown: 60
+    480:
+        status: "Keppni lokið"
+        problems:
+            - "Fyrir hádegi"
+            - 01_TengdurListi: [visible, scoreboard]
+            - 02_OendanlegRuna: [visible, scoreboard]
+            - 03_FermatsLastTheorem: [visible, scoreboard]
+            - 04_SierpinskiTriangle: [visible, scoreboard]
+            - 05_KonunglegurMatur: [visible, scoreboard]
+            - 06_Frumtolur: [visible, scoreboard]
+            - 07_FatahengiSveinsLitla: [visible, scoreboard]
+            - 08_SkemmtilegarSetningar: [visible, scoreboard]
+            - 09_TicTacToe: [visible, scoreboard]
+            - 10_Bitmask: [visible, scoreboard]
+            - "Eftir hádegi"
+            - 11_Sort: [visible, scoreboard]
+            - 12_Thyngdarflokkur: [visible, scoreboard]
+            - 13_Breytunafn: [visible, scoreboard]
+            - 14_SamliggjandiTolur: [visible, scoreboard]
+            - 15_Margfoldun: [visible, scoreboard]
+            - 16_Sqrt: [visible, scoreboard]
+            - 17_BefungeLoop: [visible, scoreboard]
+            - 18_FostudagurinnThrettandi: [visible, scoreboard]
+            - 19_Maurar: [visible, scoreboard]
+            - 20_Pyramidi: [visible, scoreboard]
+    500:
+        status: "Mjá"
+        countdown: 5000000
+        # frozen: 600
+        problems:
+            - "Fyrir hádegi"
+            - 01_TengdurListi: [visible, submit, scoreboard]
+            - 02_OendanlegRuna: [visible, submit, scoreboard]
+            - 03_FermatsLastTheorem: [visible, submit, scoreboard]
+            - 04_SierpinskiTriangle: [visible, submit, scoreboard]
+            - 05_KonunglegurMatur: [visible, submit, scoreboard]
+            - 06_Frumtolur: [visible, submit, scoreboard]
+            - 07_FatahengiSveinsLitla: [visible, submit, scoreboard]
+            - 08_SkemmtilegarSetningar: [visible, submit, scoreboard]
+            - 09_TicTacToe: [visible, submit, scoreboard]
+            - 10_Bitmask: [visible, submit, scoreboard]
+            - "Eftir hádegi"
+            - 11_Sort: [visible, submit, scoreboard]
+            - 12_Thyngdarflokkur: [visible, submit, scoreboard]
+            - 13_Breytunafn: [visible, submit, scoreboard]
+            - 14_SamliggjandiTolur: [visible, submit, scoreboard]
+            - 15_Margfoldun: [visible, submit, scoreboard]
+            - 16_Sqrt: [visible, submit, scoreboard]
+            - 17_BefungeLoop: [visible, submit, scoreboard]
+            - 18_FostudagurinnThrettandi: [visible, submit, scoreboard]
+            - 19_Maurar: [visible, submit, scoreboard]
+            - 20_Pyramidi: [visible, submit, scoreboard]
+

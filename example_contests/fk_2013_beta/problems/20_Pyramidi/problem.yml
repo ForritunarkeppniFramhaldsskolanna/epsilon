@@ -1,0 +1,13 @@
+title: "Pýramídi"
+examples:
+    - input: |
+        4
+        31
+        10
+        2
+        1234572
+      output: |
+        7 3
+        4 0
+        1 1
+        1570 1337

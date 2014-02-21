@@ -1,0 +1,14 @@
+title: "Konunglegur Matur"
+examples:
+    - input: |
+        2
+        8 4 4 2 2
+        100 50 50 50 50
+      output: |
+        Queen
+        Same
+      explanation: |
+        <p>Í fyrra prófunartilvikinu eru kóngurinn og drottningin staðsett á reitnum <tt>(4,4)</tt>, en búðin er staðsett á reitnum <tt>(2,2)</tt>. Þá getur drottningin farið í búðina í einu skrefi, á meðan kóngurinn þarf tvö skref til að fara í búðina.</p>
+
+        <p>Í seinna prófunartilvikinu eru kóngurinn og drottningin staðsett á reitnum <tt>(50,50)</tt>, en það er sami reitur og búðin er á. Bæði drottningin og kóngurinn þurfa því bæði engin skref til að fara í búðina.</p>
+

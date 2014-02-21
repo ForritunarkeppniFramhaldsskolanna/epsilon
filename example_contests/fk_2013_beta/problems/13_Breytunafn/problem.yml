@@ -1,0 +1,17 @@
+title: "Breytunafn"
+examples:
+    - input: |
+        6
+        hello
+        x
+        _Test123
+        10x
+        width!height
+        Color Of Horse
+      output: |
+        Valid
+        Valid
+        Valid
+        Invalid
+        Invalid
+        Invalid

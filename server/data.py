@@ -5,6 +5,8 @@ import markdown
 import mdx_mathjax
 from os.path import join as pjoin
 
+processor = markdown.Markdown(extensions=['mathjax'])
+
 def load(path):
     with open(path) as f:
         return yaml.load(f)
@@ -72,6 +74,9 @@ class Example:
         self.explanation = explanation
         self.display = display
 
+        if self.explanation is not None:
+            self.explanation = processor.convert(self.explanation)
+
 class Problem:
     def __init__(self, id, title, statement, examples, assets):
         self.id = id
@@ -95,7 +100,6 @@ class Problem:
         with open(md, encoding='utf-8') as f:
             statement = f.read()
 
-        processor = markdown.Markdown(extensions=['mathjax'])
         statement = processor.convert(statement)
 
         if os.path.isdir(pjoin(os.path.dirname(path), 'assets')):

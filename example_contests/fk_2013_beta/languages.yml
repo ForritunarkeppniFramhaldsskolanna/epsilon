@@ -1,0 +1,109 @@
+"C++ (g++ 4.8.0)":
+    filename: "sol.cpp"
+    # compile: ["/usr/bin/g++", "-static", "-Wall", "-O2", "sol.cpp"]
+    compile: ["/opt/epsilon/judge/scripts/compile_cpp.sh"]
+    execute: ["./a.out"]
+    highlight: 'clike'
+    template: |
+        #include<iostream>
+        using namespace std;
+
+        int main()
+        {
+
+            return 0;
+        }
+"C (gcc 4.8.2)":
+    filename: "sol.c"
+    # compile: ["/usr/bin/gcc", "-static", "-Wall", "-O2", "sol.c"]
+    compile: ["/opt/epsilon/judge/scripts/compile_c.sh"]
+    execute: ["./a.out"]
+    highlight: 'clike'
+    template: |
+        #include<stdio.h>
+
+        int main()
+        {
+
+            return 0;
+        }
+"Python 3.3.2":
+    filename: "sol.py"
+    compile: ["/opt/epsilon/judge/scripts/compile_py3.sh"]
+    execute: ["/usr/bin/python3", "sol.py"]
+    highlight: 'python'
+"Python 2.7.5":
+    filename: "sol.py"
+    compile: ["/opt/epsilon/judge/scripts/compile_py2.sh"]
+    execute: ["/usr/bin/python2", "sol.py"]
+    highlight: 'python'
+"Ruby 2.0.0":
+    filename: "sol.rb"
+    compile: ["/opt/epsilon/judge/scripts/compile_rb.sh"]
+    execute: ["/usr/bin/ruby", "sol.rb"]
+    highlight: 'ruby'
+    nprocs: 3
+"Java (javac 1.7.0_45)":
+    filename: "Main.java"
+    # compile: ["/usr/bin/javac", "Main.java"]
+    # execute: ["/usr/bin/java", "-Xrs", "-Xss8m", "-Xmx1280M", "-Xms128M", "Main"]
+    compile: ["/opt/epsilon/judge/scripts/compile_java_javac_detect.sh"]
+    execute: ["./execute.sh"]
+    min_mem: 4000000
+    nprocs: 15
+    highlight: 'clike'
+    template: |
+        import java.util.*;
+        import java.math.*;
+        import java.io.*;
+
+        public class Main {
+            public static void main(String[] args) throws Exception {
+                Scanner in = new Scanner(System.in);
+                PrintWriter out = new PrintWriter(System.out, true);
+
+            }
+        }
+"C# (mono dmcs 3.2.3.0)":
+    filename: "Main.cs"
+    # compile: ["/usr/bin/dmcs", "-r:System.Numerics.dll", "Main.cs"]
+    compile: ["/opt/epsilon/judge/scripts/compile_csharp.sh"]
+    execute: ["/usr/bin/mono", "Main.exe"]
+    min_mem: 4000000
+    nprocs: 15
+    highlight: 'clike'
+    template: |
+        using System;
+
+        public class Program
+        {
+            public static void Main()
+            {
+
+            }
+        }
+"Pascal (fpc 1.0.4)":
+    filename: "sol.pas"
+    compile: ["/opt/epsilon/judge/scripts/compile_pl.sh"]
+    execute: ["./prog"]
+    highlight: 'pascal'
+"Perl (v5.10.0)":
+    filename: "sol.pl"
+    compile: ["/opt/epsilon/judge/scripts/compile_pl.sh"]
+    execute: ["/usr/bin/perl", "sol.pl"]
+    highlight: 'perl'
+"JavaScript (SpiderMonkey 24)":
+    filename: "sol.js"
+    compile: ["/opt/epsilon/judge/scripts/compile_js.sh"]
+    execute: ["/usr/bin/js", "-f", "sol.js"]
+    nprocs: 4
+    highlight: 'javascript'
+# "Haskell (ghc 7.6.3)":
+#     filename: "sol.hs"
+#     compile: ["/usr/bin/ghc", "-O", "--make", "sol"]
+#     execute: ["./sol"]
+#     min_mem: 4000000
+#     highlight: "haskell"
+#     template: |
+#         main = do
+

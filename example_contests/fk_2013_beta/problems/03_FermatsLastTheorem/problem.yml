@@ -1,0 +1,9 @@
+title: "Fermat's Last Theorem"
+examples:
+    - input: |
+        2
+        3
+        42
+      output: |
+        no solutions when n = 3
+        no solutions when n = 42

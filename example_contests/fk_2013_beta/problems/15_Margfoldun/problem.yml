@@ -1,0 +1,15 @@
+title: "Margföldun"
+examples:
+    - input: |
+        5
+        8 3 24
+        6 7 43
+        0 8 1
+        17 13 221
+        1 1 1
+      output: |
+        True
+        False
+        False
+        True
+        True

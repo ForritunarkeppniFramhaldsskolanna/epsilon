@@ -1,0 +1,87 @@
+title: "Föstudagurinn Þrettándi"
+examples:
+    - input: |
+        5
+        2013
+        2012
+        2077
+        2078
+        34567
+      output: |
+        2
+        3
+        1
+        1
+        3
+      explanation: |
+        <p>Dagurinn í dag, 16. mars 2013, er laugardagur. Fjöldi daga í hverjum mánuði eru settir upp í eftirfarandi töflu:</p>
+
+        <table class="months">
+            <tr>
+                <td style="border-bottom:1px solid black;padding:0 10px">Mánuður</td>
+                <td style="border-bottom:1px solid black;padding:0 10px">Dagar</td>
+                <td style="border-bottom:1px solid black;padding:0 10px">Dagar á hlaupaári</td>
+            </tr>
+            <tr>
+                <td class="first">Janúar</td>
+                <td>31</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td class="first">Febrúar</td>
+                <td>28</td>
+                <td>29</td>
+            </tr>
+            <tr>
+                <td class="first">Mars</td>
+                <td>31</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td class="first">Apríl</td>
+                <td>30</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td class="first">Maí</td>
+                <td>31</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td class="first">Júní</td>
+                <td>30</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td class="first">Júlí</td>
+                <td>31</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td class="first">Ágúst</td>
+                <td>31</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td class="first">September</td>
+                <td>30</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td class="first">Október</td>
+                <td>31</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td class="first">Nóvember</td>
+                <td>30</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td class="first">Desember</td>
+                <td>31</td>
+                <td></td>
+            </tr>
+        </table>
+
+        <p>Árið <tt>Y</tt> er hlaupaár ef <tt>Y</tt> deilanlegt með <tt>4</tt>. En ef <tt>Y</tt> er líka deilanlegt með <tt>100</tt>, þá er það ekki hlaupaár. En ef <tt>Y</tt> er líka deilanlegt með <tt>400</tt>, þá er það aftur hlaupaár.</p>

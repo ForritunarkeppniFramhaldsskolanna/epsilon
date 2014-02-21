@@ -1,0 +1,24 @@
+title: "Sort"
+examples:
+    - input: |
+        4
+        2 3 1 4
+        1 2 3 4
+        10 -8 4 7 7 8 9
+        -8 4 7 7 9 8 10
+        10 11 12
+        10 11 12
+        1 2 3 4
+        5 6 7 8
+      output: |
+        Accepted
+        Wrong Answer
+        Accepted
+        Wrong Answer
+      explanation:
+        <ol>
+            <li>Listinn <tt>1 2 3 4</tt> er augljóslega raðaða útgáfan af listanum <tt>2 3 1 4</tt>, og þess vegna er svarið <tt>Accepted</tt></lit>
+            <li>Svarið væri <tt>Accepted</tt> ef skipt væri á 8 og 9</li>
+            <li>Listinn var raðaður, og er rétta svarið því listinn sjálfur. Þetta gefur því <tt>Accepted</tt></li>
+            <li>Seinni listinn er ekki raðaða útgáfan af fyrri listanum, en hann inniheldur ekki einu sinni sömu heiltölur</li>
+        </ol>

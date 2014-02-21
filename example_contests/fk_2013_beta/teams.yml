@@ -1,0 +1,51 @@
+teams:
+    "test": {pass: "test", location: unknown, groups:[allir,other]}
+    "bjarki": {pass: "meow", location: unknown, groups:[allir,hr]}
+    "team01": {pass: "pass01", location: unknown, groups:[allir,other]}
+    "team02": {pass: "pass02", location: unknown, groups:[allir,other]}
+    "team03": {pass: "pass03", location: unknown, groups:[allir,other]}
+    "team04": {pass: "pass04", location: unknown, groups:[allir,other]}
+    "team05": {pass: "pass05", location: unknown, groups:[allir,other]}
+    "tomas": {pass: "blomas", location: unknown, groups:[allir,hr]}
+    "hjalti": {pass: "viggnir", location: unknown, groups:[allir,hr]}
+    "diddi": {pass: "ardal", location: unknown, groups:[allir,hr]}
+    "gerdur": {pass: "mekkinator", location: unknown, groups:[allir,hr]}
+    "helgi": {pass: "kristvinator", location: unknown, groups:[allir,hr]}
+    "raggi": {pass: "ardal", location: unknown, groups:[allir,hr]}
+
+    "furgleblurp": {pass: "FaranlegtPassword", location: unknown, groups:[allir,fram,ts]}
+    "Sharper_Than_C": {title: "Sharper Than C", pass: "FaranlegtPassword", location: unknown, groups:[allir,fram,ts]}
+    "The_Keyboard_Warriors": {title: "The Keyboard Warriors", pass: "FaranlegtPassword", location: unknown, groups:[allir,fram,ts]}
+    "Finu_Flottu_Forritararnir": {title: "Fínu Flottu Forritararnir", pass: "FaranlegtPassword", location: unknown, groups:[allir,fram,vma]}
+    "Glas": {pass: "FaranlegtPassword", location: unknown, groups:[allir,fram,ts]}
+    "ya_bissh": {title: "ya bissh", pass: "FaranlegtPassword", location: unknown, groups:[allir,fram,ts]}
+    "Codebusters": {pass: "FaranlegtPassword", location: unknown, groups:[allir,fram,mh,fs]}
+    "AFK": {pass: "FaranlegtPassword", location: unknown, groups:[allir,fram,fs]}
+    "Neisti": {pass: "FaranlegtPassword", location: unknown, groups:[allir,fram,fs]}
+    "Team_Hand_Banana": {title: "Team Hand Banana", pass: "FaranlegtPassword", location: unknown, groups:[allir,fram,ts]}
+    "Edl1_eda_ekki_neitt": {title: "Eðl1 eða ekki neitt", pass: "FaranlegtPassword", location: unknown, groups:[allir,fram,mr]}
+    "ThreeManTrain": {pass: "FaranlegtPassword", location: unknown, groups:[allir,fram,ts]}
+    "400": {pass: "FaranlegtPassword", location: unknown, groups:[allir,fram,mh]}
+    "Kings_of_MR": {title: "Kings of MR", pass: "FaranlegtPassword", location: unknown, groups:[allir,fram,mr]}
+    "Ljonar": {title: "Ljónar", pass: "FaranlegtPassword", location: unknown, groups:[allir,fram,mr]}
+    "FVA": {pass: "FaranlegtPassword", location: unknown, groups:[allir,fram,fva]}
+    "CodeMafia": {pass: "FaranlegtPassword", location: unknown, groups:[allir,fram,ts]}
+    "Spliff_Donk_og_Gengja": {title: "Spliff Donk og Gengja", pass: "FaranlegtPassword", location: unknown, groups:[allir,fram,ts]}
+
+    "kari": {pass: "FaranlegtPassword", location: unknown, groups:[allir,hr]}
+    "elisabet": {pass: "FaranlegtPassword", location: unknown, groups:[allir,hr]}
+    "olafurpg": {pass: "FaranlegtPassword", location: unknown, groups:[allir,hr]}
+    "trausti": {pass: "FaranlegtPassword", location: unknown, groups:[allir,hr]}
+
+groups:
+    "allir": "Allir"
+    "fram": "Framhaldsskólar"
+    "ts": "Tækniskólinn"
+    "vma": "Verkmenntaskólinn á Akureyri"
+    "fva": "FVA"
+    "fs": "Fjölbrautaskóli Suðurlands"
+    "mr": "Menntaskólinn í Reykjavík"
+    "mh": "Menntaskólinn við Hamrahlíð"
+    "hr": "Háskólinn í Reykjavík"
+    "other": "Aðrir"
+

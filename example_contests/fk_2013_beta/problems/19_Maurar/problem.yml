@@ -1,0 +1,11 @@
+title: "Maurar"
+examples:
+    - input: |
+        2
+        10 3
+        2 6 7
+        214 7
+        11 12 7 13 176 23 191
+      output: |
+        4 8
+        38 207
