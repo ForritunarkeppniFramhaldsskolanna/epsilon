@@ -1,0 +1,5 @@
+
+- set a limit on the max number of lines shown in diff (otherwise difflib is really slow)
+- add C++11
+- find out what happened to System.Numerics.dll
+
