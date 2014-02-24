@@ -1,7 +1,8 @@
 import sys, os, argparse, datetime, shutil
 from subprocess import Popen, PIPE
 import yaml
-sys.path.append('../../lib')
+DIR = os.path.realpath(os.path.dirname(__file__))
+sys.path.append(os.path.join(DIR, '../../lib'))
 import judgelib as j
 from judgelib import *
 
@@ -197,6 +198,9 @@ def main(argv):
     opts = parser.parse_args(argv)
 
     config = j.load(opts.config)
+
+    j.set_contest_id(config['contest_id'])
+
     j.DB_CONN_STRING = config['db_conn_string']
     j.TESTS_DIR = os.path.abspath(os.path.join(os.path.dirname(opts.config), config['tests_dir']))
     j.LANGUAGES_FILE = os.path.abspath(os.path.join(os.path.dirname(opts.config), config['languages_file']))

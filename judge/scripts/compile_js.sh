@@ -11,6 +11,6 @@ if grep '^#!' "$FILE" >/dev/null 2>&1 ; then
 fi
 
 # Check syntax
-js -C "$FILE"
+js -c "$FILE"
 exit $?
 
