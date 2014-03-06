@@ -3,6 +3,7 @@ import sys, os, shutil, difflib, signal
 from subprocess import Popen, PIPE, TimeoutExpired
 
 DIR = "__EPSILON_PREFIX__/judge"
+MAX_DIFF = 400
 
 sys.path.append(os.path.join(DIR, '../lib'))
 import judgelib as j
@@ -199,11 +200,23 @@ def process_submission(sub, check, time_limit, memory_limit, language, tests):
 
                         if DISPLAY_DIFF:
                             judge_response += """<h5>Output</h5>"""
+
+                            linesa = stdout.split('\n')
+                            linesb = test.output.split('\n')
+                            trunc = False
+                            if len(linesa) > MAX_DIFF or len(linesb) > MAX_DIFF:
+                                trunc = True
+                                linesa = linesa[:MAX_DIFF]
+                                linesb = linesb[:MAX_DIFF]
+
                             judge_response += difflib.HtmlDiff(tabsize=4).make_table(
-                                    stdout.split('\n'),
-                                    test.output.split('\n'),
+                                    linesa,
+                                    linesb,
                                     'Obtained',
                                     'Expected')
+
+                            if trunc:
+                                judge_response += "<p>Note that the output was truncated.</p>"
 
             else:
                 # Nooo, some verdict I don't know about

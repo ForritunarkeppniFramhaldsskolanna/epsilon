@@ -1,9 +1,11 @@
 
-- set a limit on the max number of lines shown in diff (otherwise difflib is really slow)
 - add C++11
 - find out what happened to System.Numerics.dll
 - fix --prefix for /_reload and sign in request when submitting
 - test submissions from last years contest (after diff limit has been implemented), make sure verdicts are similar
 - implement judge interface on the server
 - make sure setup scripts work on ubuntu
+
+DONE:
+- set a limit on the max number of lines shown in diff (otherwise difflib is really slow)
 
