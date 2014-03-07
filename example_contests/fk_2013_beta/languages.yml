@@ -98,6 +98,10 @@
     execute: ["/usr/bin/js", "-f", "sol.js"]
     nprocs: 4
     highlight: 'javascript'
+"Octave (3.8.0)":
+    filename: "sol.m"
+    execute: ["/usr/bin/octave", "--silent", "--no-window-system", "--no-history", "--no-gui", "--no-init-file", "--no-line-editing", "--no-site-file", "--norc", "sol.m"]
+    highlight: 'octave'
 # "Haskell (ghc 7.6.3)":
 #     filename: "sol.hs"
 #     compile: ["/usr/bin/ghc", "-O", "--make", "sol"]
@@ -106,4 +110,3 @@
 #     highlight: "haskell"
 #     template: |
 #         main = do
-

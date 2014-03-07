@@ -35,7 +35,7 @@ class Language:
             langs.append(Language(
                 name=name,
                 filename=lang['filename'],
-                compile=lang['compile'],
+                compile=lang.get('compile'),
                 execute=lang['execute'],
                 highlight=lang['highlight'],
                 template=lang.get('template', '')))
