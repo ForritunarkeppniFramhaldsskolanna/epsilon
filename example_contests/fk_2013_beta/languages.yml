@@ -50,7 +50,7 @@
     compile: ["/opt/epsilon/judge/scripts/compile_java_javac_detect.sh"]
     execute: ["./execute.sh"]
     min_mem: 4000000
-    nprocs: 15
+    nprocs: 30
     highlight: 'clike'
     template: |
         import java.util.*;
@@ -70,7 +70,7 @@
     compile: ["/opt/epsilon/judge/scripts/compile_csharp.sh"]
     execute: ["/usr/bin/mono", "Main.exe"]
     min_mem: 4000000
-    nprocs: 15
+    nprocs: 30
     highlight: 'clike'
     template: |
         using System;
