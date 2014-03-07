@@ -58,16 +58,30 @@ def do_checkout(opts, parser):
 
         os.mkdir(str(opts.id))
         with open(os.path.join(str(opts.id), 'submission.yaml'), 'w') as f:
-            f.write('id: %d\n' % sub.id)
-            f.write('team: %s\n' % sub.team)
-            f.write('problem: %s\n' % sub.problem)
-            f.write('submitted: %s\n' % sub.submitted)
-            f.write('verdict: %s\n' % sub.verdict)
-            f.write('judge_response: %s\n' % sub.judge_response)
-            f.write('language:\n')
-            f.write('    name: %s\n' % sub.language)
-            f.write('    compile: %s\n' % lang['compile'])
-            f.write('    execute: %s\n' % lang['execute'])
+            f.write(yaml.dump({
+                'id': sub.id,
+                'team': sub.team,
+                'problem': sub.problem,
+                'submitted': sub.submitted,
+                'verdict': sub.verdict,
+                'judge_response': sub.judge_response,
+                'language': {
+                    'name': sub.language,
+                    'compile': sub.compile,
+                    'execute': sub.execute
+                }
+            }))
+
+            # f.write('id: %d\n' % sub.id)
+            # f.write('team: %s\n' % sub.team)
+            # f.write('problem: %s\n' % sub.problem)
+            # f.write('submitted: %s\n' % sub.submitted)
+            # f.write('verdict: %s\n' % sub.verdict)
+            # f.write('judge_response: %s\n' % sub.judge_response)
+            # f.write('language:\n')
+            # f.write('    name: %s\n' % sub.language)
+            # f.write('    compile: %s\n' % lang['compile'])
+            # f.write('    execute: %s\n' % lang['execute'])
 
         with open(os.path.join(str(opts.id), lang['filename']), 'w') as f:
             f.write(sub.file)
