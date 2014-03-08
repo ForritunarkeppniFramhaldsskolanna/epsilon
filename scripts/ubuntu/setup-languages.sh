@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sudo apt-get install g++ gcc python2.7 openjdk-7-jdk openjdk-7-jre mono-dmcs fpc perl octave3.2
+sudo apt-get install g++ gcc python2.7 openjdk-7-jdk openjdk-7-jre fpc perl octave3.2
 
 # Ruby
 if ! hash ruby 2>/dev/null
@@ -32,4 +32,15 @@ then
     cd ../../../..
     sudo rm -rf js
 fi
+
+# C#
+mkdir cs
+cd cs
+git clone https://github.com/mono/mono.git
+cd mono
+./autogen.sh --prefix /usr/local
+make
+sudo make install
+cd ../..
+rm -rf cs
 
