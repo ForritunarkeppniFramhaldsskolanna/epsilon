@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 import os, sys, shutil, fnmatch, subprocess, pwd
 import argparse
@@ -6,7 +6,7 @@ import argparse
 DIR = os.path.abspath(os.path.dirname(__file__))
 
 parser = argparse.ArgumentParser(description='An install script for epsilon.')
-parser.add_argument('--prefix', default='/opt/epsilon2', help='the prefix that epsilon should be installed under') # TODO: change to /opt/epsilon
+parser.add_argument('--prefix', default='/opt/epsilon', help='the prefix that epsilon should be installed under')
 parser.add_argument('--noserver', default=False, action='store_true', help='don\'t install server')
 parser.add_argument('--nojudge', default=False, action='store_true', help='don\'t install judge')
 parser.add_argument('--nojail', default=False, action='store_true', help='don\'t build judge jail')
@@ -40,7 +40,32 @@ KEY_EXPAND = [
     # '*.html'
     './bin/epsilon-judge',
     './bin/epsilon-server',
+    '*.ini',
 ]
+
+EXECUTABLES = {
+    # Programming languages
+    'JS': ['js', 'js24'],
+    'PYTHON2': ['python2', 'python2.7'],
+    'PYTHON3': ['python3', 'python3.3', 'python3.2'],
+    'GPP': ['g++'],
+    'GCC': ['gcc'],
+    'RUBY': ['ruby'],
+    'PERL': ['perl'],
+    'JAVAC': ['javac'],
+    'JAVA': ['java'],
+    'DMCS': ['dmcs'],
+    'MONO': ['mono'],
+    'PASCAL': ['fpc'],
+    'OCTAVE': ['octave'],
+
+    # Other executables
+    'BASH': ['bash'],
+    'SH': ['sh'],
+    'LOCALE': ['locale'],
+    'LOCALE_GEN': ['locale-gen'],
+    'LOCALEDEF': ['localedef'],
+}
 
 def log(txt):
     sys.stdout.write("%s\n" % txt)
@@ -49,12 +74,21 @@ def fatal(error):
     sys.stderr.write('error: %s\n' % error)
     sys.exit(1)
 
-def sh(cmd, cwd=None):
+def sh(cmd, cwd=None, die=True):
     global opts
     if cwd is None: cwd = opts.prefix
     sub = subprocess.Popen(cmd, cwd=cwd)
-    if not sub.wait() == 0:
+    if sub.wait() != 0 and die:
         fatal('command failed: %s' % ' '.join(cmd))
+
+def sh_com(cmd, stdin, cwd=None, die=True):
+    global opts
+    if cwd is None: cwd = opts.prefix
+    sub = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, cwd=cwd)
+    stdout, stderr = sub.communicate(stdin)
+    if sub.returncode != 0 and die:
+        fatal('command failed: %s' % ' '.join(cmd))
+    return stdout.decode('utf-8')
 
 def updateperms(path):
     global opts
@@ -165,8 +199,48 @@ def setup_virtualenv(path):
         pip install -r requirements.txt
     '''], cwd=path)
 
+def prepare():
+
+    log('resolving executable paths')
+    for key_name, exec_paths in EXECUTABLES.items():
+        found = None
+        for exec_path in exec_paths:
+            if exec_path.startswith('/'):
+                if os.path.isfile(exec_path) and os.access(exec_path, os.X_OK):
+                    found = exec_path
+            else:
+                found = shutil.which(exec_path)
+
+            if found is not None:
+                break
+
+        if found is None:
+            fatal('no path found for executable %s' % key_name)
+        else:
+            KEYS['EXE_' + key_name] = found
+            log('path for executable %s is %s' % (key_name, found))
+            ldd = sh_com(['ldd', found], None, cwd='/', die=False)
+            libs = []
+            if ldd.strip() != 'not a dynamic executable':
+                for line in ldd.strip().split('\n'):
+                    sline = line.split('(')[0].strip()
+                    if '=>' in sline:
+                        rest = sline.split('=>')[1].strip()
+                        if rest:
+                            libs.append(rest)
+                    else:
+                        libs.append(sline)
+
+            if libs:
+                KEYS['LIBS_' + key_name] = ', ' + ', '.join(libs)
+                log('libraries for %s are %s' % (key_name, ', '.join(libs)))
+            else:
+                KEYS['LIBS_' + key_name] = ''
+
 def install():
     global opts
+
+    prepare()
 
     if not os.path.isdir(opts.prefix):
         os.makedirs(opts.prefix)
@@ -184,7 +258,7 @@ def install():
         update('./server')
         setup_virtualenv('./server/')
     else:
-        os.unlink(os.path.join(os.prefix, './bin/epsilon-server'))
+        os.unlink(os.path.join(opts.prefix, './bin/epsilon-server'))
 
     if not opts.nojudge:
         log('files for the judge')
@@ -200,7 +274,7 @@ def install():
 
         setup_virtualenv('./judge')
     else:
-        os.unlink(os.path.join(os.prefix, './bin/epsilon-judge'))
+        os.unlink(os.path.join(opts.prefix, './bin/epsilon-judge'))
 
     log('')
     log('')
