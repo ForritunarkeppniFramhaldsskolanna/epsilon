@@ -48,7 +48,7 @@ chmod -f a+x "$JAIL/home/$USER/$SUB_ID/prog" # TODO: is this really necessary?
 su "$USER" -c "
     export LANG=\"en_US.UTF-8\"
     cd /home/$USER/$SUB_ID
-    /usr/bin/safeexec \
+    __EPSILON_EXE_SAFEEXEC__ \
         --usage /tmp/usage-$USER \
         --cpu $CPU \
         --mem $MEM \

@@ -57,14 +57,36 @@ EXECUTABLES = {
     'DMCS': ['dmcs'],
     'MONO': ['mono'],
     'PASCAL': ['fpc'],
+    'PASCAL_PPC': ['ppcx64', 'ppc386'],
     'OCTAVE': ['octave'],
+    'OCTAVE_CLI': ['octave-cli'],
 
     # Other executables
+    'SAFEEXEC': ['safeexec'],
     'BASH': ['bash'],
     'SH': ['sh'],
     'LOCALE': ['locale'],
     'LOCALE_GEN': ['locale-gen'],
     'LOCALEDEF': ['localedef'],
+    'LDCONFIG': ['ldconfig'],
+    'LDCONFIG_REAL': ['ldconfig.real'],
+}
+
+OPTIONAL_EXECUTABLES = {
+    'OCTAVE_CLI',
+    'PASCAL_PPC',
+    'LDCONFIG_REAL',
+}
+
+PROG_LANGS = {
+    ('js', 'JS'),
+    ('python2', 'PYTHON2'),
+    ('python3', 'PYTHON3'),
+    ('ruby', 'RUBY'),
+    ('perl', 'PERL'),
+    ('java', 'JAVA'),
+    ('mono', 'MONO'),
+    ('octave', 'OCTAVE'),
 }
 
 def log(txt):
@@ -128,7 +150,7 @@ def copy(path):
             if txt[tat] == '_' and txt[tat+1] == '_':
                 cnt = 0
                 at = tat + 2
-                while at + cnt + 1 < len(txt) and (ord('A') <= ord(txt[at + cnt]) <= ord('Z') or txt[at + cnt] == '_'):
+                while at + cnt + 1 < len(txt) and (ord('A') <= ord(txt[at + cnt]) <= ord('Z') or txt[at + cnt] == '_' or ord('0') <= ord(txt[at + cnt]) <= ord('9')):
                     if txt[at + cnt] == '_' and txt[at + cnt + 1] == '_':
                         break
                     cnt += 1
@@ -137,10 +159,12 @@ def copy(path):
                 if (at + cnt + 1 < len(txt)
                     and txt[at + cnt] == '_'
                     and txt[at + cnt + 1] == '_'
-                    and txt[at:at+len(pre)] == pre
-                    and txt[at+len(pre):at+cnt] in KEYS):
-                    res += KEYS[txt[at+len(pre):at+cnt]]
-                    tat += cnt + 4
+                    and txt[at:at+len(pre)] == pre):
+                    if txt[at+len(pre):at+cnt] in KEYS:
+                        res += KEYS[txt[at+len(pre):at+cnt]]
+                        tat += cnt + 4
+                    else:
+                        fatal('key %s not found' % txt[at+len(pre):at+cnt])
                 else:
                     res += txt[tat]
                     tat += 1
@@ -215,7 +239,11 @@ def prepare():
                 break
 
         if found is None:
-            fatal('no path found for executable %s' % key_name)
+            if key_name in OPTIONAL_EXECUTABLES:
+                KEYS['EXE_' + key_name] = ''
+                KEYS['LIBS_' + key_name] = ''
+            else:
+                fatal('no path found for executable %s' % key_name)
         else:
             KEYS['EXE_' + key_name] = found
             log('path for executable %s is %s' % (key_name, found))
@@ -237,8 +265,16 @@ def prepare():
             else:
                 KEYS['LIBS_' + key_name] = ''
 
+        if key_name in OPTIONAL_EXECUTABLES:
+            KEYS['OPT_EXE_' + key_name] = ', ' + found if found else ''
+
 def install():
     global opts
+
+    log('installing safeexec')
+    sh(['make'], cwd=os.path.join(DIR, 'judge/SafeExec'))
+    sh(['make', 'install'], cwd=os.path.join(DIR, 'judge/SafeExec'))
+    sh(['make', 'clean'], cwd=os.path.join(DIR, 'judge/SafeExec'))
 
     prepare()
 
@@ -263,14 +299,21 @@ def install():
     if not opts.nojudge:
         log('files for the judge')
         update('./judge')
-        log('building SafeExec')
-        sh(['make'], cwd=os.path.join(opts.prefix, './judge/SafeExec'))
+        #log('building SafeExec')
+        #sh(['make'], cwd=os.path.join(opts.prefix, './judge/SafeExec'))
 
         if not opts.nojail:
             log('destroying the jail, if it exists')
             sh(['./jail-destroy.sh'], cwd=os.path.join(opts.prefix, './judge'))
             log('creating the jail')
             sh(['./jail-setup.sh'], cwd=os.path.join(opts.prefix, './judge'))
+
+            log('creating symlinks for programming languages')
+            sh(['mkdir', os.path.join(opts.prefix, 'judge/jail/bin/lang/')])
+            for lang, key_name in PROG_LANGS:
+                sh(['ln', '-s', KEYS['EXE_' + key_name], os.path.join(opts.prefix, 'judge/jail/bin/lang/' + lang)])
+
+            #sh(['jk_chrootlaunch', '-j', os.path.join(opts.prefix, 'judge/jail'), '-u', 'root', '-x', '/bin/bash'], cwd='/')
 
         setup_virtualenv('./judge')
     else:
@@ -294,12 +337,15 @@ def install():
 def uninstall():
     global opts
 
-    if os.path.exists(os.path.join(opts.prefix, './judge')):
+    if os.path.exists(os.path.join(opts.prefix, 'judge/jail-destroy.sh')):
         log('destroying the jail')
-        sh(['./jail-destroy.sh'], cwd=os.path.join(opts.prefix, './judge'))
+        sh(['./jail-destroy.sh'], cwd=os.path.join(opts.prefix, 'judge'))
 
     log('erasing the whole prefix directory')
     shutil.rmtree(opts.prefix, ignore_errors=True)
+
+    log('uninstalling safeexec')
+    sh(['make', 'uninstall'], cwd=os.path.join(DIR, 'judge/SafeExec'))
 
 if opts.action == 'install':
     install()

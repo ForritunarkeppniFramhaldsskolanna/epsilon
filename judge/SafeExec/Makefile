@@ -6,7 +6,13 @@ all:
 	gcc $(CFLAGS) -o os-detect os-detect.c -Wall -ansi -pedantic
 	gcc $(CFLAGS) -lrt -lpthread -pthread -c safeexec.c `./os-detect` -Wall -ansi -pedantic
 	gcc $(CFLAGS) -lrt -lpthread -pthread -o safeexec error.o safeexec.o safe.o -Wall -ansi -pedantic
-	chmod +s safeexec
+
+install:
+	cp -f safeexec /usr/bin/safeexec
+	chmod +s /usr/bin/safeexec
+
+uninstall:
+	rm -f /usr/bin/safeexec
 
 clean:
 	rm -rf *.o safeexec os-detect

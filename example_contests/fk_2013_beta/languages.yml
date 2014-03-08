@@ -30,17 +30,17 @@
 "Python 3.3.2":
     filename: "sol.py"
     compile: ["/opt/epsilon/judge/scripts/compile_py3.sh"]
-    execute: ["/usr/bin/python3", "sol.py"]
+    execute: ["/bin/lang/python3", "sol.py"]
     highlight: 'python'
 "Python 2.7.5":
     filename: "sol.py"
     compile: ["/opt/epsilon/judge/scripts/compile_py2.sh"]
-    execute: ["/usr/bin/python2", "sol.py"]
+    execute: ["/bin/lang/python2", "sol.py"]
     highlight: 'python'
 "Ruby 2.0.0":
     filename: "sol.rb"
     compile: ["/opt/epsilon/judge/scripts/compile_rb.sh"]
-    execute: ["/usr/bin/ruby", "sol.rb"]
+    execute: ["/bin/lang/ruby", "sol.rb"]
     highlight: 'ruby'
     nprocs: 3
 "Java (javac 1.7.0_45)":
@@ -68,7 +68,7 @@
     filename: "Main.cs"
     # compile: ["/usr/bin/dmcs", "-r:System.Numerics.dll", "Main.cs"]
     compile: ["/opt/epsilon/judge/scripts/compile_csharp.sh"]
-    execute: ["/usr/bin/mono", "Main.exe"]
+    execute: ["/bin/lang/mono", "Main.exe"]
     min_mem: 4000000
     nprocs: 30
     highlight: 'clike'
@@ -90,17 +90,17 @@
 "Perl (v5.10.0)":
     filename: "sol.pl"
     compile: ["/opt/epsilon/judge/scripts/compile_pl.sh"]
-    execute: ["/usr/bin/perl", "sol.pl"]
+    execute: ["/bin/lang/perl", "sol.pl"]
     highlight: 'perl'
 "JavaScript (SpiderMonkey 24)":
     filename: "sol.js"
     compile: ["/opt/epsilon/judge/scripts/compile_js.sh"]
-    execute: ["/usr/bin/js", "-f", "sol.js"]
+    execute: ["/bin/lang/js", "-f", "sol.js"]
     nprocs: 4
     highlight: 'javascript'
 "Octave (3.8.0)":
     filename: "sol.m"
-    execute: ["/usr/bin/octave", "--silent", "--no-window-system", "--no-history", "--no-gui", "--no-init-file", "--no-line-editing", "--no-site-file", "--norc", "sol.m"]
+    execute: ["/bin/lang/octave", "--silent", "--no-window-system", "--no-history", "--no-gui", "--no-init-file", "--no-line-editing", "--no-site-file", "--norc", "sol.m"]
     highlight: 'octave'
 # "Haskell (ghc 7.6.3)":
 #     filename: "sol.hs"
