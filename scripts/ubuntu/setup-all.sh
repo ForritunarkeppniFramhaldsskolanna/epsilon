@@ -4,7 +4,7 @@
 sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) universe"
 sudo apt-get update
 
-sudo apt-get install vim git-core libpq-dev libssl-dev autoconf automake autotools-dev mono-gmcs
+sudo apt-get install -y vim git-core libpq-dev libssl-dev libtool autoconf automake autotools-dev mono-gmcs
 
 ./setup-python3.3.sh
 ./setup-jailkit.sh

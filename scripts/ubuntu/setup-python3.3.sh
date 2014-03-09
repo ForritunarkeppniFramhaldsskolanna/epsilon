@@ -5,7 +5,7 @@ then
     mkdir python
     cd python
 
-    sudo apt-get install libreadline-dev libsqlite3-dev libbz2-dev libgdbm-dev liblzma-dev libssl-dev
+    sudo apt-get install -y libreadline-dev libsqlite3-dev libbz2-dev libgdbm-dev liblzma-dev libssl-dev
 
     wget http://www.python.org/ftp/python/3.3.4/Python-3.3.4.tgz
     tar xf Python-3.3.4.tgz
