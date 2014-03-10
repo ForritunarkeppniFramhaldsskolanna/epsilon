@@ -8,7 +8,7 @@ function run_test {
     echo "5" > $SUB/in
     echo "-3" >> $SUB/in
     # user_no normal_user sub_no cpu_seconds mem_kbytes nproc cmd
-    sudo $DIR/judge/execute-submission.sh 1 bjarkig12:bjarkig12 1337 3 8000000 30 "$1"
+    sudo $DIR/judge/execute-submission.sh 1 $(whoami) 1337 3 8000000 30 "$1"
     exit_code=$?
     diff $SUB/out <(echo "2")
     [ $exit_code ] || (echo "error" && exit 1)
@@ -71,7 +71,8 @@ run_test "/bin/lang/mono Main.exe"
 echo "Pascal"
 mkdir $SUB
 cd add
-fpc sol.pas
+fpc -osol sol.pas 2>&1 >/dev/null
+rm -f sol.o
 cd ..
 mv add/sol $SUB
 run_test "./sol"
