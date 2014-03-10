@@ -84,7 +84,7 @@
         }
 "Pascal (fpc 1.0.4)":
     filename: "sol.pas"
-    compile: ["/opt/epsilon/judge/scripts/compile_pl.sh"]
+    compile: ["/opt/epsilon/judge/scripts/compile_pas.sh"]
     execute: ["./prog"]
     highlight: 'pascal'
 "Perl (v5.10.0)":
@@ -100,7 +100,7 @@
     highlight: 'javascript'
 "Octave (3.8.0)":
     filename: "sol.m"
-    execute: ["/bin/lang/octave", "--silent", "--no-window-system", "--no-history", "--no-gui", "--no-init-file", "--no-line-editing", "--no-site-file", "--norc", "sol.m"]
+    execute: ["/bin/lang/octave", "--silent", "--no-window-system", "--no-history", "--no-init-file", "--no-line-editing", "--no-site-file", "--norc", "sol.m"]
     highlight: 'octave'
 # "Haskell (ghc 7.6.3)":
 #     filename: "sol.hs"

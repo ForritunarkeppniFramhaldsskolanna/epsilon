@@ -41,6 +41,8 @@ cp $JAIL/usr/lib/jvm/java-7-openjdk-i386/jre/lib/i386/libjava.so $JAIL/lib/
 
 # For Octave
 #cp $JAIL/usr/lib/openmpi/* $JAIL/usr/lib
+cp $JAIL/usr/lib/libblas.so.3 $JAIL/usr/lib/libblas.so.3gf
+cp $JAIL/usr/lib/liblapack.so.3 $JAIL/usr/lib/liblapack.so.3gf
 
 for ((i=1; i<=__EPSILON_JUDGE_USERS__; i++))
 do
