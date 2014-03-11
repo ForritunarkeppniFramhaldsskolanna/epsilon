@@ -1,4 +1,0 @@
-# db_conn_string: 'postgresql://test_contest_user:JBIkZ?xek04%5Z_k&J04@localhost:5432/test_contest'
-db_conn_string: 'postgresql://test_contest_user:JBIkZ?xek04%5Z_k&J04@algo.is:5432/test_contest'
-tests_dir: '../contests/forritunarkeppni_framhaldsskolanna_2013/tests'
-languages_file: '../contests/forritunarkeppni_framhaldsskolanna_2013/languages.yml'

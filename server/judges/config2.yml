@@ -1,3 +1,0 @@
-db_conn_string: 'postgresql://dp_training_1:ssbQjgSupuwzWLBNycKPdMQrzqwqyf@algo.is:5432/dp_training_1'
-tests_dir: '/home/suprdewd/competitive_programming/my_problems/contests/danceparty_training_1/tests'
-languages_file: '/home/suprdewd/competitive_programming/my_problems/contests/danceparty_training_1/languages.yml'
