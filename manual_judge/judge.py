@@ -208,7 +208,6 @@ def main(argv):
 
     j.DB_CONN_STRING = config['db_conn_string']
     j.TESTS_DIR = os.path.abspath(os.path.join(os.path.dirname(opts.config), config['tests_dir']))
-    j.LANGUAGES_FILE = os.path.abspath(os.path.join(os.path.dirname(opts.config), config['languages_file']))
 
     if opts.subparser_name is None:
         parser.print_help()
