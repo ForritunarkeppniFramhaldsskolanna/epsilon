@@ -1,0 +1,14 @@
+#!/usr/bin/env python3.3
+
+import os
+os.environ['PATH'] = os.environ['PATH'] + ':/meow'
+print(os.environ['PATH'])
+
+# NAME="$1"
+# CONFIG="$(realpath $2)"
+# 
+# echo $NAME
+# echo $CONFIG
+# 
+# export PATH="$PATH:/meow"
+# 

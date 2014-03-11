@@ -10,14 +10,16 @@ parser.add_argument('--prefix', default='/opt/epsilon', help='the prefix that ep
 parser.add_argument('--noserver', default=False, action='store_true', help='don\'t install server')
 parser.add_argument('--nojudge', default=False, action='store_true', help='don\'t install judge')
 parser.add_argument('--nojail', default=False, action='store_true', help='don\'t build judge jail')
+parser.add_argument('--nomanualjudge', default=False, action='store_true', help='don\'t install the manual judge')
 parser.add_argument('action', help='"install" or "uninstall"')
 opts = parser.parse_args()
 
 opts.prefix = os.path.abspath(opts.prefix).rstrip('/')
 
+BIN_PATH = '/usr/local/bin'
+
 PERMS = [
     ('*', (644, 755, 'root')),
-    # ('./judge/automatic-judge.py', (755, 755, 'root')),
     ('./judge/execute-submission.sh', (755, 755, 'root')),
     ('./judge/jail-setup.sh', (744, 744, 'root')),
     ('./judge/jail-destroy.sh', (744, 744, 'root')),
@@ -26,6 +28,8 @@ PERMS = [
     ('./server/db/setup_db.sh', (755, 755, 'root')),
     ('./bin/epsilon-judge', (755, 755, 'root')),
     ('./bin/epsilon-server', (755, 755, 'root')),
+    ('./bin/epsilon-manual-judge', (755, 755, 'root')),
+    ('./bin/epsilon-manual-judge-start', (755, 755, 'root')),
 ]
 
 KEYS = {
@@ -40,6 +44,7 @@ KEY_EXPAND = [
     # '*.html'
     './bin/epsilon-judge',
     './bin/epsilon-server',
+    './bin/epsilon-manual-judge',
     '*.ini',
 ]
 
@@ -271,6 +276,7 @@ def prepare():
 def install():
     global opts
 
+    # TODO: make this optional if not installing judge
     log('installing safeexec')
     sh(['make'], cwd=os.path.join(DIR, 'judge/SafeExec'))
     sh(['make', 'install'], cwd=os.path.join(DIR, 'judge/SafeExec'))
@@ -283,8 +289,14 @@ def install():
 
     log('installing necessary files')
     updateperms('.')
+
     log('files for the library')
     update('./lib')
+
+    log('files for the virtualenv')
+    copy('./requirements.txt')
+    updateperms('./requirements.txt')
+    setup_virtualenv('.')
 
     log('executables')
     update('./bin')
@@ -292,15 +304,12 @@ def install():
     if not opts.noserver:
         log('files for the server')
         update('./server')
-        setup_virtualenv('./server/')
-    else:
-        os.unlink(os.path.join(opts.prefix, './bin/epsilon-server'))
+        sh(['ln', '-s', os.path.join(opts.prefix, 'bin/epsilon-server'), os.path.join(BIN_PATH, 'epsilon-server')])
 
     if not opts.nojudge:
         log('files for the judge')
         update('./judge')
-        #log('building SafeExec')
-        #sh(['make'], cwd=os.path.join(opts.prefix, './judge/SafeExec'))
+        sh(['ln', '-s', os.path.join(opts.prefix, 'bin/epsilon-judge'), os.path.join(BIN_PATH, 'epsilon-judge')])
 
         if not opts.nojail:
             log('destroying the jail, if it exists')
@@ -313,23 +322,20 @@ def install():
             for lang, key_name in PROG_LANGS:
                 sh(['ln', '-s', KEYS['EXE_' + key_name], os.path.join(opts.prefix, 'judge/jail/bin/lang/' + lang)])
 
-            #sh(['jk_chrootlaunch', '-j', os.path.join(opts.prefix, 'judge/jail'), '-u', 'root', '-x', '/bin/bash'], cwd='/')
-
-        setup_virtualenv('./judge')
-    else:
-        os.unlink(os.path.join(opts.prefix, './bin/epsilon-judge'))
+    if not opts.nomanualjudge:
+        log('files for the manual judge')
+        update('./manual_judge')
+        sh(['ln', '-s', os.path.join(opts.prefix, 'bin/epsilon-manual-judge'), os.path.join(BIN_PATH, 'epsilon-manual-judge')])
 
     log('')
     log('')
     log('Installation succeeded.')
-    log('Please do the following:')
-    log('')
 
     if not opts.nojudge:
+        log('Please do the following:')
+        log('')
         log('   - append the following to /etc/sudoers (where your_username is the user who will be running epsilon judge):')
         log('        your_username ALL=(root) NOPASSWD: %s/judge/execute-submission.sh' % opts.prefix)
-
-    log('   - add %s/bin to your PATH variable' % opts.prefix)
 
     log('')
     log('')
