@@ -2,6 +2,7 @@ import yaml, datetime, imp, time, os, random
 from sqlalchemy import create_engine, or_, Column, Integer, String, Text, DateTime, ForeignKey, Boolean
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.exc import OperationalError
 from os.path import join as pjoin
 import logging
 
