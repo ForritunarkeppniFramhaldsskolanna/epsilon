@@ -1,7 +1,6 @@
 "C++ (g++ 4.8.0)":
     filename: "sol.cpp"
-    # compile: ["/usr/bin/g++", "-static", "-Wall", "-O2", "sol.cpp"]
-    compile: ["/opt/epsilon/judge/scripts/compile_cpp.sh"]
+    compile: ["__EPSILON_PREFIX__/judge/scripts/compile_cpp.sh"]
     execute: ["./a.out"]
     highlight: 'clike'
     template: |
@@ -15,8 +14,7 @@
         }
 "C (gcc 4.8.2)":
     filename: "sol.c"
-    # compile: ["/usr/bin/gcc", "-static", "-Wall", "-O2", "sol.c"]
-    compile: ["/opt/epsilon/judge/scripts/compile_c.sh"]
+    compile: ["__EPSILON_PREFIX__/judge/scripts/compile_c.sh"]
     execute: ["./a.out"]
     highlight: 'clike'
     template: |
@@ -29,25 +27,22 @@
         }
 "Python 3.3.2":
     filename: "sol.py"
-    compile: ["/opt/epsilon/judge/scripts/compile_py3.sh"]
-    execute: ["/bin/lang/python3", "sol.py"]
+    execute: ["__EPSILON_EXE_PYTHON3__", "sol.py"]
     highlight: 'python'
 "Python 2.7.5":
     filename: "sol.py"
-    compile: ["/opt/epsilon/judge/scripts/compile_py2.sh"]
-    execute: ["/bin/lang/python2", "sol.py"]
+    compile: ["__EPSILON_PREFIX__/judge/scripts/compile_py2.sh"]
+    execute: ["__EPSILON_EXE_PYTHON2__", "sol.py"]
     highlight: 'python'
 "Ruby 2.0.0":
     filename: "sol.rb"
-    compile: ["/opt/epsilon/judge/scripts/compile_rb.sh"]
-    execute: ["/bin/lang/ruby", "sol.rb"]
+    compile: ["__EPSILON_PREFIX__/judge/scripts/compile_rb.sh"]
+    execute: ["__EPSILON_EXE_RUBY__", "sol.rb"]
     highlight: 'ruby'
     nprocs: 3
 "Java (javac 1.7.0_45)":
     filename: "Main.java"
-    # compile: ["/usr/bin/javac", "Main.java"]
-    # execute: ["/usr/bin/java", "-Xrs", "-Xss8m", "-Xmx1280M", "-Xms128M", "Main"]
-    compile: ["/opt/epsilon/judge/scripts/compile_java_javac_detect.sh"]
+    compile: ["__EPSILON_PREFIX__/judge/scripts/compile_java_javac_detect.sh"]
     execute: ["./execute.sh"]
     min_mem: 4000000
     nprocs: 30
@@ -66,9 +61,8 @@
         }
 "C# (mono dmcs 3.2.3.0)":
     filename: "Main.cs"
-    # compile: ["/usr/bin/dmcs", "-r:System.Numerics.dll", "Main.cs"]
-    compile: ["/opt/epsilon/judge/scripts/compile_csharp.sh"]
-    execute: ["/bin/lang/mono", "Main.exe"]
+    compile: ["__EPSILON_PREFIX__/judge/scripts/compile_csharp.sh"]
+    execute: ["__EPSILON_EXE_MONO__", "Main.exe"]
     min_mem: 4000000
     nprocs: 30
     highlight: 'clike'
@@ -84,23 +78,23 @@
         }
 "Pascal (fpc 1.0.4)":
     filename: "sol.pas"
-    compile: ["/opt/epsilon/judge/scripts/compile_pas.sh"]
+    compile: ["__EPSILON_PREFIX__/judge/scripts/compile_pas.sh"]
     execute: ["./prog"]
     highlight: 'pascal'
 "Perl (v5.10.0)":
     filename: "sol.pl"
-    compile: ["/opt/epsilon/judge/scripts/compile_pl.sh"]
-    execute: ["/bin/lang/perl", "sol.pl"]
+    compile: ["__EPSILON_PREFIX__/judge/scripts/compile_pl.sh"]
+    execute: ["__EPSILON_EXE_PERL__", "sol.pl"]
     highlight: 'perl'
 "JavaScript (SpiderMonkey 24)":
     filename: "sol.js"
-    compile: ["/opt/epsilon/judge/scripts/compile_js.sh"]
-    execute: ["/bin/lang/js", "-f", "sol.js"]
+    compile: ["__EPSILON_PREFIX__/judge/scripts/compile_js.sh"]
+    execute: ["__EPSILON_EXE_JS__", "-f", "sol.js"]
     nprocs: 4
     highlight: 'javascript'
 "Octave (3.8.0)":
     filename: "sol.m"
-    execute: ["/bin/lang/octave", "--silent", "--no-window-system", "--no-history", "--no-init-file", "--no-line-editing", "--no-site-file", "--norc", "sol.m"]
+    execute: ["__EPSILON_EXE_OCTAVE__", "--silent", "--no-window-system", "--no-history", "--no-init-file", "--no-line-editing", "--no-site-file", "--norc", "sol.m"]
     highlight: 'octave'
 # "Haskell (ghc 7.6.3)":
 #     filename: "sol.hs"

@@ -46,6 +46,7 @@ KEY_EXPAND = [
     './bin/epsilon-server',
     './bin/epsilon-manual-judge',
     '*.ini',
+    '*.yml',
 ]
 
 EXECUTABLES = {
@@ -290,6 +291,9 @@ def install():
     log('installing necessary files')
     updateperms('.')
 
+    log('config files')
+    update('./config')
+
     log('files for the library')
     update('./lib')
 
@@ -304,12 +308,12 @@ def install():
     if not opts.noserver:
         log('files for the server')
         update('./server')
-        sh(['ln', '-s', os.path.join(opts.prefix, 'bin/epsilon-server'), os.path.join(BIN_PATH, 'epsilon-server')])
+        sh(['ln', '-sf', os.path.join(opts.prefix, 'bin/epsilon-server'), os.path.join(BIN_PATH, 'epsilon-server')])
 
     if not opts.nojudge:
         log('files for the judge')
         update('./judge')
-        sh(['ln', '-s', os.path.join(opts.prefix, 'bin/epsilon-judge'), os.path.join(BIN_PATH, 'epsilon-judge')])
+        sh(['ln', '-sf', os.path.join(opts.prefix, 'bin/epsilon-judge'), os.path.join(BIN_PATH, 'epsilon-judge')])
 
         if not opts.nojail:
             log('destroying the jail, if it exists')
@@ -320,12 +324,12 @@ def install():
             log('creating symlinks for programming languages')
             sh(['mkdir', os.path.join(opts.prefix, 'judge/jail/bin/lang/')])
             for lang, key_name in PROG_LANGS:
-                sh(['ln', '-s', KEYS['EXE_' + key_name], os.path.join(opts.prefix, 'judge/jail/bin/lang/' + lang)])
+                sh(['ln', '-sf', KEYS['EXE_' + key_name], os.path.join(opts.prefix, 'judge/jail/bin/lang/' + lang)])
 
     if not opts.nomanualjudge:
         log('files for the manual judge')
         update('./manual_judge')
-        sh(['ln', '-s', os.path.join(opts.prefix, 'bin/epsilon-manual-judge'), os.path.join(BIN_PATH, 'epsilon-manual-judge')])
+        sh(['ln', '-sf', os.path.join(opts.prefix, 'bin/epsilon-manual-judge'), os.path.join(BIN_PATH, 'epsilon-manual-judge')])
 
     log('')
     log('')
@@ -346,6 +350,11 @@ def uninstall():
     if os.path.exists(os.path.join(opts.prefix, 'judge/jail-destroy.sh')):
         log('destroying the jail')
         sh(['./jail-destroy.sh'], cwd=os.path.join(opts.prefix, 'judge'))
+
+    log('removing binaries')
+    os.unlink(os.path.join(BIN_PATH, 'epsilon-server'))
+    os.unlink(os.path.join(BIN_PATH, 'epsilon-judge'))
+    os.unlink(os.path.join(BIN_PATH, 'epsilon-manual-judge'))
 
     log('erasing the whole prefix directory')
     shutil.rmtree(opts.prefix, ignore_errors=True)

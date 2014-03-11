@@ -247,7 +247,7 @@ class Contest:
             teams={ team.name: team for team in teams },
             groups=groups,
             problems={ problem.id: problem for problem in Problem.load_all(path) },
-            languages={ lang.name: lang for lang in Language.load_all(path) },
+            languages={ lang.name: lang for lang in Language.load_all(os.path.join('__EPSILON_PREFIX__', 'config')) },
             phases=None,
             register=contest.get('register', False)
         )

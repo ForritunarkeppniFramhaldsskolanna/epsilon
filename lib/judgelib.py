@@ -8,7 +8,7 @@ import logging
 
 BALLOONS = True
 TESTS_DIR = ''
-LANGUAGES_FILE = ''
+LANGUAGES_FILE = os.path.join('__EPSILON_PREFIX__', 'config/languages.yml')
 DB_CONN_STRING = ''
 SUBMISSION_WAIT = 1000 # ms
 SUBMISSION_JUDGE_TIMEOUT = 3 * 60 * 1000 # ms
@@ -133,6 +133,7 @@ def deliver_balloon(sess, team, problem):
 
 def start(process_submission):
     logger.debug('started')
+    langs = load(LANGUAGES_FILE)
 
     while True:
         try:
@@ -166,7 +167,7 @@ def start(process_submission):
                         with open(p) as f:
                             check = imp.load_source('checker', p, f).check
 
-                    lang = load(LANGUAGES_FILE)[sub.language]
+                    lang = langs[sub.language]
 
                     try:
                         res, cpu, mem = process_submission(

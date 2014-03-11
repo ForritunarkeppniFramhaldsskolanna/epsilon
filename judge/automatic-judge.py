@@ -253,7 +253,6 @@ def main(argv):
     global DISPLAY_DIFF, DISPLAY_INPUT, USER, USER_NO
     j.BALLOONS = config.get('balloons', False)
     j.TESTS_DIR = os.path.abspath(config['tests_dir'])
-    j.LANGUAGES_FILE = os.path.abspath(config['languages_file'])
     j.DB_CONN_STRING = config['db_conn_string']
     DISPLAY_DIFF = config.get('display_diff', False)
     DISPLAY_INPUT = config.get('display_input', False)
