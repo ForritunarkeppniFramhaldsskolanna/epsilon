@@ -103,6 +103,8 @@ def fatal(error):
     sys.exit(1)
 
 def sh(cmd, cwd=None, die=True):
+    log(' '.join(cmd))
+
     global opts
     if cwd is None: cwd = opts.prefix
     sub = subprocess.Popen(cmd, cwd=cwd)
@@ -110,6 +112,8 @@ def sh(cmd, cwd=None, die=True):
         fatal('command failed: %s' % ' '.join(cmd))
 
 def sh_com(cmd, stdin, cwd=None, die=True):
+    log(' '.join(cmd))
+
     global opts
     if cwd is None: cwd = opts.prefix
     sub = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, cwd=cwd)
@@ -352,12 +356,12 @@ def uninstall():
         sh(['./jail-destroy.sh'], cwd=os.path.join(opts.prefix, 'judge'))
 
     log('removing binaries')
-    os.unlink(os.path.join(BIN_PATH, 'epsilon-server'))
-    os.unlink(os.path.join(BIN_PATH, 'epsilon-judge'))
-    os.unlink(os.path.join(BIN_PATH, 'epsilon-manual-judge'))
+    sh(['rm', '-f', os.path.join(BIN_PATH, 'epsilon-server')], cwd='/')
+    sh(['rm', '-f', os.path.join(BIN_PATH, 'epsilon-judge')], cwd='/')
+    sh(['rm', '-f', os.path.join(BIN_PATH, 'epsilon-manual-judge')], cwd='/')
 
     log('erasing the whole prefix directory')
-    shutil.rmtree(opts.prefix, ignore_errors=True)
+    sh(['rm', '-rf', opts.prefix], cwd='/')
 
     log('uninstalling safeexec')
     sh(['make', 'uninstall'], cwd=os.path.join(DIR, 'judge/SafeExec'))
