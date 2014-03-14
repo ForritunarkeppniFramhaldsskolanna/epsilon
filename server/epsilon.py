@@ -129,7 +129,7 @@ def view_scoreboard(opts):
 
         cur = sb[sub.team][sub.problem]
 
-        if (phase.frozen is not None and sub.submitted > 60.0 * phase.frozen and (not is_logged_in() or get_team().name != sub.team)) or sub.verdict == 'QU':
+        if (phase.frozen is not None and sub.submitted >= 60.0 * phase.frozen and (not is_logged_in() or get_team().name != sub.team)) or sub.verdict == 'QU':
             cur.submit_new()
         elif sub.verdict not in {'SE','RF','CJ','CE'}:
             cur.submit(sub.submitted, sub.verdict == 'AC')
