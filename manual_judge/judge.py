@@ -69,8 +69,8 @@ def do_checkout(opts, parser):
                 'judge_response': sub.judge_response,
                 'language': {
                     'name': sub.language,
-                    'compile': lang['compile'],
-                    'execute': lang['execute']
+                    'compile': lang.get('compile'),
+                    'execute': lang.get('execute')
                 }
             }))
 
