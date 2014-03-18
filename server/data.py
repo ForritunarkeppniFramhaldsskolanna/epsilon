@@ -67,6 +67,24 @@ class Team:
 
         return teams, groups
 
+class Judge:
+    def __init__(self, name, password):
+        self.name = name
+        self.password = password
+
+    @staticmethod
+    def load_all(path):
+        judges = []
+        data = load(pjoin(path, 'judges.yml'))
+
+        for name, d in data.items():
+            judges.append(Judge(
+                name=name,
+                password=d['pass'],
+            ))
+
+        return judges
+
 class Example:
     def __init__(self, input, output, explanation=None, display='normal'):
         self.input = input
@@ -195,7 +213,7 @@ class Contest:
     RUNNING = 1
     FINISHED = 2
 
-    def __init__(self, id, title, db, start, duration, teams, problems, languages, phases, groups, register=False):
+    def __init__(self, id, title, db, start, duration, teams, problems, languages, phases, groups, judges, register=False):
         self.id = id
         self.title = title
         self.db = db
@@ -207,6 +225,7 @@ class Contest:
         self.phases = phases
         self.groups = groups
         self.register = register
+        self.judges = judges
 
     def time_elapsed(self):
         return (datetime.datetime.now() - self.start).total_seconds()
@@ -238,6 +257,7 @@ class Contest:
     def load(path):
         contest = load(pjoin(path, 'contest.yml'))
         teams, groups = Team.load_all(path)
+        judges = Judge.load_all(path)
         res = Contest(
             id=contest['id'],
             title=contest['title'],
@@ -249,7 +269,8 @@ class Contest:
             problems={ problem.id: problem for problem in Problem.load_all(path) },
             languages={ lang.name: lang for lang in Language.load_all(os.path.join('__EPSILON_PREFIX__', 'config')) },
             phases=None,
-            register=contest.get('register', False)
+            judges={ judge.name: judge for judge in judges },
+            register=contest.get('register', False),
         )
 
         res.phases = [ (k, Phase.load(res, k, v)) for k,v in sorted(contest['phases'].items()) ]
@@ -278,4 +299,12 @@ class ScoreboardTeamProblem:
     def time_penalty(self):
         if not self.is_solved(): return 0
         return self.solved_at + self.try_count * 20.0 * 60.0
+
+class Balloon:
+    def __init__(self, id, submission, team, problem, delivered):
+        self.id = id
+        self.submission = submission
+        self.team = team
+        self.problem = problem
+        self.delivered = delivered
 

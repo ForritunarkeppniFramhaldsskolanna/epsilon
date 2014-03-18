@@ -84,13 +84,17 @@ class SubmissionQueue(Base):
 class Balloon(Base):
     __tablename__ = 'Balloon'
     balloon_id = Column(Integer, primary_key=True)
-    team = Column(String(200), nullable=False)
-    problem = Column(String(200), nullable=False)
+    submission_id = Column(Integer, ForeignKey('Submission.id'), primary_key=True)
+    # team = Column(String(200), nullable=False)
+    # problem = Column(String(200), nullable=False)
     delivered = Column(Boolean, default=False, nullable=False)
 
-    def __init__(self, team, problem):
-        self.team = team
-        self.problem = problem
+    def __init__(self, submission_id):
+        self.submission_id = submission_id
+
+    # def __init__(self, team, problem):
+    #     self.team = team
+    #     self.problem = problem
 
 class Test:
     def __init__(self, input, output):
@@ -124,12 +128,20 @@ def get_db():
     db = sessionmaker(bind=db_engine)
     return db
 
-def deliver_balloon(sess, team, problem):
+def deliver_balloon(sess, sub):
     if BALLOONS:
-        balloon = sess.query(Balloon).filter_by(team=team, problem=problem).first()
+        # logger.debug('checking if balloon already exists')
+        balloon = sess.query(Balloon, Submission).filter(Balloon.submission_id == Submission.id, Submission.team == sub.team, Submission.problem == sub.problem).first()
         if not balloon:
-            balloon = Balloon(team, problem)
+            # logger.debug('creating balloon')
+            balloon = Balloon(sub.id)
             sess.add(balloon)
+            sess.commit()
+        # else:
+        #     logger.debug('balloon alread exists')
+    # else:
+    #     logger.debug('balloon delivery turned off')
+
 
 def start(process_submission):
     logger.debug('started')
@@ -191,7 +203,7 @@ def start(process_submission):
                         sub.verdict = 'SE'
 
                     if sub.verdict == 'AC':
-                        deliver_balloon(sess, sub.team, sub.problem)
+                        deliver_balloon(sess, sub)
 
                     logger.debug('verdict = %s' % sub.verdict)
                     logger.debug('-------------')

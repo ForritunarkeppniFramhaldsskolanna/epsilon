@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{{ contest.title }}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.cerulean.min.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/codemirror.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/codemirror-themes/ambiance.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/site.css') }}" />
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {
+                ignoreClass: ".*",
+                inlineMath: [['$','$'], ['\\(','\\)']]
+            },
+            MMLorHTML: {
+                prefer: {Firefox: "HTML"}
+            }
+        });
+    </script>
+    <script src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML-full" type="text/javascript"></script>
+</head>
+<body id="epsilon">
+{% block body %}{% endblock %}
+<script src="{{ url_for('static', filename='js/jquery-1.9.1.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
+<script src="{{ url_for('static', filename='js/codemirror.js') }}"></script>
+<script src="{{ url_for('static', filename='js/codemirror-keymaps/vim.js') }}"></script>
+<script src="{{ url_for('static', filename='js/codemirror-keymaps/emacs.js') }}"></script>
+<script src="{{ url_for('static', filename='js/codemirror-languages/clike.js') }}"></script>
+<script src="{{ url_for('static', filename='js/codemirror-languages/python.js') }}"></script>
+<script src="{{ url_for('static', filename='js/codemirror-languages/perl.js') }}"></script>
+<script src="{{ url_for('static', filename='js/codemirror-languages/pascal.js') }}"></script>
+<script src="{{ url_for('static', filename='js/codemirror-languages/ruby.js') }}"></script>
+<script src="{{ url_for('static', filename='js/site.js') }}"></script>
+{% block below %}{% endblock %}
+</body>
+</html>

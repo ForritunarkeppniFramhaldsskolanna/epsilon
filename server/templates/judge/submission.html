@@ -1,0 +1,46 @@
+{% extends "judge/main.html" %}
+{% block title %}
+{{ contest.title }} - submission {{ submission.id }}
+{% endblock %}
+{% block content %}
+    <h3>Details for submission {{ submission.id }}</h3>
+    <h5>Team {{ submission.team }}, problem {{ contest.problems[submission.problem].title }}, submitted at {{ submission.submitted | format_time }}</h5>
+    {# <pre><code>{{ submission.file }}</code></pre> #}
+    <textarea id="source_code">{{ submission.file }}</textarea>
+    <hr />
+    <form action="" method="post">
+        <h4>Verdict:
+            <select id="verdict" name="verdict">
+                <option selected="selected" value="{{ submission.verdict }}">{{ submission.verdict }}</option>
+                {% for verdict in ['QU','AC','PE','WA','CE','RE','TL','ML','OL','SE','RF','CJ'] %}
+                    <option value="{{ verdict }}">{{ verdict }}</option>
+                {% endfor %}
+            </select>
+        </h4>
+        <textarea id="judge_response" name="judge_response">{{ submission.judge_response or '' }}</textarea><br />
+        <button class="btn btn-success">Update verdict</button>
+    </form>
+{% endblock %}
+{% block below %}
+<style type="text/css">
+    .CodeMirror {
+        height: auto;
+        overflow-x: auto;
+        overflow-y: hidden;
+    }
+</style>
+<script type="text/javascript">
+
+    jQuery(function ($) {
+
+        CodeMirror.fromTextArea($('#source_code')[0], {
+            'mode': '{{ contest.languages[submission.language].highlight }}',
+            'theme': 'ambiance',
+            'readOnly': true,
+            'lineNumbers': true
+        });
+
+    });
+
+</script>
+{% endblock %}

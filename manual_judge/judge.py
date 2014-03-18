@@ -110,7 +110,7 @@ def do_current_submit(opts, parser):
             sub.judge_response = opts.message
 
         if sub.verdict == 'AC':
-            j.deliver_balloon(sess, sub.team, sub.problem)
+            j.deliver_balloon(sess, sub)
 
         sess.commit()
 

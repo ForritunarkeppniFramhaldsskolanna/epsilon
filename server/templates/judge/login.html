@@ -1,0 +1,49 @@
+{% extends "judge/base.html" %}
+{% block body %}
+
+<div class="container-fluid" id="main">
+
+    <div class="row-fluid">
+        <div class="span2"></div>
+        <div class="span8" id="content">
+            <form class="form-horizontal" action="" method="post">
+                <fieldset>
+                    <div id="legend">
+                        <legend class="">Log in</legend>
+                    </div>
+
+                    {% if bad_login %}
+                        <div class="alert alert-error">
+                            <h4>Bad credentials!</h4>
+                            Make sure you typed in the correct password.
+                        </div>
+                    {% endif %}
+
+                    <div class="control-group">
+                        <label class="control-label" for="judge">Judge name</label>
+                        <div class="controls">
+                            <input type="text" id="judge" name="judge" value="{{ judge_name }}" class="input-xlarge">
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label class="control-label" for="password">Password</label>
+                        <div class="controls">
+                            <input type="password" id="password" name="password" placeholder="" class="input-xlarge">
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <div class="controls">
+                            <button class="btn btn-success">Log in</button>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+        <div class="span2"></div>
+    </div>
+</div>
+
+
+{% endblock %}

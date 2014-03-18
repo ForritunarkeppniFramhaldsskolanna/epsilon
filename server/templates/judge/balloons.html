@@ -1,0 +1,56 @@
+{% extends "judge/main.html" %}
+{% block title %}
+{{ contest.title }} - balloons
+{% endblock %}
+{% block content %}
+<div id="balloon_stats">
+    <h4>Undelivered Balloons</h4>
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>Team</th>
+            <th>Problem</th>
+            <th>Location</th>
+            <th></th>
+        </tr>
+
+        {% for balloon in balloons %}
+            {% if not balloon.delivered %}
+                <tr>
+                    <td>{{ balloon.team.title }}</td>
+                    <td>{{ balloon.problem.title }}</td>
+                    <td>{{ team.location }}</td>
+                    <td><a href="{{ url_for('judge_balloons', id=balloon.id) }}" class="btn btn-success">Deliver</a></td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+    </table>
+
+    <h4>Delivered Balloons</h4>
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>Team</th>
+            <th>Problem</th>
+            <th>Location</th>
+        </tr>
+
+        {% for balloon in reversed(balloons) %}
+            {% if balloon.delivered %}
+                <tr>
+                    <td>{{ balloon.team.title }}</td>
+                    <td>{{ balloon.problem.title }}</td>
+                    <td>{{ team.location }}</td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}
+{% block below %}
+<script type="text/javascript">
+    jQuery(function ($) {
+        setInterval(function () {
+            $('#content').load(window.location.href + ' #balloon_stats');
+        }, 10 * 1000);
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "judge/main.html" %}
+{% block title %}
+{{ contest.title }} - teams
+{% endblock %}
+{% block content %}
+
+<ul class="media-list">
+    {% for team in teams %}
+    <li class="media">
+        <div class="media-body">
+            <h4 class="media-heading">{{ team.title }}</h4>
+            <div>Username: {{ team.name }}</div>
+            <div>Location: {{ team.location }}</div>
+            <div>Groups: {{ ', '.join(team.groups) }}</div>
+            <div><a href="{{ url_for('judge_list_submissions', team_name=team.name) }}">Submissions</a></div>
+            <hr />
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+
+{% endblock %}

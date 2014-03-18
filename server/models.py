@@ -37,7 +37,8 @@ class SubmissionQueue(db.Model):
 class Balloon(db.Model):
     __tablename__ = 'Balloon'
     balloon_id = db.Column(db.Integer, primary_key=True)
-    team = db.Column(db.String(200), nullable=False)
-    problem = db.Column(db.String(200), nullable=False)
+    submission_id = db.Column(db.Integer, db.ForeignKey('Submission.id'), primary_key=True)
+    # team = db.Column(db.String(200), nullable=False)
+    # problem = db.Column(db.String(200), nullable=False)
     delivered = db.Column(db.Boolean, default=False, nullable=False)
 

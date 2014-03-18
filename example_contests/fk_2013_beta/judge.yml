@@ -1,5 +1,5 @@
 contest_id: fk_2013_test
-ballons: true
+balloons: true
 tests_dir: './tests'
 db_conn_string: 'postgresql://test_contest_user:JBIkZ?xek04%5Z_k&J04@localhost:5432/test_contest'
 display_diff: true
