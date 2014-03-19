@@ -594,7 +594,7 @@ def judge_resolver(no):
 
         out.seek(0)
         return send_file(out,
-
+                attachment_filename=contest.id + '_resolver.xml',
                 as_attachment=True,
                 mimetype='application/xml')
 
