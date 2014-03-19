@@ -14,8 +14,17 @@ from flask import Flask, g, redirect, abort, render_template, url_for as real_ur
 from data import Contest, ScoreboardTeamProblem, Balloon
 from models import db, Submission, SubmissionQueue, Balloon as BalloonModel
 
+REDIRECT_SUB = re.compile('^http://localhost(:[0-9]+)?')
+# REDIRECT_SUB_FOR = 'http://localhost/fk_2013_beta'
 
-app = Flask(__name__)
+class MyFlask(Flask):
+    def process_response(self, response):
+        global opts
+        if opts.prefix is not None and opts.hostname is not None and response.status_code == 301:
+            response.headers['Location'] = re.sub(REDIRECT_SUB, 'http://' + opts.hostname + opts.prefix, response.headers['Location'])
+        return response
+
+app = MyFlask(__name__)
 app.secret_key = "V=7Km+XXkg:}>4dT0('cV>Rp1TG82QEjah+X'v;^w:)a']y)^%"
 
 verdict_explanation =  {
@@ -609,6 +618,7 @@ def main(argv):
     parser.add_argument('-H', '--host', default='', help='the host to listen on')
     parser.add_argument('-d', '--debug', default=False, action='store_true', help='run in debug mode')
     parser.add_argument('--prefix', default=None, help='run under prefix')
+    parser.add_argument('--hostname', default=None, help='run with the specified hostname')
     parser.add_argument('--droptables', default=False, action='store_true', help='drop database tables and exit')
     opts = parser.parse_args(argv)
     contest = Contest.load(opts.contest)
