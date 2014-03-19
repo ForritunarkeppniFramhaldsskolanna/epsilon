@@ -44,6 +44,9 @@ def load(p):
         return yaml.load(f)
 
 def eq_check(expected, obtained):
+    # TODO: make this optional
+    expected = [ line.strip() for line in expected.split('\n') if line.strip() ]
+    obtained = [ line.strip() for line in obtained.split('\n') if line.strip() ]
     return expected == obtained
 
 Base = declarative_base()
