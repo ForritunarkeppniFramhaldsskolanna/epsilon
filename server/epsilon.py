@@ -14,17 +14,18 @@ from flask import Flask, g, redirect, abort, render_template, url_for as real_ur
 from data import Contest, ScoreboardTeamProblem, Balloon
 from models import db, Submission, SubmissionQueue, Balloon as BalloonModel
 
-REDIRECT_SUB = re.compile('^http://localhost(:[0-9]+)?')
+# REDIRECT_SUB = re.compile('^http://localhost(:[0-9]+)?')
 # REDIRECT_SUB_FOR = 'http://localhost/fk_2013_beta'
 
-class MyFlask(Flask):
-    def process_response(self, response):
-        global opts
-        if opts.prefix is not None and opts.hostname is not None and response.status_code == 301:
-            response.headers['Location'] = re.sub(REDIRECT_SUB, 'http://' + opts.hostname + opts.prefix, response.headers['Location'])
-        return response
+# class MyFlask(Flask):
+#     def process_response(self, response):
+#         global opts
+#         if opts.prefix is not None and opts.hostname is not None and response.status_code == 301:
+#             response.headers['Location'] = re.sub(REDIRECT_SUB, 'http://' + opts.hostname + opts.prefix, response.headers['Location'])
+#         return response
 
-app = MyFlask(__name__)
+# app = MyFlask(__name__)
+app = Flask(__name__)
 app.secret_key = "V=7Km+XXkg:}>4dT0('cV>Rp1TG82QEjah+X'v;^w:)a']y)^%"
 
 verdict_explanation =  {
