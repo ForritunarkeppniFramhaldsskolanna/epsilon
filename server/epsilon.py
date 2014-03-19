@@ -529,7 +529,7 @@ def judge_resolver(no):
         <title>%(title)s</title>
     </info>
 ''' % {
-        'duration': '%02d:%02d:%02d' % (contest.duration // 60 // 60, (contest.duration // 60) % 60, contest.duration % 60),
+        'duration': '%02d:%02d:%02d' % (contest.duration // 60, contest.duration % 60, 0),
             'title': contest.title,
         }).encode('utf-8'))
 
