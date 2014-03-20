@@ -619,7 +619,7 @@ def main(argv):
     parser.add_argument('-H', '--host', default='', help='the host to listen on')
     parser.add_argument('-d', '--debug', default=False, action='store_true', help='run in debug mode')
     parser.add_argument('--prefix', default=None, help='run under prefix')
-    parser.add_argument('--hostname', default=None, help='run with the specified hostname')
+    # parser.add_argument('--hostname', default=None, help='run with the specified hostname')
     parser.add_argument('--droptables', default=False, action='store_true', help='drop database tables and exit')
     opts = parser.parse_args(argv)
     contest = Contest.load(opts.contest)
