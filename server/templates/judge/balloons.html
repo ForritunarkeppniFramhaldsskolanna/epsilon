@@ -18,7 +18,7 @@
                 <tr>
                     <td>{{ balloon.team.title }}</td>
                     <td>{{ balloon.problem.title }}</td>
-                    <td>{{ team.location }}</td>
+                    <td>{{ balloon.team.location }}</td>
                     <td><a href="{{ url_for('judge_balloons', id=balloon.id) }}" class="btn btn-success">Deliver</a></td>
                 </tr>
             {% endif %}
