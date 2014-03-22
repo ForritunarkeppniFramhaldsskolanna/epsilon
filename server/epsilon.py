@@ -564,7 +564,7 @@ def judge_resolver(no):
     <team>
         <id>%(id)d</id>
         <name>%(name)s</name>
-    </team>''' % { 'id': id, 'name': name }).encode('utf-8'))
+    </team>''' % { 'id': id, 'name': contest.teams[name].title }).encode('utf-8'))
 
         subs = Submission.query.filter(Submission.verdict != 'QU').all()
         for no, sub in enumerate(sorted(subs, key=lambda sub: sub.submitted)):
