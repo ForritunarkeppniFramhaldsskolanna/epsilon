@@ -6,9 +6,10 @@ A minimal programming contest environment, specifically created for [Iceland's
 High School Programming Contest](http://forritun.is).
 
 It consists of four components:
-- A postgresql database. All submissions are stored here.
-- A programming contest server. Serves a web page where contestants can submit
-  solutions and view a scoreboard. Also hosts a small interface for judges.
+- A PostgreSQL database. All submissions are stored here.
+- A programming contest server. Serves a web page where contestants can read
+  problems, submit solutions and view a scoreboard. Also hosts a small
+  interface for judges.
 - An automatic judge. Automatically judges solutions in various programming
   languages.
 - A manual judge. A command line tool for manually judging solutions.
@@ -28,7 +29,7 @@ taking a look at better developed programming contest environments such as
 Installing
 ----------
 
-Start by setting up postgresql on your server.
+Start by setting up PostgreSQL on your server.
 
 There are a number of prerequisites that need to be installed, such as
 programming languages and [jailkit](http://olivier.sessink.nl/jailkit/). Two
@@ -51,7 +52,7 @@ Ubuntu script does. This is to provide more up-to-date versions of the
 languages for Ubuntu, but can probably also be done through `apt-get`.
 
 After installing all prerequisites, the programming contest environment can be
-installed by doing:
+installed by executing:
 
     sudo ./setup.py install
 
@@ -69,7 +70,7 @@ The most important part of hosting the contest is to prepare the problems and
 contest configuration. Take a look inside the `example_contests` directory for
 examples.
 
-Create a postgresql database along with a user with full access to that
+Create a PostgreSQL database along with a user with full access to that
 database (there are some helper scripts in `server/db`). Make sure that the
 `db` and `db_conn_string` properties in `config.yml` and `judge.yml` are set
 appropriately.
@@ -176,7 +177,8 @@ The web judge interface can be accessed by navigating to
 `example_contests/fk_2013_beta/judges.yml`.  From there you can go to the
 Submissions page. By clicking on the ID of a submission, you will be taken to a
 page where you can view the associated solution and submit a verdict
-(optionally with an HTML message for the contestant).
+(optionally with an HTML message for the contestant). This interface is
+currently pretty awkward to use.
 
 
 ### ICPC Resolver
@@ -190,9 +192,9 @@ time watching it! Highly recommend it...
 
 ### Using multiple judge servers
 
-All components of the programming contest environment depend on the postgresql
+All components of the programming contest environment depend on the PostgreSQL
 server, but are otherwise completely independent. Therefore the server process
 and automatic judge processes can all be distributed over many servers, with
-the only requirement that they are able to contact the postgresql server.
+the only requirement that they are able to contact the PostgreSQL server.
 
 
