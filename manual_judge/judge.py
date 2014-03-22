@@ -8,6 +8,8 @@ sys.path.append(os.path.join(DIR, '../lib'))
 import judgelib as j
 from judgelib import *
 
+SUBMISSION_WAIT = 1000 # ms
+
 def format_time(time):
     return '%02d:%02d' % (int(time//60), int(time)%60)
 
@@ -41,11 +43,33 @@ def do_list(opts, parser):
         sess.close()
 
 def do_checkout(opts, parser):
-    opts.id = int(opts.id)
 
     db = j.get_db()
     try:
         sess = db()
+
+        if opts.id == 'next':
+            fst = True
+            while True:
+
+                get_before = datetime.datetime.now() - datetime.timedelta(0, SUBMISSION_JUDGE_TIMEOUT / 1000.0)
+                # TODO: do something smarter for concurrency
+                qsub = sess.query(SubmissionQueue).filter(or_(SubmissionQueue.last_announce == None, SubmissionQueue.last_announce < get_before)).first()
+
+                if qsub:
+                    opts.id = qsub.submission_id
+                    sys.stdout.write('checking out submission %d\n' % opts.id)
+                    break
+
+                if fst:
+                    sys.stdout.write('waiting for next submission...\n')
+                    fst = False
+
+                time.sleep(SUBMISSION_WAIT / 1000.0 + random.random())
+
+
+        opts.id = int(opts.id)
+
         sub = sess.query(Submission).filter_by(id=opts.id).first()
         if not sub:
             sys.stderr.write('error: submission with id %d not found\n' % opts.id)
