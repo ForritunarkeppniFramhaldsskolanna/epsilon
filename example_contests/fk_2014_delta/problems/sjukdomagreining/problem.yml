@@ -1,0 +1,6 @@
+title: "Sjúkdómagreining"
+examples:
+    - input: |
+        1 2
+      output: |
+        0.3989

@@ -1,0 +1,144 @@
+id: fk_2014_morpheus
+title: FK 2014 - Morpheus deild
+start: 2014-03-22 10:00:00.000
+db: postgresql://user:password@localhost:5432/database
+duration: 360
+
+phases:
+    -60:
+        status: "Keppni ekki hafin"
+        countdown: 60
+
+    0:
+        status: "Fyrir hádegi"
+        countdown: 150
+        frozen: 90
+        problems:
+            - kynning: [visible, submit, scoreboard]
+            - eg_elska_hana: [visible, submit, scoreboard]
+            - hq9plus: [visible, submit, scoreboard]
+            - factorial: [visible, submit, scoreboard]
+            - fyndin_ord: [visible, submit, scoreboard]
+            - skakbord: [visible, submit, scoreboard]
+            - samtvinnun: [visible, submit, scoreboard]
+            - litill_stor: [visible, submit, scoreboard]
+            - bilad_lyklabord: [visible, submit, scoreboard]
+            - einkunnir: [visible, submit, scoreboard]
+            - spegilmynd: [visible, submit, scoreboard]
+            - sudoku: [visible, submit, scoreboard]
+            - leet_speak: [visible, submit, scoreboard]
+            - gongutur: [visible, submit, scoreboard]
+            - template: [visible, submit, scoreboard]
+            - rod: [visible, submit, scoreboard]
+            - teiknum_krossa: [visible, submit, scoreboard]
+
+    150:
+        status: "Hádegishlé"
+        countdown: 60
+        problems:
+            - kynning: [scoreboard]
+            - eg_elska_hana: [scoreboard]
+            - hq9plus: [scoreboard]
+            - factorial: [scoreboard]
+            - fyndin_ord: [scoreboard]
+            - skakbord: [scoreboard]
+            - samtvinnun: [scoreboard]
+            - litill_stor: [scoreboard]
+            - bilad_lyklabord: [scoreboard]
+            - einkunnir: [scoreboard]
+            - spegilmynd: [scoreboard]
+            - sudoku: [scoreboard]
+            - leet_speak: [scoreboard]
+            - gongutur: [scoreboard]
+            - template: [scoreboard]
+            - rod: [scoreboard]
+            - teiknum_krossa: [scoreboard]
+
+    210:
+        status: "Eftir hádegi"
+        countdown: 150
+        frozen: 300
+        problems:
+            - "Eftir hádegi"
+            - a_milli: [visible, submit, scoreboard]
+            - endurvinnsla: [visible, submit, scoreboard]
+            - sjukdomagreining: [visible, submit, scoreboard]
+            - slettar_tolur: [visible, submit, scoreboard]
+            - timi: [visible, submit, scoreboard]
+            - pizza: [visible, submit, scoreboard]
+            - haekkandi_rod: [visible, submit, scoreboard]
+            - svigar: [visible, submit, scoreboard]
+            - ordasamsetning: [visible, submit, scoreboard]
+            - stafrofsrod: [visible, submit, scoreboard]
+            - stofn_og_lauf_plott: [visible, submit, scoreboard]
+            - extract_comments: [visible, submit, scoreboard]
+            - tversumma: [visible, submit, scoreboard]
+            - ip_address: [visible, submit, scoreboard]
+            - tonlist: [visible, submit, scoreboard]
+            - svigar2: [visible, submit, scoreboard]
+            - netkerfi: [visible, submit, scoreboard]
+
+            - "Fyrir hádegi"
+            - kynning: [visible, submit]
+            - eg_elska_hana: [visible, submit]
+            - hq9plus: [visible, submit]
+            - factorial: [visible, submit]
+            - fyndin_ord: [visible, submit]
+            - skakbord: [visible, submit]
+            - samtvinnun: [visible, submit]
+            - litill_stor: [visible, submit]
+            - bilad_lyklabord: [visible, submit]
+            - einkunnir: [visible, submit]
+            - spegilmynd: [visible, submit]
+            - sudoku: [visible, submit]
+            - leet_speak: [visible, submit]
+            - gongutur: [visible, submit]
+            - template: [visible, submit]
+            - rod: [visible, submit]
+            - teiknum_krossa: [visible, submit]
+
+    360:
+        status: "Keppni lokið - Verðlaunaafhending"
+        countdown: 120
+
+    480:
+        status: "Keppni lokið"
+        problems:
+            - "Fyrir hádegi"
+            - kynning: [visible, scoreboard]
+            - eg_elska_hana: [visible, scoreboard]
+            - hq9plus: [visible, scoreboard]
+            - factorial: [visible, scoreboard]
+            - fyndin_ord: [visible, scoreboard]
+            - skakbord: [visible, scoreboard]
+            - samtvinnun: [visible, scoreboard]
+            - litill_stor: [visible, scoreboard]
+            - bilad_lyklabord: [visible, scoreboard]
+            - einkunnir: [visible, scoreboard]
+            - spegilmynd: [visible, scoreboard]
+            - sudoku: [visible, scoreboard]
+            - leet_speak: [visible, scoreboard]
+            - gongutur: [visible, scoreboard]
+            - template: [visible, scoreboard]
+            - rod: [visible, scoreboard]
+            - teiknum_krossa: [visible, scoreboard]
+
+            - "Eftir hádegi"
+            - a_milli: [visible, scoreboard]
+            - endurvinnsla: [visible, scoreboard]
+            - sjukdomagreining: [visible, scoreboard]
+            - slettar_tolur: [visible, scoreboard]
+            - timi: [visible, scoreboard]
+            - pizza: [visible, scoreboard]
+            - haekkandi_rod: [visible, scoreboard]
+            - svigar: [visible, scoreboard]
+            - ordasamsetning: [visible, scoreboard]
+            - stafrofsrod: [visible, scoreboard]
+            - stofn_og_lauf_plott: [visible, scoreboard]
+            - extract_comments: [visible, scoreboard]
+            - tversumma: [visible, scoreboard]
+            - ip_address: [visible, scoreboard]
+            - tonlist: [visible, scoreboard]
+            - svigar2: [visible, scoreboard]
+            - netkerfi: [visible, scoreboard]
+

@@ -1,0 +1,41 @@
+teams:
+    "fk_halldor_jens": { pass: "password", title: "Halldór Jens", location: "V108", groups: [all, fs2] }
+    "fk_hard": { pass: "password", title: "How Hard Can Your Drive Get?", location: "V108", groups: [all, ts] }
+    "fk_bengolfur_bjorn": { pass: "password", title: "Bengólfur Björn", location: "V108", groups: [all, ts] }
+    "fk_usmc": { pass: "password", title: "U.S.M.C.", location: "V108", groups: [all, fs2] }
+    "fk_fmj": { pass: "password", title: "FMJ", location: "V108", groups: [all, ts] }
+    "fk_team_moon_moon": { pass: "password", title: "Team moon moon", location: "V108", groups: [all, ts] }
+    "fk_jon": { pass: "password", title: "Jón", location: "V108", groups: [all, ts] }
+    "fk_rodllurnar": { pass: "password", title: "Rodllurnar", location: "V108", groups: [all, ts] }
+    "fk_red_team": { pass: "password", title: "Red Team", location: "V108", groups: [all, ts] }
+    "fk_ram": { pass: "password", title: "RAM", location: "V108", groups: [all, ts] }
+    "fk_team_po": { pass: "password", title: "Team Pö", location: "V108", groups: [all, ts] }
+    "fk_morparnir": { pass: "password", title: "Morparnir", location: "V108", groups: [all, ts] }
+    "fk_triple_dorans_blade": { pass: "password", title: "Triple Doran's Blade", location: "V108", groups: [all, fs2] }
+    "fk_kartafla": { pass: "password", title: "Kartafla", location: "V108", groups: [all, ts] }
+    "fk_prinsessa": { pass: "password", title: "Ég er lítil Prinsessa", location: "V108", groups: [all, mh] }
+    "fk_hivemind": { pass: "password", title: "Hivemind", location: "V108", groups: [all, mr] }
+    "fk_krissi_palli_breki": { pass: "password", title: "Krissi, Palli og Breki", location: "V108", groups: [all, ts] }
+    "fk_trump_card": { pass: "password", title: "Trump Card", location: "V108", groups: [all, fs2] }
+    "fk_fags": { pass: "password", title: "F.A.G.S", location: "V108", groups: [all, fs2] }
+    "fk_noctilucale": { pass: "password", title: "Noctilucale", location: "V108", groups: [all, fs2] }
+    "fk_python4life": { pass: "password", title: "PythonForLife", location: "V108", groups: [all, fs2] }
+    "fk_mbm": { pass: "password", title: "MBM", location: "V108", groups: [all, ts] }
+    "fk_team_gudrun": { pass: "password", title: "team guðrún", location: "V108", groups: [all, other] }
+
+    "fk_lid2": { pass: "password", title: "Team Swag", location: "V108", groups: [all, other] }
+    "fk_lid3": { pass: "password", title: "Casio", location: "V108", groups: [all, other] }
+
+groups:
+    "all": "Allir"
+    "ts": "Tækniskólinn"
+    "vma": "Verkmenntaskólinn á Akureyri"
+    "fva": "FVA"
+    "fs": "Fjölbrautaskóli Suðurlands"
+    "fs2": "Fjölbrautaskóli Suðurnesja"
+    "mr": "Menntaskólinn í Reykjavík"
+    "mh": "Menntaskólinn við Hamrahlíð"
+    "fb": "Fjölbrautaskólinn í Breiðholti"
+    "kv": "Kvennaskólinn í Reykjavík"
+    "other": "Aðrir"
+

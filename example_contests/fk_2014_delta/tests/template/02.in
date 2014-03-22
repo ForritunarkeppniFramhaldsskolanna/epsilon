@@ -1,0 +1,7 @@
+a=Test
+b=123
+c=Test 123
+===
+abc{a}{b}{c}
+{a}{b}{c}abc
+===

@@ -1,0 +1,26 @@
+
+Í tölfræði er oft verið að vinna með mikið af gögnum. Þess vegna getur verið
+mikilvægt að setja gögnin fram á formi sem einfaldar úrvinnslu. Þegar verið er
+að vinna með lista af heiltölum, þá kallast eitt af þessum formum Stofn-og-lauf
+rit. Segjum að við séum með tveggja-stafa heiltölurnar
+
+<div style="text-align:center"><p class="tex2jax_process">$10, 12, 12, 13, 28, 45, 46, 47, 49, 49, 93$</p></div>
+
+Þá lítur Stofn-og-lauf rit fyrir tölurnar svona út
+
+    1 0223
+    2 8
+    4 56799
+    9 3
+
+Aftari tölustafurinn í tölunum er settur í röð í línuna sem samsvarar fremri
+tölustafnum. Athugið að línurnar eru raðaðar eftir fremsta tölustafnum, og
+runan af tölustöfum í hverri línu er röðuð.
+
+Í þessu verkefni á að útfæra forrit sem færir lista af tveggja-stafa heiltölum
+yfir í Stofn-og-lauf rit.
+
+Inntakið inniheldur fyrst eina línu með heiltölunni $n$. Þar eftir fylgir önnur
+lína með $n$ tveggja-stafa heiltölum aðskildum með bili. Úttakið á að innihalda
+tölurnar á Stofn-og-lauf rit formi.
+

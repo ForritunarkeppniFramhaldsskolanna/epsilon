@@ -1,0 +1,22 @@
+title: "Bencoding"
+examples:
+    - input: |
+        6:banani
+      output: |
+        "banani"
+    - input: |
+        i1234567e
+      output: |
+        1234567
+    - input: |
+        le
+      output: |
+        []
+    - input: |
+        l5:helloi123eli1ei2ei3e1:4ee
+      output: |
+        ["hello",123,[1,2,3,"4"]]
+    - input: |
+        ld1:B4:test1:Ali1ei2ee1:Cli4eeelli10eeee
+      output: |
+        [{"A":[1,2],"C":[4],"B":"test"},[[10]]]

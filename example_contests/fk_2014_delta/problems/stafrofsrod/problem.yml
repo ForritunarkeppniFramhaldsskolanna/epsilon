@@ -1,0 +1,24 @@
+title: "Stafrófsröð"
+examples:
+    - input: |
+        3
+        test
+        prufa
+        palli
+      output: |
+        palli
+        prufa
+        test
+    - input: |
+        5
+        abba
+        babba
+        babba
+        abba
+        a
+      output: |
+        a
+        abba
+        abba
+        babba
+        babba

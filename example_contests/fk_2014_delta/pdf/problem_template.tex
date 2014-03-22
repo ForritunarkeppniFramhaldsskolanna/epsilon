@@ -1,0 +1,39 @@
+\begin{problem}{$title$}{Inn}{Út}{~}{~}
+
+    $body$
+
+    \Examples
+    $for(examples)$
+$if(examples.display)$
+\begin{tabular}{|c|}
+\hline
+\multicolumn{1}{|c|}{\bf\texttt{\InputFileName}}\\
+\hline
+\begin{minipage}[t]{\exmpwidewid}\rightskip=0pt plus 1fill\relax
+$examples.input$
+\medskip\end{minipage}\\
+\hline
+\multicolumn{1}{|c|}{\bf\texttt{\OutputFileName}}\\%
+\hline
+\begin{minipage}[t]{\exmpwidewid}\rightskip=0pt plus 1fill\relax
+$examples.output$
+\medskip\end{minipage}\\%
+\hline
+\end{tabular}
+$else$
+\begin{tabular}{|l|l|}
+\hline
+\multicolumn{1}{|c|}{\bf\texttt{\InputFileName}}&
+\multicolumn{1}{|c|}{\bf\texttt{\OutputFileName}}\\
+\hline
+\begin{minipage}[t]{\exmpwidinf}\rightskip=0pt plus 1fill\relax
+$examples.input$
+\medskip\end{minipage}&
+\begin{minipage}[t]{\exmpwidouf}\rightskip=0pt plus 1fill\relax
+$examples.output$
+\medskip\end{minipage}\\
+\hline
+\end{tabular}
+$endif$
+    $endfor$
+\end{problem}

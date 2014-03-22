@@ -1,0 +1,6 @@
+contest_id: fk_2014_trinity
+balloons: true
+tests_dir: './tests'
+db_conn_string: postgresql://user:password@localhost:5432/database
+display_diff: true
+display_input: true

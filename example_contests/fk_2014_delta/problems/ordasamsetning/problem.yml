@@ -1,0 +1,22 @@
+title: "Orðasamsetning"
+examples:
+    - input: |
+        eld
+        hus
+      output: |
+        eldhus
+    - input: |
+        frum
+        umrodun
+      output: |
+        frumrodun
+    - input: |
+        mamma
+        amma
+      output: |
+        mamma
+    - input: |
+        prufa
+        prufa
+      output: |
+        prufa

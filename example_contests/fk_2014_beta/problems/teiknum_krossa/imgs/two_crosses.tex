@@ -1,0 +1,41 @@
+\documentclass[tikz]{standalone}
+
+\usepackage[latin1]{inputenc}
+\usepackage{tikz}
+
+\begin{document}
+\pagestyle{empty}
+
+\newcommand\height{6}
+\newcommand\width{5}
+
+\begin{tikzpicture}
+
+    \foreach \y in {1,...,\height}
+    {
+        \draw[color=gray] (0.5,\y) -- ({\width+0.5},\y);
+    }
+
+    \foreach \x in {1,...,\width}
+    {
+        \draw[color=gray] (\x,0.5) -- (\x,{\height+0.5});
+    }
+
+    \foreach \x/\y in {
+        1/4,
+        2/4,
+        3/4,
+        2/3,
+        2/5,
+        2/2,
+        3/2,
+        4/2,
+        3/1,
+        3/3
+    }{
+        \draw[fill=red,red] (\x,\y) rectangle ({\x+1},{\y+1});
+    }
+
+\end{tikzpicture}
+
+\end{document}

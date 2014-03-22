@@ -1,0 +1,33 @@
+title: "Umsókn"
+examples:
+    - display: "large"
+      input: |
+        nafn=Bakariid
+        vorunafn=kokurnar
+        undirskrift=Gunna Jonsdottir
+        ===
+        Kaera {nafn}.
+
+        Eg hef verid að skoda vefsiduna ykkar og list mjog vel a {vorunafn} sem tid
+        seljid. Tess vegna aetla eg ad saekja um starf hja ykkur.
+
+        Kv. {undirskrift}
+        ===
+      output: |
+        Kaera Bakariid.
+
+        Eg hef verid að skoda vefsiduna ykkar og list mjog vel a kokurnar sem tid
+        seljid. Tess vegna aetla eg ad saekja um starf hja ykkur.
+
+        Kv. Gunna Jonsdottir
+    - display: "large"
+      input: |
+        sundlaug=Sundlaug Gardabaejar
+        nafn=Jonas
+        ===
+        Hallo {sundlaug}! Mer finnst mjog gaman ad synda hja ykkur, og tess vegna aetla eg ad saekja um starf hja ykkur.
+        {nafn}
+        ===
+      output: |
+        Hallo Sundlaug Gardabaejar! Mer finnst mjog gaman ad synda hja ykkur, og tess vegna aetla eg ad saekja um starf hja ykkur.
+        Jonas

@@ -1,0 +1,97 @@
+id: fk_2014_trinity
+title: FK 2014 - Trinity deild
+start: 2014-03-22 10:00:00.000
+db: postgresql://user:password@localhost:5432/database
+duration: 360
+
+phases:
+    -60:
+        status: "Keppni ekki hafin"
+        countdown: 60
+
+    0:
+        status: "Fyrir hádegi"
+        countdown: 150
+        frozen: 90
+        problems:
+            - bilad_lyklabord: [visible, submit, scoreboard]
+            - saldur_eratosthenesar: [visible, submit, scoreboard]
+            - eg_elska_hana: [visible, submit, scoreboard]
+            - gongutur: [visible, submit, scoreboard]
+            - rod: [visible, submit, scoreboard]
+            - hq9plus: [visible, submit, scoreboard]
+            - evil_odious: [visible, submit, scoreboard]
+            - teiknum_krossa: [visible, submit, scoreboard]
+            - popp: [visible, submit, scoreboard]
+
+    150:
+        status: "Hádegishlé"
+        countdown: 60
+        problems:
+            - bilad_lyklabord: [scoreboard]
+            - saldur_eratosthenesar: [scoreboard]
+            - eg_elska_hana: [scoreboard]
+            - gongutur: [scoreboard]
+            - rod: [scoreboard]
+            - hq9plus: [scoreboard]
+            - evil_odious: [scoreboard]
+            - teiknum_krossa: [scoreboard]
+            - popp: [scoreboard]
+
+    210:
+        status: "Eftir hádegi"
+        countdown: 150
+        frozen: 300
+        problems:
+            - "Eftir hádegi"
+            - netkerfi: [visible, submit, scoreboard]
+            - sjukdomagreining: [visible, submit, scoreboard]
+            - deiling: [visible, submit, scoreboard]
+            - ip_address: [visible, submit, scoreboard]
+            - bencoding: [visible, submit, scoreboard]
+            - tonlist: [visible, submit, scoreboard]
+            - ordasamsetning: [visible, submit, scoreboard]
+            - stofn_og_lauf_plott: [visible, submit, scoreboard]
+            - robotavandraedi: [visible, submit, scoreboard]
+
+            - "Fyrir hádegi"
+            - bilad_lyklabord: [visible, submit]
+            - saldur_eratosthenesar: [visible, submit]
+            - eg_elska_hana: [visible, submit]
+            - gongutur: [visible, submit]
+            - rod: [visible, submit]
+            - hq9plus: [visible, submit]
+            - evil_odious: [visible, submit]
+            - teiknum_krossa: [visible, submit]
+            - popp: [visible, submit]
+
+
+    360:
+        status: "Keppni lokið - Verðlaunaafhending"
+        countdown: 120
+
+    480:
+        status: "Keppni lokið"
+        problems:
+            - "Fyrir hádegi"
+            - bilad_lyklabord: [visible, scoreboard]
+            - saldur_eratosthenesar: [visible, scoreboard]
+            - eg_elska_hana: [visible, scoreboard]
+            - gongutur: [visible, scoreboard]
+            - rod: [visible, scoreboard]
+            - hq9plus: [visible, scoreboard]
+            - evil_odious: [visible, scoreboard]
+            - teiknum_krossa: [visible, scoreboard]
+            - popp: [visible, scoreboard]
+
+            - "Eftir hádegi"
+            - netkerfi: [visible, scoreboard]
+            - sjukdomagreining: [visible, scoreboard]
+            - deiling: [visible, scoreboard]
+            - ip_address: [visible, scoreboard]
+            - bencoding: [visible, scoreboard]
+            - tonlist: [visible, scoreboard]
+            - ordasamsetning: [visible, scoreboard]
+            - stofn_og_lauf_plott: [visible, scoreboard]
+            - robotavandraedi: [visible, scoreboard]
+

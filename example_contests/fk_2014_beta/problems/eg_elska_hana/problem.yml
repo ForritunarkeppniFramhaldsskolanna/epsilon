@@ -1,0 +1,10 @@
+title: "Ég elska hana"
+examples:
+    - input: |
+        3
+      output: |
+        Ég elska hana
+    - input: |
+        4
+      output: |
+        Ég elska hana ekki

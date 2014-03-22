@@ -1,0 +1,24 @@
+title: "Þversumma"
+examples:
+    - input: |
+        996
+      output: |
+        996
+        24
+        6
+    - input: |
+        13
+      output: |
+        13
+        4
+    - input: |
+        29387424983847829374938433487382
+      output: |
+        29387424983847829374938433487382
+        173
+        11
+        2
+    - input: |
+        7
+      output: |
+        7

@@ -1,0 +1,7 @@
+#include <iostream> //na i bokasofn
+using namespace std;//nota tad
+//main fallid
+void main() {
+    //skrifa ut tolu
+    printf("%d\n", 10);
+}

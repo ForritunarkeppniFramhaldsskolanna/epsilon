@@ -1,0 +1,17 @@
+title: "Samtvinnun"
+examples:
+    - input: |
+        abc
+        xyz
+      output: |
+        axbycz
+    - input: |
+        bjarki
+        hjalti
+      output: |
+        bhjjaarlktii
+    - input: |
+        bnn
+        aai
+      output: |
+        banani

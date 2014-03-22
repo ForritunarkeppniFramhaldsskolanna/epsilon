@@ -1,0 +1,96 @@
+#include <vector>
+#include <map>
+#include <set>
+#include <queue>
+#include <stack>
+#include <bitset>
+#include <algorithm>
+#include <functional>
+#include <numeric>
+#include <utility>
+#include <sstream>
+#include <iostream>
+#include <iomanip>
+#include <cstdio>
+#include <cmath>
+#include <cstdlib>
+#include <ctime>
+#include <string>
+#include <cstring>
+#include <fstream>
+using namespace std;
+
+#define all(o) (o).begin(), (o).end()
+#define allr(o) (o).rbegin(), (o).rend()
+#define INF 2147483647
+typedef long long ll;
+typedef pair<int, int> ii;
+template <class T> int size(T x) { return x.size(); }
+
+vector<int> primes(int n)
+{
+    bool* isprime = new bool[n + 1];
+    memset(isprime, 1, n + 1);
+    vector<int> res;
+
+    int st = static_cast<int>(sqrt(static_cast<double>(n)));
+    for (int i = 2; i <= st; i = (i == 2 ? 3 : i + 2))
+    {
+        if (isprime[i])
+        {
+            for (int j = i * i; j <= n; j += i)
+            {
+                isprime[j] = false;
+            }
+        }
+    }
+
+    res.push_back(1);
+    for (int i = 2; i <= n; i = (i == 2 ? 3 : i + 2))
+    {
+        if (isprime[i])
+            res.push_back(i);
+    }
+
+    return res;
+}
+
+//tetta er lausnin min
+//vid daemi a uva
+
+int main()
+{
+    vector<int> ps = primes(2000);
+
+    int n, c;
+    while (scanf("%d %d\n", &n, &c) != EOF)
+    {
+        int i = 0;
+        while (ps[i] <= n) i++;
+
+        printf("%d %d:", n, c);
+
+        int mn, mx;
+        //ef oddatala
+        if (i % 2 != 0)
+        {
+            mn = (i / 2) - c + 1;
+            if (mn < 0) mn = 0;
+            mx = (i / 2) + c - 1;
+            if (mx >= i) mx = i - 1;
+        }
+        else
+        {
+            mn = ((i + 1) / 2) - c;
+            if (mn < 0) mn = 0;
+            mx = (i / 2) + c - 1;//meow
+            if (mx >= i) mx = i - 1;//test
+        }
+
+        for (int j = mn; j <= mx; j++) printf(" %d", ps[j]);
+        printf("\n");
+        printf("\n");
+    }
+
+    return 0;
+}

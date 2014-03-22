@@ -1,0 +1,28 @@
+
+<img src="assets/masks.jpg" alt="masks" class="img-polaroid" style="float:right;width:30%;margin:6px;" />
+
+Það er ekki algengt að lýsingarorð fylgi tölum, en það vill svo til að í
+heimi tölvunarfræðinga og stærðfræðinga eru allar tölur annað hvort
+&ldquo;slæmar&rdquo; (e. evil) eða &ldquo;illa þokkaðar&rdquo;
+(e. odious).
+
+Slæmum og illa þokkuðum tölum er skipt eftir því hversu margir ásar eru
+í táknun þeirra á tvíundarformi. Slæmar tölur hafa sléttan fjölda ása á
+meðan illa þokkaðar tölur hafa oddatölu fjölda ása.
+
+Sem dæmi, þá er 5 slæm tala. Hún er táknuð sem $101_2$ á tvíundaformi,
+sem hefur sléttan fjölda ása. Þá er 2 illa þokkuð tala. Hún er
+táknuð sem $10_2$ á tvíundarformi, sem hefur oddatölu fjölda ása.
+
+Nú eru þetta frekar neikvæð lýsingarorð. Ætli það sé hægt að leggja saman
+slæma tölu og illa þokkaða tölu og fá út góða tölu?
+
+Skilgreinum góðar tölur sem runu af tölum þar sem $n$-ta talan í rununni er
+summa $n$-tu slæmu tölunnar og $n$-tu illa þokkuðu tölunnar. Til dæmis er
+fyrsta góða talan 1. Hún er fengin með að leggja saman 0 (fyrsta slæma talan)
+og 1 (fyrsta illa þokkaða talan). Önnur góða talan er 5. Hún er fengin með
+að leggja saman 3 (önnur slæma talan) og 2 (önnur illa þokkaða talan).
+
+Skrifið forrit sem skrifar út $n$-tu góðu töluna. Inntakið inniheldur eina
+línu með heiltölunni $1 \leq n \leq 10^{16}$.
+

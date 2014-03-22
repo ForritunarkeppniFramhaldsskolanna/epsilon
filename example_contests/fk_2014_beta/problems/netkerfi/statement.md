@@ -1,0 +1,20 @@
+
+<img src="assets/cable.jpg" alt="cable" class="img-polaroid" style="float:right;width:30%;margin:6px;" />
+
+Verið er að byggja nýjan bæ á austurlandi. Í bænum eru $n$ hús. Nú þarf að
+útvega öllum húsunum internet, og er það gert með því að leggja netkapla á
+milli húsa. Hús númer $1$ er þegar komið með net, en það er tengt með löngum
+netkapli við næsta bæ.
+
+Ykkar verkefni er að finna út hvaða hús vantar nettengingu. Hús er nettengt
+ef það hefur netkapal í annað hús sem er nettengt.
+
+Á fyrstu línu inntaksins eru tvær heiltölur $1 \leq n \leq 100$, $0 \leq m \leq
+n(n-1)/2$, þar sem $n$ er fjöldi húsa og $m$ er fjöldi netkapla. Svo fylgja $m$
+línur, en hver þeirra inniheldur tvær heiltölur $a$ og $b$, sem táknar að hús
+$a$ og $b$ eru tengd með netkapli.
+
+Ef öll húsin eru nettengd þá á úttak að innihalda línuna &ldquo;<tt>Allir
+nettengdir</tt>&rdquo;. Ef ekki, þá á að skrifa út númer húsanna sem eru ekki
+nettengd, eitt á línu, í hækkandi röð.
+

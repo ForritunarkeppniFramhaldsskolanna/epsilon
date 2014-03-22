@@ -1,0 +1,14 @@
+title: "Lítill Stór"
+examples:
+    - input: |
+        Hello. My name is John. YAY!
+      output: |
+        hELLO. mY NAME IS jOHN. yay!
+    - input: |
+        MEOW
+      output: |
+        meow
+    - input: |
+        test
+      output: |
+        TEST

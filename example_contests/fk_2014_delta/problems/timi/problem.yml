@@ -1,0 +1,18 @@
+title: "Tími"
+examples:
+    - input: |
+        25
+      output: |
+        0 dagar, 0 klst, 0 mín, 25 sek
+    - input: |
+        342
+      output: |
+        0 dagar, 0 klst, 5 mín, 42 sek
+    - input: |
+        37933
+      output: |
+        0 dagar, 10 klst, 32 mín, 13 sek
+    - input: |
+        9362936
+      output: |
+        108 dagar, 8 klst, 48 mín, 56 sek

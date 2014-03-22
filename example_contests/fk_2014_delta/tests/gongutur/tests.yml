@@ -1,0 +1,3 @@
+time_limit: 3000 # ms
+memory_limit: 65536 # kbytes
+checker: "check.py"

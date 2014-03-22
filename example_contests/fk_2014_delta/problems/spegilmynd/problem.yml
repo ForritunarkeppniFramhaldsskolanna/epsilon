@@ -1,0 +1,34 @@
+title: "Spegilmynd"
+examples:
+    - input: |
+        5 6
+        #....#
+        .#..#.
+        .####.
+        ..##..
+        ..##..
+      output: |
+        Spegilmynd
+    - input: |
+        5 6
+        #....#
+        ....#.
+        .####.
+        ..##..
+        ..#...
+      output: |
+        Ekki spegilmynd
+    - input: |
+        3 3
+        .##
+        .#.
+        .##
+      output: |
+        Ekki spegilmynd
+    - input: |
+        3 3
+        ###
+        .#.
+        .#.
+      output: |
+        Spegilmynd

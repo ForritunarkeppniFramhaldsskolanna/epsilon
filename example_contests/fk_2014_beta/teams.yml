@@ -1,0 +1,29 @@
+teams:
+    "fk_bil": { pass: "password", title: " ", location: "M106", groups: [all, ts] }
+    "fk_javalicious": { pass: "password", title: "Javalicious", location: "M106", groups: [all, mr] }
+    "fk_glitch_is": { pass: "password", title: "Glitch.is", location: "M106", groups: [all, ts] }
+    "fk_aa_j": { pass: "password", title: "AA-J", location: "M106", groups: [all, ts] }
+    "fk_anderson": { pass: "password", title: "Goodbye, Mr.Anderson", location: "M106", groups: [all, ts] }
+    "fk_code_cowboys": { pass: "password", title: "``Code Cowboys''", location: "M106", groups: [all, mr] }
+    "fk_gragas": { pass: "password", title: "Grágás", location: "M106", groups: [all, ms] }
+    "fk_gudrun": { pass: "password", title: "Guðrún", location: "M106", groups: [all, ts] }
+    "fk_photon": { pass: "password", title: "Photon", location: "M106", groups: [all, ts] }
+    "fk_risaedlu_klubburinn": { pass: "password", title: "Risaeðlu Klúbburinn", location: "M106", groups: [all, fb, ts, kv] }
+    "fk_beibikokur": { pass: "password", title: "Beibíkökur", location: "M106", groups: [all, ts] }
+    "fk_kokomjolk": { pass: "password", title: "Kókómjólkur Goðsagnirnar", location: "M106", groups: [all, other] }
+
+    "fk_lid1": { pass: "password", title: "„Allt í lagi: forritun“", location: "M106", groups: [all, other] }
+
+groups:
+    "all": "Allir"
+    "ts": "Tækniskólinn"
+    "vma": "Verkmenntaskólinn á Akureyri"
+    "fva": "FVA"
+    "fs": "Fjölbrautaskóli Suðurlands"
+    "fs2": "Fjölbrautaskóli Suðurnesja"
+    "mr": "Menntaskólinn í Reykjavík"
+    "mh": "Menntaskólinn við Hamrahlíð"
+    "fb": "Fjölbrautaskólinn í Breiðholti"
+    "kv": "Kvennaskólinn í Reykjavík"
+    "other": "Aðrir"
+

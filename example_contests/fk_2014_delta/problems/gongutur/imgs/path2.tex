@@ -1,0 +1,23 @@
+\documentclass[tikz]{standalone}
+
+\usepackage[latin1]{inputenc}
+\usepackage{tikz}
+
+\begin{document}
+\pagestyle{empty}
+
+\newcommand\sz{4}
+
+\begin{tikzpicture}
+
+    \draw ({1*\sz},{4*\sz}) -- ({2.1*\sz},{5*\sz}) -- ({3*\sz},{4*\sz}) -- ({2.5*\sz}, {4.2*\sz}) -- ({1.2*\sz},{3.8*\sz});
+
+    \draw ({1*\sz},{4*\sz}) node[left] {(1,4)};
+    \draw ({2.1*\sz},{5*\sz}) node[above] {(2.1,5)};
+    \draw ({3*\sz},{4*\sz}) node[right] {(3,4)};
+    \draw ({2.5*\sz},{4.2*\sz}) node[above] {(2.5,4.2)};
+    \draw ({1.2*\sz},{3.8*\sz}) node[below] {(1.2,3.8)};
+
+\end{tikzpicture}
+
+\end{document}

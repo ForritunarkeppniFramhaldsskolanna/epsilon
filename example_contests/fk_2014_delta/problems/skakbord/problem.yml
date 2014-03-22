@@ -1,0 +1,35 @@
+title: "Skákborð"
+examples:
+    - input: |
+        8
+      output: |
+        HSHSHSHS
+        SHSHSHSH
+        HSHSHSHS
+        SHSHSHSH
+        HSHSHSHS
+        SHSHSHSH
+        HSHSHSHS
+        SHSHSHSH
+    - input: |
+        7
+      output: |
+        HSHSHSH
+        SHSHSHS
+        HSHSHSH
+        SHSHSHS
+        HSHSHSH
+        SHSHSHS
+        HSHSHSH
+    - input: |
+        9
+      output: |
+        HSHSHSHSH
+        SHSHSHSHS
+        HSHSHSHSH
+        SHSHSHSHS
+        HSHSHSHSH
+        SHSHSHSHS
+        HSHSHSHSH
+        SHSHSHSHS
+        HSHSHSHSH

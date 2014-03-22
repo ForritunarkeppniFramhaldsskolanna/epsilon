@@ -1,0 +1,18 @@
+title: "Svigar"
+examples:
+    - input: |
+        (()(()()))()
+      output: |
+        Ja
+    - input: |
+        (()))()
+      output: |
+        Nei
+    - input: |
+        ()
+      output: |
+        Ja
+    - input: |
+        )(
+      output: |
+        Nei

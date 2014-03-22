@@ -1,0 +1,21 @@
+title: "Einkunnir"
+examples:
+    - input: |
+        6
+        ENS203 7.3
+        ISL203 5.2
+        ENS101 10.0
+        FOR102 8.8
+        FOR203 9.2
+        FOR303 8.1
+      output: |
+        ENS 8.65
+        FOR 8.7
+        ISL 5.2
+    - input: |
+        3
+        FOR102 8.8
+        FOR203 9.2
+        FOR303 8.1
+      output: |
+        FOR 8.7

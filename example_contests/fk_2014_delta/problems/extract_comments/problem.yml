@@ -1,0 +1,27 @@
+title: "Athugasemdir"
+examples:
+    - display: "large"
+      input: |
+        #include <iostream> //na i bokasofn
+        using namespace std;//nota tad
+        //main fallid
+        void main() {
+            //skrifa ut tolu
+            printf("%d\n", 10);
+        }
+      output: |
+        na i bokasofn
+        nota tad
+        main fallid
+        skrifa ut tolu
+    - display: "large"
+      input: |
+        //test hello
+        bla//meow
+        muu
+        prufa // test
+        bless
+      output: |
+        test hello
+        meow
+         test

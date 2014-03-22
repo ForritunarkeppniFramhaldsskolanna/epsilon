@@ -1,0 +1,18 @@
+title: "Fyndin Orð"
+examples:
+    - input: |
+        hinstu
+      output: |
+        fyndið
+    - input: |
+        hinsta
+      output: |
+        ekki fyndið
+    - input: |
+        bein
+      output: |
+        fyndið
+    - input: |
+        banani
+      output: |
+        ekki fyndið

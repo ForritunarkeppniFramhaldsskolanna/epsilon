@@ -1,0 +1,14 @@
+title: "Leetspeak"
+examples:
+    - input: |
+        LEET FOR LIFE
+      output: |
+        |_33+ |=0|2 |_1|=3
+    - input: |
+        Test 123
+      output: |
+        +est 123
+    - input: |
+        abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
+      output: |
+        abcdefghijklmnopqrstuvwxyz4|3(|)3|=6|-|1_||<|_|\/||\|0|D(,)|25+|_||/\/\/><`/2`

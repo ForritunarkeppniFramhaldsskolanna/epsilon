@@ -1,0 +1,22 @@
+title: "Svigar 2"
+examples:
+    - input: |
+        {([]()[]){}[]}()
+      output: |
+        Ja
+    - input: |
+        {([](][]){}[]}()
+      output: |
+        Nei
+    - input: |
+        {}
+      output: |
+        Ja
+    - input: |
+        (]
+      output: |
+        Nei
+    - input: |
+        ({)}
+      output: |
+        Nei
