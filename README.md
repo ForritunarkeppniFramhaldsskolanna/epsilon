@@ -38,13 +38,17 @@ and one for Ubuntu.
 
 For Arch Linux:
 
-    cd scripts/arch
-    ./setup-all-quick.sh
+```
+$ cd scripts/arch
+$ ./setup-all-quick.sh
+```
 
 For Ubuntu:
 
-    cd scripts/ubuntu
-    ./setup-all.sh
+```
+$ cd scripts/ubuntu
+$ ./setup-all.sh
+```
 
 Note that the Arch Linux script is much faster and simpler, since it installs
 packages with `pacman`, instead of manually building the packages, which the
@@ -54,7 +58,9 @@ languages for Ubuntu, but can probably also be done through `apt-get`.
 After installing all prerequisites, the programming contest environment can be
 installed by executing:
 
-    sudo ./setup.py install
+```
+# ./setup.py install
+```
 
 This installs files into the default prefix, which is `/opt/epsilon`, but this
 can be changed with parameters to the setup script. Take note of the last piece
@@ -78,7 +84,9 @@ appropriately.
 Now start the programming contest server by executing (optionally change the
 path to your contest directory):
 
-    epsilon-server -p 8080 example_contests/fk_2013_beta
+```
+$ epsilon-server -p 8080 example_contests/fk_2013_beta
+```
 
 This creates the appropriate database tables if they don't exist, and then
 starts an HTTP server on port 8080. Navigate to `http://localhost:8080` and you
@@ -88,8 +96,10 @@ should see the web interface.
 
 Multiple automatic judge processes can be spawned as follows:
 
-    epsilon-judge example_contests/fk_2013_beta/judge.yml 1
-    epsilon-judge example_contests/fk_2013_beta/judge.yml 2
+```
+$ epsilon-judge example_contests/fk_2013_beta/judge.yml 1
+$ epsilon-judge example_contests/fk_2013_beta/judge.yml 2
+```
 
 The automatic judge executes submissions inside a `chroot` jail, and uses
 [Mooshak's](https://mooshak.dcc.fc.up.pt/) `safeexec` program to limit CPU
@@ -101,7 +111,9 @@ does not prevent network traffic.
 
 Start by creating the following alias to simplify later usage.
 
-    alias judge="epsilon-manual-judge -c $(realpath example_contests/fk_2013_beta/judge.yml)"
+```
+$ alias judge="epsilon-manual-judge -c $(realpath example_contests/fk_2013_beta/judge.yml)"
+```
 
 We will now use the `judge` command to judge submissions. Several commands are
 supported. For example:
@@ -148,26 +160,28 @@ supported. For example:
 One can make a temporary judging directory in `/tmp`. Then a small judging
 session might look like the following:
 
-    mkdir /tmp/judging
-    cd /tmp/judging
-    judge list queue
-    judge checkout 23
-    cd 23
-    cat submission.yml
-    cat sol.cs
-    judge current compile
-    judge current execute < tests/00.in
-    judge current execute < tests/01.in | diff - tests/01.out
-    judge current submit WA
-    cd ..
-    judge checkout next
-    cd 25
-    cat sol.cpp
-    judge current compile
-    judge submit CE
-    cd ..
-    cd ~
-    rm -rf /tmp/judging
+```
+$ mkdir /tmp/judging
+$ cd /tmp/judging
+$ judge list queue
+$ judge checkout 23
+$ cd 23
+$ cat submission.yml
+$ cat sol.cs
+$ judge current compile
+$ judge current execute < tests/00.in
+$ judge current execute < tests/01.in | diff - tests/01.out
+$ judge current submit WA
+$ cd ..
+$ judge checkout next
+$ cd 25
+$ cat sol.cpp
+$ judge current compile
+$ judge submit CE
+$ cd ..
+$ cd ~
+$ rm -rf /tmp/judging
+```
 
 
 ### Web judge interface
