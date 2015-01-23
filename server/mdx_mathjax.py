@@ -19,7 +19,7 @@ class MathJaxExtension(markdown.Extension):
         # Needs to come before escape matching because \ is pretty important in LaTeX
         md.inlinePatterns.add('mathjax', MathJaxPattern(), '<escape')
 
-def makeExtension(configs=None):
-    return MathJaxExtension(configs)
+def makeExtension(**kwargs):
+    return MathJaxExtension(**kwargs)
 
 
