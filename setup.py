@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 
-import os, sys, shutil, fnmatch, subprocess, pwd
+import os
+import sys
+import shutil
+import fnmatch
+import subprocess
 import argparse
-import config
+from config import CONFIG as KEYS
 
 DIR = os.path.abspath(os.path.dirname(__file__))
 
@@ -33,57 +37,6 @@ PERMS = [
     ('./bin/epsilon-manual-judge-start', (755, 755, 'root')),
 ]
 
-KEYS = {
-    'PREFIX': opts.prefix,
-    'JUDGE_USER_PREFIX': 'epsilon',
-    'JUDGE_USERS': '4'
-}
-
-KEY_EXPAND = [
-    '*.sh',
-    '*.py',
-    # '*.html'
-    './bin/epsilon-judge',
-    './bin/epsilon-server',
-    './bin/epsilon-manual-judge',
-    '*.ini',
-    '*.yml',
-]
-
-EXECUTABLES = {
-    # Programming languages
-    'JS': ['js', 'js24'],
-    'PYTHON2': ['python2', 'python2.7'],
-    'PYTHON3': ['python3', 'python3.3', 'python3.2'],
-    'GPP': ['g++'],
-    'GCC': ['gcc'],
-    'RUBY': ['ruby'],
-    'PERL': ['perl'],
-    'JAVAC': ['javac'],
-    'JAVA': ['java'],
-    'DMCS': ['dmcs'],
-    'MONO': ['mono'],
-    'PASCAL': ['fpc'],
-    'PASCAL_PPC': ['ppcx64', 'ppc386'],
-    'OCTAVE': ['octave'],
-    'OCTAVE_CLI': ['octave-cli'],
-
-    # Other executables
-    'SAFEEXEC': ['safeexec'],
-    'BASH': ['bash'],
-    'SH': ['sh'],
-    'LOCALE': ['locale'],
-    'LOCALE_GEN': ['locale-gen'],
-    'LOCALEDEF': ['localedef'],
-    'LDCONFIG': ['ldconfig'],
-    'LDCONFIG_REAL': ['ldconfig.real'],
-}
-
-OPTIONAL_EXECUTABLES = {
-    'OCTAVE_CLI',
-    'PASCAL_PPC',
-    'LDCONFIG_REAL',
-}
 
 PROG_LANGS = {
     ('js', 'JS'),
@@ -96,36 +49,42 @@ PROG_LANGS = {
     ('octave', 'OCTAVE'),
 }
 
+
 def log(txt):
     sys.stdout.write("%s\n" % txt)
+
 
 def fatal(error):
     sys.stderr.write('error: %s\n' % error)
     sys.exit(1)
 
+
 def sh(cmd, cwd=None, die=True):
     log(' '.join(cmd))
 
     global opts
-    if cwd is None: cwd = opts.prefix
+    if cwd is None:
+        cwd = opts.prefix
     sub = subprocess.Popen(cmd, cwd=cwd)
     if sub.wait() != 0 and die:
         fatal('command failed: %s' % ' '.join(cmd))
+
 
 def sh_com(cmd, stdin, cwd=None, die=True):
     log(' '.join(cmd))
 
     global opts
-    if cwd is None: cwd = opts.prefix
+    if cwd is None:
+        cwd = opts.prefix
     sub = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, cwd=cwd)
     stdout, stderr = sub.communicate(stdin)
     if sub.returncode != 0 and die:
         fatal('command failed: %s' % ' '.join(cmd))
     return stdout.decode('utf-8')
 
+
 def updateperms(path):
     global opts
-    dest = os.path.join(opts.prefix, path)
 
     for glob, (f, d, u) in reversed(PERMS):
         if fnmatch.fnmatch(path, glob):
@@ -137,6 +96,7 @@ def updateperms(path):
             sh(['chown', u, path])
             break
 
+
 def copy(path):
     global opts
     src = os.path.abspath(os.path.join(DIR, path))
@@ -144,50 +104,8 @@ def copy(path):
 
     log('copying %s' % path)
 
-    found = False
-    for glob in KEY_EXPAND:
-        if fnmatch.fnmatch(path, glob):
-            found = True
-            break
+    shutil.copyfile(src, dest)
 
-    if found:
-
-        with open(src, 'r', encoding='utf-8') as f:
-            txt = f.read()
-
-        tat = 0
-        res = ''
-        while tat < len(txt):
-            if txt[tat] == '_' and txt[tat+1] == '_':
-                cnt = 0
-                at = tat + 2
-                while at + cnt + 1 < len(txt) and (ord('A') <= ord(txt[at + cnt]) <= ord('Z') or txt[at + cnt] == '_' or ord('0') <= ord(txt[at + cnt]) <= ord('9')):
-                    if txt[at + cnt] == '_' and txt[at + cnt + 1] == '_':
-                        break
-                    cnt += 1
-
-                pre = 'EPSILON_'
-                if (at + cnt + 1 < len(txt)
-                    and txt[at + cnt] == '_'
-                    and txt[at + cnt + 1] == '_'
-                    and txt[at:at+len(pre)] == pre):
-                    if txt[at+len(pre):at+cnt] in KEYS:
-                        res += KEYS[txt[at+len(pre):at+cnt]]
-                        tat += cnt + 4
-                    else:
-                        fatal('key %s not found' % txt[at+len(pre):at+cnt])
-                else:
-                    res += txt[tat]
-                    tat += 1
-            else:
-                res += txt[tat]
-                tat += 1
-
-        with open(dest, 'w', encoding='utf-8') as f:
-            f.write(res)
-
-    else:
-        shutil.copyfile(src, dest)
 
 def update(path):
     global opts
@@ -221,6 +139,7 @@ def update(path):
 
             updateperms(os.path.join(path, f))
 
+
 def setup_virtualenv(path):
     global opts
     path = os.path.abspath(os.path.join(opts.prefix, path))
@@ -234,50 +153,10 @@ def setup_virtualenv(path):
         pip install -r requirements.txt
     '''], cwd=path)
 
+
 def prepare():
+    pass
 
-    log('resolving executable paths')
-    for key_name, exec_paths in EXECUTABLES.items():
-        found = None
-        for exec_path in exec_paths:
-            if exec_path.startswith('/'):
-                if os.path.isfile(exec_path) and os.access(exec_path, os.X_OK):
-                    found = exec_path
-            else:
-                found = shutil.which(exec_path)
-
-            if found is not None:
-                break
-
-        if found is None:
-            if key_name in OPTIONAL_EXECUTABLES:
-                KEYS['EXE_' + key_name] = ''
-                KEYS['LIBS_' + key_name] = ''
-            else:
-                fatal('no path found for executable %s' % key_name)
-        else:
-            KEYS['EXE_' + key_name] = found
-            log('path for executable %s is %s' % (key_name, found))
-            ldd = sh_com(['ldd', found], None, cwd='/', die=False)
-            libs = []
-            if ldd.strip() != 'not a dynamic executable':
-                for line in ldd.strip().split('\n'):
-                    sline = line.split('(')[0].strip()
-                    if '=>' in sline:
-                        rest = sline.split('=>')[1].strip()
-                        if rest:
-                            libs.append(rest)
-                    else:
-                        libs.append(sline)
-
-            if libs:
-                KEYS['LIBS_' + key_name] = ', ' + ', '.join(libs)
-                log('libraries for %s are %s' % (key_name, ', '.join(libs)))
-            else:
-                KEYS['LIBS_' + key_name] = ''
-
-        if key_name in OPTIONAL_EXECUTABLES:
-            KEYS['OPT_EXE_' + key_name] = ', ' + found if found else ''
 
 def install():
     global opts
@@ -349,6 +228,7 @@ def install():
     log('')
     log('')
 
+
 def uninstall():
     global opts
 
@@ -375,4 +255,3 @@ else:
     sys.stderr.write('error: action must be either "install" or "uninstall"\n')
     parser.print_help()
     sys.exit(1)
-
