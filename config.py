@@ -1,7 +1,7 @@
 import os
 import shutil
 import subprocess
-
+import sys
 
 prefix = os.path.dirname(os.path.dirname(__file__))
 CONFIG = {
@@ -113,5 +113,8 @@ for key_name, exec_paths in EXECUTABLES.items():
 
 # Output environment exports if this file was executed directly.
 if __name__ == "__main__":
-    for key, val in CONFIG.items():
-        print("export EPSILON_%s=\"%s\";" % (key, val))
+    if len(sys.argv) != 1:
+        sys.exit(0)
+    if sys.argv[1] == "export":
+        for key, val in CONFIG.items():
+            print("export EPSILON_%s=\"%s\";" % (key, val))

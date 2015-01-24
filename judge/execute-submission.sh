@@ -1,6 +1,6 @@
 #!/bin/bash
 BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
-eval $(python3 $BASE_DIR/../config.py)
+eval $(python3 $BASE_DIR/../config.py export)
 
 USER=$1
 NORMAL_USER=$2
