@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 if ! hash python3.3 2>/dev/null
 then
     mkdir python

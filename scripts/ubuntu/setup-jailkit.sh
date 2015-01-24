@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 if ! hash jk_init 2>/dev/null
 then
     mkdir jailkit

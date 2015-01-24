@@ -1,6 +1,8 @@
 #!/bin/bash
 
-sudo apt-get install -y g++ gcc python2.7 openjdk-7-jdk openjdk-7-jre fpc perl octave3.2 octave
+set -e
+
+sudo apt-get install -y g++ gcc python2.7 openjdk-7-jdk openjdk-7-jre fpc perl octave
 
 # Ruby
 if ! hash ruby 2>/dev/null
