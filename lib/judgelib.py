@@ -1,10 +1,11 @@
-import yaml, datetime, imp, time, os, random
+import datetime, imp, time, os, random
 from sqlalchemy import create_engine, or_, Column, Integer, String, Text, DateTime, ForeignKey, Boolean
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.exc import OperationalError
 from os.path import join as pjoin
 import logging
+from yamllib import load
 
 BALLOONS = True
 TESTS_DIR = ''
@@ -39,9 +40,9 @@ def read(p):
     with open(p, 'r') as f:
         return f.read()
 
-def load(p):
-    with open(p, 'r') as f:
-        return yaml.load(f)
+# def load(p):
+#     with open(p, 'r') as f:
+#         return yaml.load(f)
 
 def eq_check(expected, obtained):
     # TODO: make this optional

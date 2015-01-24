@@ -1,5 +1,4 @@
 import os
-import yaml
 import datetime
 import markdown
 import mdx_mathjax
@@ -7,12 +6,13 @@ from os.path import join as pjoin
 import sys
 DIR = os.path.join(os.path.dirname(__file__), "..")
 sys.path.append(DIR)
+from lib.yamllib import load
 
 processor = markdown.Markdown(extensions=['mathjax'])
 
-def load(path):
-    with open(path) as f:
-        return yaml.load(f)
+# def load(path):
+#     with open(path) as f:
+#         return yaml.load(f)
 
 def read(path):
     try:

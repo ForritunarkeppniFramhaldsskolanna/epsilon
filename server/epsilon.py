@@ -4,7 +4,6 @@ sys.path.append(DIR)
 
 import argparse
 import hashlib
-import yaml
 import datetime
 import time
 import functools

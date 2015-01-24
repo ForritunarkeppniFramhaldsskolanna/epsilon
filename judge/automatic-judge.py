@@ -7,6 +7,7 @@ MAX_DIFF = 400
 
 sys.path.append(DIR)
 from config import CONFIG
+from lib.yamllib import load
 import lib.judgelib as j
 from lib.judgelib import *
 
@@ -248,8 +249,7 @@ def main(argv):
 
     opts = parser.parse_args(argv)
 
-    with open(opts.config, 'r') as f:
-        config = yaml.load(f)
+    config = load(opts.config)
 
     global DISPLAY_DIFF, DISPLAY_INPUT, USER, USER_NO
     j.BALLOONS = config.get('balloons', False)
