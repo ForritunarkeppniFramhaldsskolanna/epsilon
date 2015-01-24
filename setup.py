@@ -2,6 +2,7 @@
 
 import os, sys, shutil, fnmatch, subprocess, pwd
 import argparse
+import config
 
 DIR = os.path.abspath(os.path.dirname(__file__))
 

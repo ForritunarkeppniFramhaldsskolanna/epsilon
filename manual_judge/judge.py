@@ -2,8 +2,8 @@ import sys, os, argparse, datetime, shutil
 from subprocess import Popen, PIPE
 import yaml
 
-DIR = "__EPSILON_PREFIX__/manual_judge"
-sys.path.append(os.path.join(DIR, '../lib'))
+DIR = os.path.join(os.path.dirname(__file__), "..")
+sys.path.append(os.path.join(DIR, 'lib'))
 
 import judgelib as j
 from judgelib import *

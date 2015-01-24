@@ -1,5 +1,5 @@
 #!/bin/bash
 
-source __EPSILON_PREFIX__/venv/bin/activate
-python __EPSILON_PREFIX__/manual_judge/judge.py "$@"
+source $EPSILON_PREFIX/venv/bin/activate
+python $EPSILON_PREFIX/manual_judge/judge.py "$@"
 

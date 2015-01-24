@@ -2,12 +2,13 @@ import time, datetime, yaml, argparse
 import sys, os, shutil, difflib, signal
 from subprocess import Popen, PIPE, TimeoutExpired
 
-DIR = "__EPSILON_PREFIX__/judge"
+DIR = os.path.join(os.path.dirname(__file__), "..")
 MAX_DIFF = 400
 
-sys.path.append(os.path.join(DIR, '../lib'))
-import judgelib as j
-from judgelib import *
+sys.path.append(DIR)
+from config import CONFIG
+import lib.judgelib as j
+from lib.judgelib import *
 
 def read_file(path):
     try:
@@ -256,7 +257,7 @@ def main(argv):
     j.DB_CONN_STRING = config['db_conn_string']
     DISPLAY_DIFF = config.get('display_diff', False)
     DISPLAY_INPUT = config.get('display_input', False)
-    USER = '__EPSILON_JUDGE_USER_PREFIX__-' + str(opts.user)
+    USER = CONFIG['JUDGE_USER_PREFIX'] + '-' + str(opts.user)
     USER_NO = str(opts.user)
 
     j.set_contest_id(config['contest_id'])

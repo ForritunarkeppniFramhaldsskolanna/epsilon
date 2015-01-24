@@ -1,5 +1,5 @@
 import os, sys
-DIR = "__EPSILON_PREFIX__/server"
+DIR = os.path.join(os.path.dirname(__file__), "..")
 sys.path.append(DIR)
 
 import argparse

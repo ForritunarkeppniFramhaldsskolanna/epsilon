@@ -4,6 +4,9 @@ import datetime
 import markdown
 import mdx_mathjax
 from os.path import join as pjoin
+import sys
+DIR = os.path.join(os.path.dirname(__file__), "..")
+sys.path.append(DIR)
 
 processor = markdown.Markdown(extensions=['mathjax'])
 
@@ -267,7 +270,7 @@ class Contest:
             teams={ team.name: team for team in teams },
             groups=groups,
             problems={ problem.id: problem for problem in Problem.load_all(path) },
-            languages={ lang.name: lang for lang in Language.load_all(os.path.join('__EPSILON_PREFIX__', 'config')) },
+            languages={ lang.name: lang for lang in Language.load_all(os.path.join(DIR, 'config')) },
             phases=None,
             judges={ judge.name: judge for judge in judges },
             register=contest.get('register', False),

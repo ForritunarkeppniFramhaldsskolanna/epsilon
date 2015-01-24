@@ -1,7 +1,8 @@
 #!/bin/bash
-
-JAIL=__EPSILON_PREFIX__/judge/jail
-DIR=__EPSILON_PREFIX__/judge
+BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
+eval $(python3 $BASE_DIR/../config.py)
+JAIL=$EPSILON_PREFIX/judge/jail
+DIR=$PSILON_PREFIX/judge
 
 # TODO: this isn't very neat, maybe copy safeexec manually into the jail?
 #cp $DIR/SafeExec/safeexec /usr/bin/safeexec
@@ -44,14 +45,14 @@ cp $JAIL/usr/lib/jvm/java-7-openjdk-i386/jre/lib/i386/libjava.so $JAIL/lib/
 cp $JAIL/usr/lib/libblas.so.3 $JAIL/usr/lib/libblas.so.3gf
 cp $JAIL/usr/lib/liblapack.so.3 $JAIL/usr/lib/liblapack.so.3gf
 
-for ((i=1; i<=__EPSILON_JUDGE_USERS__; i++))
+for ((i=1; i<=$EPSILON_JUDGE_USERS; i++))
 do
-    USER=__EPSILON_JUDGE_USER_PREFIX__-$i
-    useradd -d /home/$USER -m -U -s __EPSILON_EXE_BASH__ $USER
-    jk_jailuser -m -j $JAIL -s __EPSILON_EXE_BASH__ $USER
+    USER=$EPSILON_JUDGE_USER_PREFIX-$i
+    useradd -d /home/$USER -m -U -s $EPSILON_EXE_BASH $USER
+    jk_jailuser -m -j $JAIL -s $EPSILON_EXE_BASH $USER
     chmod 755 $JAIL/home/$USER
 done
 
-jk_chrootlaunch -j $JAIL -u root -x __EPSILON_EXE_LOCALE_GEN__
-jk_chrootlaunch -j $JAIL -u root -x __EPSILON_EXE_LDCONFIG__
+jk_chrootlaunch -j $JAIL -u root -x $EPSILON_EXE_LOCALE_GEN
+jk_chrootlaunch -j $JAIL -u root -x $EPSILON_EXE_LDCONFIG
 

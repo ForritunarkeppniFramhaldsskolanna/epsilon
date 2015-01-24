@@ -1,4 +1,6 @@
 #!/bin/bash
+BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
+eval $(python3 $BASE_DIR/../config.py)
 
 USER=$1
 NORMAL_USER=$2
@@ -17,10 +19,10 @@ CLOCK=60          # seconds
 ! [[ $USER =~ ^[0-9]+$ ]] && exit 1
 ! [[ $SUB_ID =~ ^[0-9]+$ ]] && exit 1
 
-USER="__EPSILON_JUDGE_USER_PREFIX__-$USER"
+USER="$EPSILON_JUDGE_USER_PREFIX-$USER"
 SUB_ID="${USER}_$SUB_ID"
-JAIL=__EPSILON_PREFIX__/judge/jail
-SUBMISSIONS=__EPSILON_PREFIX__/judge/submissions
+JAIL=$EPSILON_PREFIX/judge/jail
+SUBMISSIONS=$EPSILON_PREFIX/judge/submissions
 
 rm -rf "$JAIL/home/$USER/$SUB_ID"
 cp -r "$SUBMISSIONS/$SUB_ID" "$JAIL/home/$USER"
@@ -48,7 +50,7 @@ chmod -f a+x "$JAIL/home/$USER/$SUB_ID/prog" # TODO: is this really necessary?
 su "$USER" -c "
     export LANG=\"en_US.UTF-8\"
     cd /home/$USER/$SUB_ID
-    __EPSILON_EXE_SAFEEXEC__ \
+    $EPSILON_EXE_SAFEEXEC \
         --usage /tmp/usage-$USER \
         --cpu $CPU \
         --mem $MEM \

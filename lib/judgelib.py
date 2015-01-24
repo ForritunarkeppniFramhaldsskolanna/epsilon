@@ -8,7 +8,7 @@ import logging
 
 BALLOONS = True
 TESTS_DIR = ''
-LANGUAGES_FILE = os.path.join('__EPSILON_PREFIX__', 'config/languages.yml')
+LANGUAGES_FILE = os.path.join(os.path.dirname(__file__), "..", 'config/languages.yml')
 DB_CONN_STRING = ''
 SUBMISSION_WAIT = 1000 # ms
 SUBMISSION_JUDGE_TIMEOUT = 3 * 60 * 1000 # ms
