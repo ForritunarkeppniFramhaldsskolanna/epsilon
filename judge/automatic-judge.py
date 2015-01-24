@@ -2,11 +2,12 @@ import time, datetime, yaml, argparse
 import sys, os, shutil, difflib, signal
 from subprocess import Popen, PIPE, TimeoutExpired
 
-DIR = os.path.join(os.path.dirname(__file__), "..")
+DIR = os.path.abspath(os.path.dirname(__file__))
+ROOT = os.path.abspath(os.path.join(DIR, '..'))
 MAX_DIFF = 400
 
-sys.path.append(DIR)
-sys.path.append(os.path.join(DIR, 'config'))
+sys.path.append(ROOT)
+sys.path.append(os.path.join(ROOT, 'config'))
 
 from config import CONFIG
 from lib.yamllib import load

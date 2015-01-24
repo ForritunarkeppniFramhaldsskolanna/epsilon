@@ -37,7 +37,6 @@ PERMS = [
     ('./bin/epsilon-judge', (755, 755, 'root')),
     ('./bin/epsilon-server', (755, 755, 'root')),
     ('./bin/epsilon-manual-judge', (755, 755, 'root')),
-    ('./bin/epsilon-manual-judge-start', (755, 755, 'root')),
 ]
 
 
@@ -55,6 +54,7 @@ PROG_LANGS = {
 
 KEY_EXPAND = [
     './config/config.ini',
+    './bin/epsilon-*',
 ]
 
 

@@ -16,3 +16,6 @@ __pycache__
 /server/judges/temp
 
 /test_contests
+
+/venv
+

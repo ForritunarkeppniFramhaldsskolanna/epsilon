@@ -88,6 +88,11 @@ def load_libs(found):
 def load_executables():
     global CONFIG
 
+    old_path = os.environ['PATH']
+    if 'VIRTUAL_ENV' in os.environ:
+        venv = os.path.abspath(os.path.join(os.environ['VIRTUAL_ENV'], 'bin'))
+        os.environ['PATH'] = ':'.join( p for p in os.environ['PATH'].split(':') if os.path.abspath(p) != venv )
+
     for key_name, exec_paths in EXECUTABLES.items():
         found = None
         for exec_path in exec_paths:
@@ -117,6 +122,8 @@ def load_executables():
 
         if key_name in OPTIONAL_EXECUTABLES:
             CONFIG['OPT_EXE_' + key_name] = ', ' + found if found else ''
+
+    os.environ['PATH'] = old_path
 
 load_executables()
 

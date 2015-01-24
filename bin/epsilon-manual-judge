@@ -1,7 +1,5 @@
 #!/bin/bash
-BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
-eval $(python3 $BASE_DIR/../config.py export)
 
-source $EPSILON_PREFIX/venv/bin/activate
-python $EPSILON_PREFIX/manual_judge/judge.py "$@"
+source __EPSILON_PREFIX__/venv/bin/activate
+python __EPSILON_PREFIX__/manual_judge/judge.py "$@"
 

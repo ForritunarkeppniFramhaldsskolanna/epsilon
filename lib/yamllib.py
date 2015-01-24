@@ -1,7 +1,12 @@
-import yaml
 import re
 import os
 import sys
+
+try:
+    # allow setup.py to be run without depending on yaml
+    import yaml
+except:
+    pass
 
 DIR = os.path.join(os.path.dirname(__file__), "..")
 sys.path.append(DIR)
