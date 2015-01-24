@@ -6,6 +6,8 @@ DIR = os.path.join(os.path.dirname(__file__), "..")
 MAX_DIFF = 400
 
 sys.path.append(DIR)
+sys.path.append(os.path.join(DIR, 'config'))
+
 from config import CONFIG
 from lib.yamllib import load
 import lib.judgelib as j

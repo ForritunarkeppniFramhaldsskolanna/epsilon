@@ -6,9 +6,11 @@ import shutil
 import fnmatch
 import subprocess
 import argparse
-from config import CONFIG as KEYS
 
 DIR = os.path.abspath(os.path.dirname(__file__))
+sys.path.append(os.path.join(DIR, 'config'))
+
+from config import CONFIG as KEYS, update_config
 
 parser = argparse.ArgumentParser(description='An install script for epsilon.')
 parser.add_argument('--prefix', default='/opt/epsilon', help='the prefix that epsilon should be installed under')
@@ -48,6 +50,11 @@ PROG_LANGS = {
     ('mono', 'MONO'),
     ('octave', 'OCTAVE'),
 }
+
+
+KEY_EXPAND = [
+    './config/config.ini',
+]
 
 
 def log(txt):
@@ -104,7 +111,51 @@ def copy(path):
 
     log('copying %s' % path)
 
-    shutil.copyfile(src, dest)
+    found = False
+    for glob in KEY_EXPAND:
+        if fnmatch.fnmatch(path, glob):
+            found = True
+            break
+
+    if found:
+
+        with open(src, 'r', encoding='utf-8') as f:
+            txt = f.read()
+
+        tat = 0
+        res = ''
+        while tat < len(txt):
+            if txt[tat] == '_' and txt[tat+1] == '_':
+                cnt = 0
+                at = tat + 2
+                while at + cnt + 1 < len(txt) and (ord('A') <= ord(txt[at + cnt]) <= ord('Z') or txt[at + cnt] == '_' or ord('0') <= ord(txt[at + cnt]) <= ord('9')):
+                    if txt[at + cnt] == '_' and txt[at + cnt + 1] == '_':
+                        break
+                    cnt += 1
+
+                pre = 'EPSILON_'
+                if (at + cnt + 1 < len(txt)
+                    and txt[at + cnt] == '_'
+                    and txt[at + cnt + 1] == '_'
+                    and txt[at:at+len(pre)] == pre):
+                    if txt[at+len(pre):at+cnt] in KEYS:
+                        res += KEYS[txt[at+len(pre):at+cnt]]
+                        tat += cnt + 4
+                    else:
+                        fatal('key %s not found' % txt[at+len(pre):at+cnt])
+                else:
+                    res += txt[tat]
+                    tat += 1
+            else:
+                res += txt[tat]
+                tat += 1
+
+        with open(dest, 'w', encoding='utf-8') as f:
+            f.write(res)
+
+    else:
+        shutil.copyfile(src, dest)
+
 
 
 def update(path):
@@ -145,7 +196,7 @@ def setup_virtualenv(path):
     path = os.path.abspath(os.path.join(opts.prefix, path))
     if not os.path.exists(os.path.join(path, 'venv')):
         log('setting up virtualenv at %s' % path)
-        sh(['virtualenv', '--no-site-packages', '-p', 'python3.3', 'venv'], cwd=path)
+        sh(['virtualenv', '--no-site-packages', '-p', 'python3', 'venv'], cwd=path)
 
     log('updating virtualenv requirements at %s' % path)
     sh(['bash', '-c', '''
@@ -154,12 +205,10 @@ def setup_virtualenv(path):
     '''], cwd=path)
 
 
-def prepare():
-    pass
-
-
 def install():
     global opts
+
+    KEYS['PREFIX'] = opts.prefix
 
     # TODO: make this optional if not installing judge
     log('installing safeexec')
@@ -167,10 +216,10 @@ def install():
     sh(['make', 'install'], cwd=os.path.join(DIR, 'judge/SafeExec'))
     sh(['make', 'clean'], cwd=os.path.join(DIR, 'judge/SafeExec'))
 
-    prepare()
-
     if not os.path.isdir(opts.prefix):
         os.makedirs(opts.prefix)
+
+    update_config()
 
     log('installing necessary files')
     updateperms('.')
@@ -201,9 +250,10 @@ def install():
 
         if not opts.nojail:
             log('destroying the jail, if it exists')
-            sh(['./jail-destroy.sh'], cwd=os.path.join(opts.prefix, './judge'))
+            print(os.path.join(opts.prefix, 'judge'))
+            sh(['./jail-destroy.sh'], cwd=os.path.join(opts.prefix, 'judge'))
             log('creating the jail')
-            sh(['./jail-setup.sh'], cwd=os.path.join(opts.prefix, './judge'))
+            sh(['./jail-setup.sh'], cwd=os.path.join(opts.prefix, 'judge'))
 
             log('creating symlinks for programming languages')
             sh(['mkdir', os.path.join(opts.prefix, 'judge/jail/bin/lang/')])

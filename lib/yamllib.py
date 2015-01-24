@@ -5,6 +5,7 @@ import sys
 
 DIR = os.path.join(os.path.dirname(__file__), "..")
 sys.path.append(DIR)
+sys.path.append(os.path.join(DIR, 'config'))
 
 from config import CONFIG
 

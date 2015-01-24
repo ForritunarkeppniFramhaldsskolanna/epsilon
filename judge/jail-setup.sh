@@ -1,6 +1,5 @@
 #!/bin/bash
-BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
-eval $(python3 $BASE_DIR/../config.py export)
+eval $(python3 ../config/config.py export)
 JAIL=$EPSILON_PREFIX/judge/jail
 DIR=$PSILON_PREFIX/judge
 
@@ -11,8 +10,7 @@ DIR=$PSILON_PREFIX/judge
 #ln -s /bin/bash /usr/bin/bash
 #ln -s /usr/sbin/locale-gen /usr/bin/locale-gen
 
-jk_init -v -c $DIR/config.ini -j $JAIL basicshell locale ldconfig safeexec python2 python3 java mono perl ruby fpc js octave
-#jk_init -v -c $DIR/config.ini -j $JAIL basicshell locale safeexec strace
+jk_init -v -c $EPSILON_PREFIX/config/config.ini -j $JAIL basicshell locale ldconfig safeexec python2 python3 java mono perl ruby fpc js octave
 
 chmod g-w $JAIL/etc
 
