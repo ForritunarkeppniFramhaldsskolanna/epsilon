@@ -10,25 +10,41 @@ sys.path.append(os.path.join(DIR, 'config'))
 from config import CONFIG
 
 
-def insert_env(data):
-    k = set()
+# This just uses a single pass over the text, opposed to multiple .replace() calls.
+def multiple_replace(d, text):
+    if not d:
+        return text
+    # Create a regular expression  from the dictionary keys
+    regex = re.compile("|".join(map(re.escape, d.keys())))
+
+    # For each match, look-up corresponding value in dictionary
+    return regex.sub(lambda m: d[m.group()], text)
+
+
+def insert_conf(data, config=None, filename=""):
+    if config is None:
+        config = CONFIG
+    # All the starting positions of __EPSILON_
     locations = [m.start() for m in re.finditer('__EPSILON_', data)]
+
+    # Extract a dict of configuration
+    d = {}
     for loc in locations:
         i = int(loc)
         while data[i].isalnum() or data[i] == "_":
             i += 1
-        k.add(data[loc:i])
-    for key in k:
+        key = data[loc:i]
         try:
-            data = data.replace(key, CONFIG[key.replace("__", "").replace("EPSILON_", "")])
+            d[key] = config[key.replace("__", "").replace("EPSILON_", "")]
         except KeyError:
-            print("Invalid key in file", key)
-    return data
+            print("Invalid key %s in file %s" % (key, filename))
+    # replace it
+    return multiple_replace(d, data)
 
 
 def load(src):
     data = ""
     with open(src, 'r', encoding='utf-8') as f:
         data = f.read()
-    data = insert_env(data)
+    data = insert_conf(data, filename=src)
     return yaml.load(data)

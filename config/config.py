@@ -66,7 +66,26 @@ def _sh_com(cmd, stdin, cwd=None, die=True):
         # fatal('command failed: %s' % ' '.join(cmd))
     return stdout.decode('utf-8')
 
-def update_config():
+
+def load_libs(found):
+    libs = []
+    try:
+        ldd = _sh_com(['ldd', found], None, cwd='/', die=False)
+        if ldd.strip() != 'not a dynamic executable':
+            for line in ldd.strip().split('\n'):
+                sline = line.split('(')[0].strip()
+                if '=>' in sline:
+                    rest = sline.split('=>')[1].strip()
+                    if rest:
+                        libs.append(rest)
+                else:
+                    libs.append(sline)
+    except:
+        pass
+    return libs
+
+
+def load_executables():
     global CONFIG
 
     for key_name, exec_paths in EXECUTABLES.items():
@@ -77,7 +96,6 @@ def update_config():
                     found = exec_path
             else:
                 found = shutil.which(exec_path)
-
             if found is not None:
                 break
 
@@ -86,26 +104,11 @@ def update_config():
                 CONFIG['EXE_' + key_name] = ''
                 CONFIG['LIBS_' + key_name] = ''
             else:
-                pass
-                # fatal('no path found for executable %s' % key_name)
+                log('no path found for executable %s' % key_name)
         else:
             CONFIG['EXE_' + key_name] = found
             log('path for executable %s is %s' % (key_name, found))
-            libs = []
-            try:
-                ldd = _sh_com(['ldd', found], None, cwd='/', die=False)
-                if ldd.strip() != 'not a dynamic executable':
-                    for line in ldd.strip().split('\n'):
-                        sline = line.split('(')[0].strip()
-                        if '=>' in sline:
-                            rest = sline.split('=>')[1].strip()
-                            if rest:
-                                libs.append(rest)
-                        else:
-                            libs.append(sline)
-            except:
-                pass
-
+            libs = load_libs(found)
             if libs:
                 CONFIG['LIBS_' + key_name] = ', ' + ', '.join(libs)
                 log('libraries for %s are %s' % (key_name, ', '.join(libs)))
@@ -115,15 +118,14 @@ def update_config():
         if key_name in OPTIONAL_EXECUTABLES:
             CONFIG['OPT_EXE_' + key_name] = ', ' + found if found else ''
 
-update_config()
+load_executables()
 
 # Output environment exports if this file was executed directly.
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
+    if len(sys.argv) < 2:
         sys.exit(1)
     if sys.argv[1] == "export":
         for key, val in CONFIG.items():
             print("export EPSILON_%s=%s" % (key, shlex.quote(val)))
     else:
         sys.exit(1)
-
