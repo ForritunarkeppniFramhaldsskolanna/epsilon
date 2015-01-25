@@ -23,5 +23,5 @@ wget -q https://bootstrap.pypa.io/ez_setup.py -O - | sudo python3
 sudo easy_install -U pip
 sudo pip3 install virtualenv
 
-# $BASE_DIR/setup-languages.sh
+$BASE_DIR/setup-languages.sh
 
