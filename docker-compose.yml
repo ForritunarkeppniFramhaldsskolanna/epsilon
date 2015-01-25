@@ -1,0 +1,20 @@
+epsilon:
+  build: .
+  command: "python3 server/epsilon.py -H 0.0.0.0 test_contests/fk_2014_beta"
+  ports:
+   - "31415:31415"
+  volumes:
+   - .:/epsilon
+  links:
+   - postgres
+epsilon_judge:
+  build: .
+  command: "python3 judge/automatic-judge.py test_contests/fk_2014_beta/judge.yml 1"
+  volumes:
+   - .:/epsilon
+  links:
+   - postgres
+postgres:
+  image: postgres:9.4
+  ports:
+   - "5432"
