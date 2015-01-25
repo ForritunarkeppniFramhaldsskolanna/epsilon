@@ -1,0 +1,13 @@
+epsilon:
+  build: .
+  command: python3 server/epsilon.py
+  ports:
+   - "31415:31415"
+  volumes:
+   - .:/epsilon
+  links:
+   - postgres
+postgres:
+  image: postgres:9.4
+  ports:
+   - "5432"

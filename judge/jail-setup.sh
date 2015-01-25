@@ -1,7 +1,7 @@
 #!/bin/bash
 eval $(python3 ../config/config.py export)
 JAIL=$EPSILON_PREFIX/judge/jail
-DIR=$PSILON_PREFIX/judge
+DIR=$EPSILON_PREFIX/judge
 
 # TODO: this isn't very neat, maybe copy safeexec manually into the jail?
 #cp $DIR/SafeExec/safeexec /usr/bin/safeexec
