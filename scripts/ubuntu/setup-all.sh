@@ -2,23 +2,26 @@
 
 set -e
 
+
+BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
+RELEASE=$(lsb_release -sc)
 # Make sure Universe repository is being used
-sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) universe"
-sudo apt-get update
+if ! apt-cache policy | grep -q "$RELEASE/universe"; then
+    sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) universe"
+    sudo apt-get update -qq
+fi
 
-sudo apt-get install -y vim git-core libpq-dev libssl-dev libtool autoconf automake autotools-dev mono-gmcs
-sudo apt-get install python3.4 python3.4-dev libpython3.4 libpython3.4-dev
+sudo apt-get install -y vim git-core libpq-dev libssl-dev libtool autoconf automake autotools-dev mono-gmcs wget tar
+sudo apt-get install -y python3.4 python3.4-dev libpython3.4 libpython3.4-dev
+sudo apt-get install -y build-essential gcc g++ python
 
-#./setup-python3.3.sh
-./setup-jailkit.sh
+# $BASE_DIR/setup-python3.3.sh
+$BASE_DIR/setup-jailkit.sh
 
-#wget http://python-distribute.org/distribute_setup.py
-sudo python3 distribute_setup.py
-#sudo rm distribute_setup.py
-sudo rm distribute-*.tar.gz
+wget -q https://bootstrap.pypa.io/ez_setup.py -O - | sudo python3
 
 sudo easy_install -U pip
 sudo pip3 install virtualenv
 
-./setup-languages.sh
+$BASE_DIR/setup-languages.sh
 
