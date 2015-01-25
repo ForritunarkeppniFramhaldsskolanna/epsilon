@@ -522,10 +522,15 @@ def judge_balloons(id):
             balloons=sorted(balloons, key=lambda balloon: balloon.submission.submitted)
         )
 
-@app.route('/judge/resolver/', defaults={'no':None})
-@app.route('/judge/resolver/generate/<int:no>/')
+@app.route('/judge/resolver/')
 @judge_only
-def judge_resolver(no):
+def judge_resolver():
+    return render_template('judge/resolver.html')
+
+@app.route('/judge/export/', defaults={'no':None})
+@app.route('/judge/export/generate/<int:no>/')
+@judge_only
+def judge_export(no):
     if no is not None:
 
         if no == 1:
@@ -630,7 +635,7 @@ def judge_resolver(no):
                 problems[name] = len(problems) + 1
 
             res['problems'] = [ ]
-            for name, id in problems.items():
+            for name, id in sorted(problems.items(), key=lambda x: x[1]):
                 res['problems'].append(
                     {
                         'id': id,
@@ -671,7 +676,7 @@ def judge_resolver(no):
                     as_attachment=True,
                     mimetype='application/json')
 
-    return render_template('judge/resolver.html')
+    return render_template('judge/export.html')
 
 
 def main(argv):

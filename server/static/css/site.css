@@ -121,6 +121,10 @@ table a {
     text-align: center;
 }
 
+#content table.scoreboard td {
+    vertical-align: middle;
+}
+
 #content table.diff {font-family:Courier; border:medium;}
 #content .diff_header {background-color:#e0e0e0}
 #content td.diff_header {text-align:right}

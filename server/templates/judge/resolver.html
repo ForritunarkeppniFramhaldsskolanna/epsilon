@@ -1,13 +1,385 @@
-{% extends "judge/main.html" %}
+{% extends "base.html" %}
 {% block title %}
 {{ contest.title }} - resolver
 {% endblock %}
-{% block content %}
+{% block body %}
 
-<h3>Data for Resolver</h3>
-<p>Here you can find generated data for the <a href="https://github.com/icpc-live/graphics">ICPC Live Resolver</a>.</p>
+<style type="text/css">
+.scoreboard tr { background: white; }
+.scoreboard thead th.problem { width: 80px; }
+</style>
 
-<h5><a href="{{ url_for('judge_resolver', no=1) }}">Resolver data (XML)</a></h5>
-<h5><a href="{{ url_for('judge_resolver', no=3) }}">Resolver data (JSON)</a></h5>
+<div id="content">
 
+    <table class="table table-bordered scoreboard" id="scoreboard">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Team</th>
+                <th>Points</th>
+                <th>Penalty</th>
+                {#
+                {% for i, problem in enumerate(phase.scoreboard_problems) %}
+                    # <th>{{ contest.problems[problem].title }}</th> #
+                    <th title="{{ contest.problems[problem].title }}">{{ i+1 }}</th>
+                {% endfor %}
+                #}
+            </tr>
+        </thead>
+        <tbody>
+            {#
+            {% for i, (team, points, penalty, sb) in enumerate(scoreboard) %}
+                <tr>
+                    <td>
+                        {% if points > 0 %}
+                            {{ i+1 }}
+                        {% endif %}
+                    </td>
+                    <td>{{ contest.teams[team].title }}</td>
+                    <td>{{ points }}</td>
+                    <td>{{ penalty | format_time }}</td>
+                    {% for p in phase.scoreboard_problems %}
+                        {% set problem = sb[p] %}
+
+                        {% if problem.solved_at != None %}
+                            <td class="ac">
+                        {% elif problem.new_submissions > 0 %}
+                            <td class="new">
+                        {% elif problem.try_count > 0 %}
+                            <td class="wa">
+                        {% else %}
+                            <td>
+                        {% endif %}
+
+                            {% if problem.solved_at == None %}
+                            --:--
+                            {% else %}
+                                {{ problem.solved_at | format_time }}
+                            {% endif %}
+
+                            {% if problem.try_count > 0 or problem.new_submissions > 0 %}
+                            ({{ problem.try_count }}{% if problem.new_submissions > 0 %}+{{ problem.new_submissions }}{% endif %})
+                            {% endif %}
+                        </td>
+                    {% endfor %}
+                </tr>
+            #}
+        </tbody>
+    </table>
+
+</div>
+
+{% endblock %}
+{% block below %}
+<script type="text/javascript">
+
+jQuery(function ($) {
+    var TIME_MULTIPLIER = 200;
+    var SUBMISSION_PENALTY = 20;
+    var ROW_ANIMATE_TIME = 1000;
+
+    var format_time = function (t) {
+        var ten = function (x)  {
+            return (x < 10 ? '0' : '') + x;
+        };
+
+        return ten(Math.floor(t/60)) + ':' + ten(Math.floor(t)%60);
+    };
+
+    function Team(team, problems) {
+
+        var row = $("<tr></tr>");
+        var no_cell = $("<td></td>");
+        var title_cell = $("<td></td>").text(team['name']);
+        var points_cell = $("<td></td>").text('0');
+        var penalty_cell = $("<td></td>").text('00:00');
+
+        row.append(no_cell)
+           .append(title_cell)
+           .append(points_cell)
+           .append(penalty_cell);
+
+        var ps = {};
+        for (var i = 0; i < problems.length; i++) {
+            var problem_id = problems[i]['id'];
+
+            var problem_cell = $('<td></td>');
+
+            ps[problem_id] = {
+                cell: problem_cell,
+                tried: false,
+                solved: false,
+                tries: 0,
+            };
+
+            row.append(problem_cell);
+        }
+
+        return {
+            id: team['id'],
+            name: team['name'],
+            row: row,
+            cur_row: row,
+            no_cell: no_cell,
+            title_cell: title_cell,
+            points_cell: points_cell,
+            penalty_cell: penalty_cell,
+            problems: ps,
+            penalty: 0.0,
+            points: 0,
+
+            handle_submission: function (sub) {
+                var problem_id = sub['problem_id'];
+                var verdict = sub['verdict'];
+                var time = sub['time'];
+                var problem = this.problems[problem_id];
+                var solved = verdict == 'AC';
+
+                if (problem.solved) return;
+                if (verdict == 'CE') return;
+
+                problem.tried = true;
+                if (solved) {
+                    this.penalty += time + SUBMISSION_PENALTY * 60 * problem.tries;
+                    this.points += 1;
+                    problem.solved = true;
+                    problem.solved_at = time;
+
+                    problem.cell.removeClass('wa');
+                    problem.cell.addClass('ac');
+                    problem.cell.effect('highlight', { 'color': 'green' }, 2000);
+                } else {
+                    problem.tries += 1;
+
+                    if (problem.tries == 1) {
+                        problem.cell.addClass('wa');
+                        problem.cell.effect('highlight', { 'color': 'red' }, 2000);
+                    }
+                }
+
+                var txt = '';
+                if (!problem.solved) {
+                    txt += '--:--';
+                } else {
+                    txt += format_time(problem.solved_at);
+                }
+                if (problem.tries > 0) {
+                    txt += ' (' + problem.tries + ')';
+                }
+                problem.cell.text(txt);
+
+                this.points_cell.text(this.points);
+                this.penalty_cell.text(format_time(this.penalty));
+
+                if (this.points > 0) {
+                    this.no_cell.text(this.no);
+                }
+            },
+        };
+    };
+
+    var row_animate = function (team, standings, row, no, callback) {
+        var at = row.offset();
+        var height = row.height();
+        var width = row.width();
+        var widths = [];
+        for (var i = 0; i < row[0].children.length; i++) {
+            widths.push($(row[0].children[i]).width());
+        }
+
+        var fill_up = $('<tr></tr>');
+        fill_up.css('visibility', 'hidden');
+        fill_up.height(0);
+        fill_up.width(width);
+
+        // for (var i = 0; i < row[0].children.length; i++) {
+        //     // var cell = $(clone[0].children[i]);
+        //     // cell.width($(row[0].children[i]).width());
+        //     // cell.height($(row[0].children[i]).height());
+        //     // $(fill2[0].children[i]).width($(row[0].children[i]).width());
+        //     // $(fill2[0].children[i]).empty();
+        //     // $(fill2[0].children[i]).css('padding-top', '0');
+        //     // $(fill2[0].children[i]).css('padding-bottom', '0');
+        //     // $(fill2[0].children[i]).height(0);
+        // }
+
+        var fill_down = $('<tr></tr>');
+        row.replaceWith(fill_down);
+        team.cur_row = fill_down;
+        fill_down.css('visibility', 'hidden');
+        fill_down.height(height);
+        fill_down.width(width);
+
+        row.height(height);
+        row.width(width);
+        for (var i = 0; i < row[0].children.length; i++) {
+            $(row[0].children[i]).width(widths[i]);
+        }
+
+        var div = $('<div></div>');
+        div.append($('<table></table>')
+                    .addClass('table table-bordered scoreboard')
+                    .append('<tbody></tbody>')
+                    .append(row))
+           .width(width)
+           .height(height)
+           .css('position', 'absolute')
+           .css('top', at.top + 'px')
+           .css('left', (at.left+1) + 'px')
+           .appendTo($('#content'));
+
+        if (no == 0) {
+            $('#scoreboard tbody').prepend(fill_up);
+        } else {
+            fill_up.insertAfter(standings[no - 1].cur_row);
+        }
+
+        team.cur_row = fill_up;
+
+        fill_down.animate({
+            'height': '0'
+        }, ROW_ANIMATE_TIME);
+
+        fill_up.animate({
+            'height': height
+        }, ROW_ANIMATE_TIME);
+
+        div.animate({
+            'top': fill_up.offset().top + 'px'
+        }, ROW_ANIMATE_TIME, function () {
+
+            row.width('auto').height('auto');
+            for (var i = 0; i < row[0].children.length; i++) {
+                $(row[0].children[i]).width('auto');
+            }
+
+            fill_up.replaceWith(row);
+            team.cur_row = row;
+            div.remove();
+            fill_down.remove();
+            callback();
+        });
+    };
+
+    var cmp = function(a, b) { return a < b ? -1 : a > b ? 1 : 0; };
+    var update_standings = function(standings, animate, callback) {
+
+        standings.sort(function (a, b) {
+            if (a.points != b.points) return -cmp(a.points, b.points);
+            if (Math.abs(a.penalty - b.penalty) > 1e-9) return cmp(a.penalty, b.penalty);
+            if (a.name != b.name) return cmp(a.name, b.name);
+            return 0;
+        });
+
+        // $('#scoreboard tbody tr').detach();
+
+        var row_at = 0;
+        var next_row = function() {
+            if (row_at == standings.length) {
+                callback();
+            } else {
+                var old_no = standings[row_at].no;
+                standings[row_at].no = row_at + 1;
+                if (standings[row_at].points > 0) {
+                    standings[row_at].no_cell.text(row_at + 1);
+                } else {
+                    standings[row_at].no_cell.text('');
+                }
+                if (standings[row_at].no < old_no) {
+                    if (animate) {
+
+                        row_animate(standings[row_at], standings, standings[row_at].row, standings[row_at].no - 1, function () {
+                            row_at += 1;
+                            next_row();
+                        });
+
+                    } else {
+                        standings[row_at].row.detach();
+
+                        if (standings[row_at].no == 1) {
+                            $('#scoreboard tbody').prepend(standings[row_at].row);
+                        } else {
+                            standings[row_at].row.insertAfter(document.getElementById('scoreboard').children[1].children[standings[row_at].no - 2]);
+                        }
+
+                        row_at += 1;
+                        next_row();
+                    }
+
+                } else {
+                    row_at += 1;
+                    next_row();
+                }
+            }
+        };
+
+        next_row();
+    };
+
+    var json_url = "{{ url_for('judge_export', no=3) }}";
+    $.getJSON(json_url, function (data) {
+
+        var info = data['info'];
+        SUBMISSION_PENALTY = info['penalty'];
+
+        var problems = data['problems'];
+        var subs = data['runs'];
+
+        for (var i = 0; i < problems.length; i++) {
+            var id = problems[i]['id'];
+            var title = problems[i]['name'];
+            $('#scoreboard thead tr').append($('<th></th>').addClass('problem').attr('title', title).text(id));
+        }
+
+        var teams = {};
+        var standings = [];
+        for (var i = 0; i < data['teams'].length; i++) {
+            var team = new Team(data['teams'][i], problems);
+            teams[team.id] = team;
+
+            team.no = i + 1;
+            $('#scoreboard tbody').append(team.row);
+            standings.push(team);
+        }
+
+        subs.sort(function (a, b) {
+            return a.time - b.time;
+        });
+
+        var process_sub = function (sub_at) {
+
+                var sub = subs[sub_at];
+                var team = teams[sub['team_id']];
+                console.log(sub);
+                team.handle_submission(sub);
+                update_standings(standings, true, function () {
+                    if (sub_at + 1 < subs.length) {
+                        setTimeout(function () {
+                            process_sub(sub_at + 1);
+                        }, (subs[sub_at + 1]['time'] - subs[sub_at]['time']) / TIME_MULTIPLIER * 1000);
+                    }
+                });
+            };
+
+
+        update_standings(standings, false, function () {
+            if (subs.length > 0) {
+                setTimeout(function () {
+                    process_sub(0);
+                }, subs[0]['time'] /  TIME_MULTIPLIER * 1000);
+            }
+        });
+
+        // for (var i = 0; i < subs.length; i++) {
+        //     setTimeout(function (j) {
+        //         return function () {
+        //             process_sub(j);
+        //         };
+        //     }(i), subs[i]['time'] / TIME_MULTIPLIER * 1000);
+        // }
+
+    });
+});
+
+</script>
 {% endblock %}
