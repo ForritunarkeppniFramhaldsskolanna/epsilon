@@ -4,28 +4,30 @@ set -e
 
 sudo apt-get install -y g++ gcc python2.7 openjdk-7-jdk openjdk-7-jre fpc perl octave
 
-# Ruby
-if ! hash ruby 2>/dev/null
-then
-    sudo apt-get install -y autoconf bison build-essential libssl-dev libyaml-dev libreadline6-dev zlib1g-dev libncurses5-dev libffi-dev libgdbm3 libgdbm-dev
-    mkdir ruby
-    cd ruby
-    wget -q http://cache.ruby-lang.org/pub/ruby/2.2/ruby-2.2.0.tar.gz
-    tar xf ruby-2.2.0.tar.gz
-    cd ruby-2.2.0
-    ./configure --disable-install-doc
-    make
-    sudo make install
-    cd ../..
-    sudo rm -rf ruby
-fi
+# # Ruby
+sudo apt-add-repository -y ppa:brightbox/ruby-ng
+sudo apt-get update -qq && sudo apt-get install -y ruby2.2
+# if ! hash ruby 2>/dev/null
+# then
+#     sudo apt-get install -y autoconf bison build-essential libssl-dev libyaml-dev libreadline6-dev zlib1g-dev libncurses5-dev libffi-dev libgdbm3 libgdbm-dev
+#     mkdir ruby
+#     cd ruby
+#     wget -http://cache.ruby-lang.org/pub/ruby/2.2/ruby-2.2.0.tar.gz
+#     tar xf ruby-2.2.0.tar.gz
+#     cd ruby-2.2.0
+#     ./configure --disable-install-doc
+#     make
+#     sudo make install
+#     cd ../..
+#     sudo rm -rf ruby
+# fi
 
 # JavaScript
 if ! hash js 2>/dev/null
 then
     mkdir js
     cd js
-    wget -q https://ftp.mozilla.org/pub/mozilla.org/js/mozjs-24.2.0.tar.bz2
+    wget https://ftp.mozilla.org/pub/mozilla.org/js/mozjs-24.2.0.tar.bz2
     tar xf mozjs-24.2.0.tar.bz2
     cd mozjs-24.2.0/js/src
     ./configure
