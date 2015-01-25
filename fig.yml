@@ -1,6 +1,6 @@
 epsilon:
   build: .
-  command: python3 server/epsilon.py
+  command: python3 server/epsilon.py -H 0.0.0.0
   ports:
    - "31415:31415"
   volumes:
