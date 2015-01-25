@@ -15,5 +15,6 @@ __pycache__
 /server/judges/ideone/venv
 /server/judges/temp
 
+/test_contests
 /venv
 

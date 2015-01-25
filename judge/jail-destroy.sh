@@ -1,6 +1,5 @@
 #!/bin/bash
-BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
-eval $(python3 $BASE_DIR/../config.py)
+eval $(python3 ../config/config.py export)
 
 JAIL=$EPSILON_PREFIX/judge/jail
 

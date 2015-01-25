@@ -187,7 +187,8 @@
                 "{{ lang.name }}":"{{ lang.template.replace("\\", "\\\\").replace('"', '\"').replace("\n", "\\n") | safe }}"
             {% endfor %}
         };
-
+        if($("#source_code").length == 0)
+            return;
         var code = CodeMirror.fromTextArea($('#source_code')[0], {
             'mode': 'clike',
             'theme': 'ambiance',

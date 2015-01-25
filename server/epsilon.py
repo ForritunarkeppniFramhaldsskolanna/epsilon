@@ -9,6 +9,7 @@ import time
 import functools
 import re
 import io
+import json
 from flask import Flask, g, redirect, abort, render_template, url_for as real_url_for, request, session, send_from_directory, send_file
 from data import Contest, ScoreboardTeamProblem, Balloon
 from models import db, Submission, SubmissionQueue, Balloon as BalloonModel
@@ -526,86 +527,149 @@ def judge_balloons(id):
 @judge_only
 def judge_resolver(no):
     if no is not None:
-        # out = io.StringIO()
-        out = io.BytesIO()
 
-        out.write(('''<?xml version="1.0" encoding="UTF-8"?>
-<contest>
-    <info>
-        <length>%(duration)s</length>
-        <penalty>20</penalty>
-        <started>True</started>
-        <title>%(title)s</title>
-    </info>
-''' % {
-        'duration': '%02d:%02d:%02d' % (contest.duration // 60, contest.duration % 60, 0),
-            'title': contest.title,
-        }).encode('utf-8'))
+        if no == 1:
+            # out = io.StringIO()
+            out = io.BytesIO()
 
-        teams = {}
-        problems = {}
-
-        for name, team in contest.teams.items():
-            teams[name] = len(teams) + 1
-
-        for name in contest.phases[-1][1].scoreboard_problems:
-            problems[name] = len(problems) + 1
-
-        for name, id in problems.items():
-            out.write(('''
-    <problem>
-        <id>%(id)d</id>
-        <name>%(name)s</name>
-    </problem>''' % { 'id': id, 'name': name }).encode('utf-8'))
-
-        for name, id in teams.items():
-            out.write(('''
-    <team>
-        <id>%(id)d</id>
-        <name>%(name)s</name>
-    </team>''' % { 'id': id, 'name': contest.teams[name].title }).encode('utf-8'))
-
-        subs = Submission.query.filter(Submission.verdict != 'QU').all()
-        for no, sub in enumerate(sorted(subs, key=lambda sub: sub.submitted)):
-            out.write(('''
-    <run>
-        <id>%(no)d</id>
-        <judged>False</judged>
-        <problem>%(problem_id)d</problem>
-        <status>fresh</status>
-        <team>%(team_id)d</team>
-        <time>%(time)f</time>
-    </run>
-    <run>
-        <id>%(no)d</id>
-        <judged>True</judged>
-        <penalty>%(penalty)s</penalty>
-        <problem>%(problem_id)d</problem>
-        <result>%(verdict)s</result>
-        <solved>%(solved)s</solved>
-        <status>done</status>
-        <team>%(team_id)d</team>
-        <time>%(time)f</time>
-    </run>
-''' % {
-                'no': no + 1,
-                'penalty': 'True' if set(sub.verdict.split('+')) <= {'RE','TL','ML','WA','PE'} else 'False',
-                'problem_id': problems[sub.problem],
-                'verdict': sub.verdict,
-                'solved': 'True' if sub.verdict == 'AC' else 'False',
-                'team_id': teams[sub.team],
-                'time': sub.submitted,
+            out.write(('''<?xml version="1.0" encoding="UTF-8"?>
+    <contest>
+        <info>
+            <length>%(duration)s</length>
+            <penalty>20</penalty>
+            <started>True</started>
+            <title>%(title)s</title>
+        </info>
+    ''' % {
+            'duration': '%02d:%02d:%02d' % (contest.duration // 60, contest.duration % 60, 0),
+                'title': contest.title,
             }).encode('utf-8'))
 
-        out.write(('''
-</contest>
-''').encode('utf-8'))
+            teams = {}
+            problems = {}
 
-        out.seek(0)
-        return send_file(out,
-                attachment_filename=contest.id + '_resolver.xml',
-                as_attachment=True,
-                mimetype='application/xml')
+            for name, team in contest.teams.items():
+                teams[name] = len(teams) + 1
+
+            for name in contest.phases[-1][1].scoreboard_problems:
+                problems[name] = len(problems) + 1
+
+            for name, id in problems.items():
+                out.write(('''
+        <problem>
+            <id>%(id)d</id>
+            <name>%(name)s</name>
+        </problem>''' % { 'id': id, 'name': name }).encode('utf-8'))
+
+            for name, id in teams.items():
+                out.write(('''
+        <team>
+            <id>%(id)d</id>
+            <name>%(name)s</name>
+        </team>''' % { 'id': id, 'name': contest.teams[name].title }).encode('utf-8'))
+
+            subs = Submission.query.filter(Submission.verdict != 'QU').all()
+            for no, sub in enumerate(sorted(subs, key=lambda sub: sub.submitted)):
+                out.write(('''
+        <run>
+            <id>%(no)d</id>
+            <judged>False</judged>
+            <problem>%(problem_id)d</problem>
+            <status>fresh</status>
+            <team>%(team_id)d</team>
+            <time>%(time)f</time>
+        </run>
+        <run>
+            <id>%(no)d</id>
+            <judged>True</judged>
+            <penalty>%(penalty)s</penalty>
+            <problem>%(problem_id)d</problem>
+            <result>%(verdict)s</result>
+            <solved>%(solved)s</solved>
+            <status>done</status>
+            <team>%(team_id)d</team>
+            <time>%(time)f</time>
+        </run>
+    ''' % {
+                    'no': no + 1,
+                    'penalty': 'True' if set(sub.verdict.split('+')) <= {'RE','TL','ML','WA','PE'} else 'False',
+                    'problem_id': problems[sub.problem],
+                    'verdict': sub.verdict,
+                    'solved': 'True' if sub.verdict == 'AC' else 'False',
+                    'team_id': teams[sub.team],
+                    'time': sub.submitted,
+                }).encode('utf-8'))
+
+            out.write(('''
+    </contest>
+    ''').encode('utf-8'))
+
+            out.seek(0)
+            return send_file(out,
+                    attachment_filename=contest.id + '_resolver.xml',
+                    as_attachment=True,
+                    mimetype='application/xml')
+
+        elif no == 3:
+            res = {}
+            res['info'] = {
+                'length': '%02d:%02d:%02d' % (contest.duration // 60, contest.duration % 60, 0),
+                'penalty': 20,
+                'started': True,
+                'title': contest.title,
+            }
+
+
+            teams = {}
+            problems = {}
+
+            for name, team in contest.teams.items():
+                teams[name] = len(teams) + 1
+
+            for name in contest.phases[-1][1].scoreboard_problems:
+                problems[name] = len(problems) + 1
+
+            res['problems'] = [ ]
+            for name, id in problems.items():
+                res['problems'].append(
+                    {
+                        'id': id,
+                        'name': name,
+                    }
+                )
+
+            res['teams'] = [ ]
+            for name, id in teams.items():
+                res['teams'].append(
+                    {
+                        'id': id,
+                        'name': contest.teams[name].title,
+                    }
+                )
+
+            subs = Submission.query.filter(Submission.verdict != 'QU').all()
+            res['runs'] = [  ]
+            for no, sub in enumerate(sorted(subs, key=lambda sub: sub.submitted)):
+                res['runs'].append(
+                    {
+                        'no': no + 1,
+                        'penalty': 'True' if set(sub.verdict.split('+')) <= {'RE','TL','ML','WA','PE'} else 'False',
+                        'problem_id': problems[sub.problem],
+                        'verdict': sub.verdict,
+                        'solved': 'True' if sub.verdict == 'AC' else 'False',
+                        'team_id': teams[sub.team],
+                        'time': sub.submitted,
+                    }
+                )
+
+            out = io.BytesIO()
+            out.write(json.dumps(res).encode('utf-8'))
+
+            out.seek(0)
+            return send_file(out,
+                    attachment_filename=contest.id + '_resolver.json',
+                    as_attachment=True,
+                    mimetype='application/json')
 
     return render_template('judge/resolver.html')
 
