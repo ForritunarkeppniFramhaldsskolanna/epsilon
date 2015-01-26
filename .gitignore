@@ -2,6 +2,8 @@
 *.pyc
 __pycache__
 
+/config/config.out.ini
+
 /judge/venv
 /judge/jail
 /judge/submissions/*

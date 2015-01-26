@@ -11,7 +11,7 @@ DIR = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(DIR, 'config'))
 sys.path.append(os.path.join(DIR, 'lib'))
 from config import CONFIG as KEYS, load_executables
-from yamllib import insert_conf
+from conflib import insert_conf
 
 parser = argparse.ArgumentParser(description='An install script for epsilon.')
 parser.add_argument('--prefix', default='/opt/epsilon', help='the prefix that epsilon should be installed under')
@@ -122,7 +122,7 @@ def copy(path):
         with open(src, 'r', encoding='utf-8') as f:
             txt = f.read()
 
-        res = insert_conf(txt, config=KEYS)
+        res = insert_conf(txt, KEYS, filename=path)
 
         with open(dest, 'w', encoding='utf-8') as f:
             f.write(res)

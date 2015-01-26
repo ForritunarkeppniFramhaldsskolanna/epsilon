@@ -5,6 +5,9 @@ import sys
 import shlex
 
 prefix = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+sys.path.append(prefix)
+from lib.conflib import insert_conf
+
 CONFIG = {
     'PREFIX': prefix,
     'JUDGE_USER_PREFIX': 'epsilon',
@@ -91,7 +94,7 @@ def load_executables():
     old_path = os.environ['PATH']
     if 'VIRTUAL_ENV' in os.environ:
         venv = os.path.abspath(os.path.join(os.environ['VIRTUAL_ENV'], 'bin'))
-        os.environ['PATH'] = ':'.join( p for p in os.environ['PATH'].split(':') if os.path.abspath(p) != venv )
+        os.environ['PATH'] = ':'.join(p for p in os.environ['PATH'].split(':') if os.path.abspath(p) != venv)
 
     for key_name, exec_paths in EXECUTABLES.items():
         found = None
@@ -134,5 +137,13 @@ if __name__ == "__main__":
     if sys.argv[1] == "export":
         for key, val in CONFIG.items():
             print("export EPSILON_%s=%s" % (key, shlex.quote(val)))
+    if sys.argv[1] == "output" and len(sys.argv) > 3:
+        with open(sys.argv[2], 'r', encoding='utf-8') as f:
+            txt = f.read()
+
+        res = insert_conf(txt, CONFIG, filename=sys.argv[2])
+
+        with open(sys.argv[3], 'w', encoding='utf-8') as f:
+            f.write(res)
     else:
         sys.exit(1)
