@@ -21,7 +21,7 @@ CLOCK=60          # seconds
 
 USER="$EPSILON_JUDGE_USER_PREFIX-$USER"
 SUB_ID="${USER}_$SUB_ID"
-JAIL=$EPSILON_PREFIX/judge/jail
+JAIL=${EPSILON_JAIL:-$EPSILON_PREFIX/judge/jail}
 SUBMISSIONS=$EPSILON_PREFIX/judge/submissions
 
 rm -rf "$JAIL/home/$USER/$SUB_ID"

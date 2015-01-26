@@ -24,8 +24,7 @@ def read_file(path):
 
 def execute_submission(sub_id, sub_real_id, cpu, mem, nprocs, cmd):
     global USER_NO
-
-    proc = Popen([ 'sudo', os.path.join(DIR, 'execute-submission.sh'),
+    proc = Popen([ 'sudo', "-E", os.path.join(DIR, 'execute-submission.sh'),
             str(USER_NO),
             '%d:%d' % (os.getuid(), os.getgid()),
             str(sub_real_id),
@@ -37,6 +36,7 @@ def execute_submission(sub_id, sub_real_id, cpu, mem, nprocs, cmd):
 
     retcode = proc.wait()
 
+    stderr = stdout = usage = ""
     try:
         stdout = read_file(os.path.join(DIR, 'submissions', sub_id, 'out'))
         stderr = read_file(os.path.join(DIR, 'submissions', sub_id, 'err'))
@@ -256,7 +256,7 @@ def main(argv):
 
     global DISPLAY_DIFF, DISPLAY_INPUT, USER, USER_NO
     j.BALLOONS = config.get('balloons', False)
-    j.TESTS_DIR = os.path.abspath(config['tests_dir'])
+    j.TESTS_DIR = os.path.abspath(os.path.join(os.path.dirname(opts.config), config['tests_dir']))
     j.DB_CONN_STRING = config['db_conn_string']
     DISPLAY_DIFF = config.get('display_diff', False)
     DISPLAY_INPUT = config.get('display_input', False)
