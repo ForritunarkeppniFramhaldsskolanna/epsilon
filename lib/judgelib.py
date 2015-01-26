@@ -36,9 +36,13 @@ formatter = logging.Formatter('[%(asctime)s, %(levelname)s] %(message)s')
 ch.setFormatter(formatter)
 logger.addHandler(ch)
 
-def read(p):
-    with open(p, 'r') as f:
-        return f.read()
+def read(path):
+    try:
+        with open(path, 'r', encoding='utf8') as f:
+            return f.read()
+    except UnicodeDecodeError as e:
+        with open(path, 'r', encoding='latin1') as f:
+            return f.read()
 
 # def load(p):
 #     with open(p, 'r') as f:
