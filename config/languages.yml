@@ -1,4 +1,4 @@
-"C++ (g++ 4.8.0)":
+"C++ (g++ 4.8.2)":
     filename: "sol.cpp"
     compile: ["__EPSILON_PREFIX__/judge/scripts/compile_cpp.sh"]
     execute: ["./a.out"]
@@ -29,7 +29,7 @@
     filename: "sol.py"
     execute: ["__EPSILON_EXE_PYTHON3__", "sol.py"]
     highlight: 'python'
-"Python 2.7.5":
+"Python 2.7.6":
     filename: "sol.py"
     compile: ["__EPSILON_PREFIX__/judge/scripts/compile_py2.sh"]
     execute: ["__EPSILON_EXE_PYTHON2__", "sol.py"]
@@ -76,12 +76,12 @@
 
             }
         }
-"Pascal (fpc 1.0.4)":
+"Pascal (fpc 2.6.2)":
     filename: "sol.pas"
     compile: ["__EPSILON_PREFIX__/judge/scripts/compile_pas.sh"]
     execute: ["./prog"]
     highlight: 'pascal'
-"Perl (v5.10.0)":
+"Perl (v5.18.2)":
     filename: "sol.pl"
     compile: ["__EPSILON_PREFIX__/judge/scripts/compile_pl.sh"]
     execute: ["__EPSILON_EXE_PERL__", "sol.pl"]
@@ -92,7 +92,7 @@
     execute: ["__EPSILON_EXE_JS__", "-f", "sol.js"]
     nprocs: 4
     highlight: 'javascript'
-"Octave (3.8.0)":
+"Octave (3.8.1)":
     filename: "sol.m"
     execute: ["__EPSILON_EXE_OCTAVE__", "--silent", "--no-window-system", "--no-history", "--no-init-file", "--no-line-editing", "--no-site-file", "--norc", "sol.m"]
     highlight: 'octave'
