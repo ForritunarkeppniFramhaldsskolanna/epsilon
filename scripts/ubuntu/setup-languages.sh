@@ -12,7 +12,7 @@ sudo apt-get update -qq && sudo apt-get install -y ruby2.2
 #     sudo apt-get install -y autoconf bison build-essential libssl-dev libyaml-dev libreadline6-dev zlib1g-dev libncurses5-dev libffi-dev libgdbm3 libgdbm-dev
 #     mkdir ruby
 #     cd ruby
-#     wget -http://cache.ruby-lang.org/pub/ruby/2.2/ruby-2.2.0.tar.gz
+#     wget http://cache.ruby-lang.org/pub/ruby/2.2/ruby-2.2.0.tar.gz
 #     tar xf ruby-2.2.0.tar.gz
 #     cd ruby-2.2.0
 #     ./configure --disable-install-doc
@@ -23,7 +23,16 @@ sudo apt-get update -qq && sudo apt-get install -y ruby2.2
 # fi
 
 # JavaScript
-if ! hash js 2>/dev/null
+if [ $(uname -m) == 'x86_64' ]; then
+    # 64-bit stuff here
+    mkdir js
+    cd js
+    wget -q http://x.fleck.pw/mozjs-24_24-1_amd64.deb
+    dpkg -i mozjs-24_24-1_amd64.deb
+    sudo ln -s /usr/local/bin/js24 /usr/bin/js
+    cd ..
+    sudo rm -rf js
+elif ! hash js 2>/dev/null # For 32 bit, install from source
 then
     mkdir js
     cd js

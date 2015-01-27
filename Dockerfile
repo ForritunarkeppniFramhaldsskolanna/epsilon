@@ -4,11 +4,11 @@ ENV TERM xterm
 ENV DEBIAN_FRONTEND noninteractive
 ENV SHELL /bin/bash
 
+
+RUN locale-gen en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LC_CTYPE en_US.UTF-8
-
-RUN locale-gen $LANG
 # Install add-apt-repository
 RUN sed -i 's/archive.ubuntu.com/is.archive.ubuntu.com/' /etc/apt/sources.list
 RUN apt-get update -qq && apt-get install -y software-properties-common
