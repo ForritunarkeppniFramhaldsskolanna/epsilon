@@ -25,7 +25,7 @@
 
             return 0;
         }
-"Python 3.3.2":
+"Python 3.4.0":
     filename: "sol.py"
     execute: ["__EPSILON_EXE_PYTHON3__", "sol.py"]
     highlight: 'python'
@@ -34,7 +34,7 @@
     compile: ["__EPSILON_PREFIX__/judge/scripts/compile_py2.sh"]
     execute: ["__EPSILON_EXE_PYTHON2__", "sol.py"]
     highlight: 'python'
-"Ruby 2.0.0":
+"Ruby 2.2.0":
     filename: "sol.rb"
     compile: ["__EPSILON_PREFIX__/judge/scripts/compile_rb.sh"]
     execute: ["__EPSILON_EXE_RUBY__", "sol.rb"]

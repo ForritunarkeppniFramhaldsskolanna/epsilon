@@ -16,7 +16,7 @@ sudo mount -o bind /proc $JAIL/proc
 mkdir -p $JAIL/dev/shm
 # This is somewhat insecure, but may use less memory
 # sudo mount -o bind /dev/shm $JAIL/dev/shm
-mount -t tmpfs tmpfs $JAIL/dev/shm
+sudo mount -t tmpfs tmpfs $JAIL/dev/shm
 
 echo "done"
 
