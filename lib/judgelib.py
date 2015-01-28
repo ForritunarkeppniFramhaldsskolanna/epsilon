@@ -5,7 +5,9 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.exc import OperationalError
 from os.path import join as pjoin
 import logging
-from .yamllib import load
+import sys
+sys.path.append(os.path.dirname(__file__))
+from yamllib import load
 
 BALLOONS = True
 TESTS_DIR = ''

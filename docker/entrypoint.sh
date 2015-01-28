@@ -20,4 +20,8 @@ sudo mount -t tmpfs tmpfs $JAIL/dev/shm
 
 echo "done"
 
+if ! [ -z $CONTEST ]; then
+    alias judge="python3 $EPSILON_PREFIX/manual_judge/judge.py -c $(cd $EPSILON_PREFIX/$CONTEST && pwd)/judge.yml"
+fi
+
 exec "$@"
