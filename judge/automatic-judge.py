@@ -1,38 +1,48 @@
-import time, datetime, yaml, argparse
-import sys, os, shutil, difflib, signal
+import argparse
+import sys
+import os
+import shutil
+import difflib
 from subprocess import Popen, PIPE, TimeoutExpired
 
 DIR = os.path.abspath(os.path.dirname(__file__))
-ROOT = os.path.abspath(os.path.join(DIR, '..'))
+BASE_DIR = os.path.abspath(os.path.join(DIR, '..'))
 MAX_DIFF = 400
 
-sys.path.append(ROOT)
-sys.path.append(os.path.join(ROOT, 'config'))
+sys.path.insert(0, BASE_DIR)
 
-from config import CONFIG
+from config.config import CONFIG
 from lib.yamllib import load
 import lib.judgelib as j
-from lib.judgelib import *
+from lib.judgelib import logger
+
+USER_NO = None
+USER = None
+DISPLAY_DIFF = None
+DISPLAY_INPUT = None
+
 
 def read_file(path):
     try:
         with open(path, 'r', encoding='utf8') as f:
             return f.read()
-    except UnicodeDecodeError as e:
+    except UnicodeDecodeError:
         with open(path, 'r', encoding='latin1') as f:
             return f.read()
 
+
 def execute_submission(sub_id, sub_real_id, cpu, mem, nprocs, cmd):
     global USER_NO
-    proc = Popen([ 'sudo', "-E", os.path.join(DIR, 'execute-submission.sh'),
-            str(USER_NO),
-            '%d:%d' % (os.getuid(), os.getgid()),
-            str(sub_real_id),
-            str(cpu // 1000),
-            str(mem),
-            str(nprocs),
-            ' '.join(cmd) ],
-        cwd=DIR)
+    assert USER_NO is not None
+    proc = Popen(['sudo', "-E", os.path.join(DIR, 'execute-submission.sh'),
+                  str(USER_NO),
+                  '%d:%d' % (os.getuid(), os.getgid()),
+                  str(sub_real_id),
+                  str(cpu // 1000),
+                  str(mem),
+                  str(nprocs),
+                  ' '.join(cmd)],
+                 cwd=DIR)
 
     retcode = proc.wait()
 
@@ -100,7 +110,7 @@ def execute_submission(sub_id, sub_real_id, cpu, mem, nprocs, cmd):
 
 
 def process_submission(sub, check, time_limit, memory_limit, language, tests):
-
+    assert USER is not None
     sub_id = USER + '_' + str(sub.id)
     sub_dir = os.path.join(DIR, 'submissions', sub_id)
     verdicts = []
@@ -119,10 +129,10 @@ def process_submission(sub, check, time_limit, memory_limit, language, tests):
 
         # TODO: timeout compilation
         proc = Popen(language['compile'],
-                    stdin=PIPE,
-                    stdout=PIPE,
-                    stderr=PIPE,
-                    cwd=sub_dir)
+                     stdin=PIPE,
+                     stdout=PIPE,
+                     stderr=PIPE,
+                     cwd=sub_dir)
 
         res = proc.communicate()
         stdout = res[0].decode('utf-8')
@@ -147,36 +157,36 @@ def process_submission(sub, check, time_limit, memory_limit, language, tests):
                 f.write(test.input)
 
             ver, retcode, cpu, mem, stdout, stderr = execute_submission(
-                    sub_id=sub_id,
-                    sub_real_id=sub.id,
-                    cpu=time_limit,
-                    mem=max(memory_limit, language.get('min_mem', 0)),
-                    nprocs=language.get('nprocs', 0),
-                    cmd=language['execute'])
+                sub_id=sub_id,
+                sub_real_id=sub.id,
+                cpu=time_limit,
+                mem=max(memory_limit, language.get('min_mem', 0)),
+                nprocs=language.get('nprocs', 0),
+                cmd=language['execute'])
 
             if ver == 'TL':
                 logger.debug('time limit exceeded')
-                judge_response += """<h4>Time limit exceeded on test %d</h4>""" % (test_no+1)
+                judge_response += """<h4>Time limit exceeded on test %d</h4>""" % (test_no + 1)
                 verdicts.append('TL')
             elif ver == 'RE':
                 verdicts.append('RE')
-                judge_response += """<h4>Runtime error on test %d</h4><p><pre><code>%s</code></pre></p>""" % (test_no+1, stderr)
+                judge_response += """<h4>Runtime error on test %d</h4><p><pre><code>%s</code></pre></p>""" % (test_no + 1, stderr)
                 logger.debug('runtime error:\n' + stderr)
             elif ver == 'ML':
                 logger.debug('memory limit exceeded')
-                judge_response += """<h4>Memory limit exceeded on test %d</h4>""" % (test_no+1)
+                judge_response += """<h4>Memory limit exceeded on test %d</h4>""" % (test_no + 1)
                 verdicts.append('ML')
             elif ver == 'OL':
                 logger.debug('output limit exceeded')
-                judge_response += """<h4>Output limit exceeded on test %d</h4>""" % (test_no+1)
+                judge_response += """<h4>Output limit exceeded on test %d</h4>""" % (test_no + 1)
                 verdicts.append('OL')
             elif ver == 'RF':
                 logger.debug('restricted function')
-                judge_response += """<h4>Restricted function on test %d</h4>""" % (test_no+1)
+                judge_response += """<h4>Restricted function on test %d</h4>""" % (test_no + 1)
                 verdicts.append('RF')
             elif ver == 'SE':
                 logger.debug('submission error')
-                judge_response += """<h4>Submission error on test %d</h4>""" % (test_no+1)
+                judge_response += """<h4>Submission error on test %d</h4>""" % (test_no + 1)
                 verdicts.append('SE')
             elif ver == 'OK':
 
@@ -189,13 +199,13 @@ def process_submission(sub, check, time_limit, memory_limit, language, tests):
 
                 if ok:
                     verdicts.append('AC')
-                    judge_response += """<h4>Accepted on test %d</h4>""" % (test_no+1)
+                    judge_response += """<h4>Accepted on test %d</h4>""" % (test_no + 1)
                     logger.debug('accepted')
                 else:
                     verdicts.append('WA')
                     logger.debug('wrong answer')
 
-                    judge_response += """<h4>Wrong answer on test %d</h4>""" % (test_no+1)
+                    judge_response += """<h4>Wrong answer on test %d</h4>""" % (test_no + 1)
 
                     if first_wa:
                         first_wa = False
@@ -215,10 +225,10 @@ def process_submission(sub, check, time_limit, memory_limit, language, tests):
                                 linesb = linesb[:MAX_DIFF]
 
                             judge_response += difflib.HtmlDiff(tabsize=4).make_table(
-                                    linesa,
-                                    linesb,
-                                    'Obtained',
-                                    'Expected')
+                                linesa,
+                                linesb,
+                                'Obtained',
+                                'Expected')
 
                             if trunc:
                                 judge_response += "<p>Note that the output was truncated.</p>"
@@ -228,9 +238,11 @@ def process_submission(sub, check, time_limit, memory_limit, language, tests):
                 logger.debug('unknown verdict')
                 verdicts.append('SE')
 
-            if ver in {'TL','RE','ML','OL','OK'}:
-                if cpu is not None and (mxcpu is None or cpu > mxcpu): mxcpu = cpu
-                if mem is not None and (mxmem is None or mem > mxmem): mxmem = mem
+            if ver in {'TL', 'RE', 'ML', 'OL', 'OK'}:
+                if cpu is not None and (mxcpu is None or cpu > mxcpu):
+                    mxcpu = cpu
+                if mem is not None and (mxmem is None or mem > mxmem):
+                    mxmem = mem
 
             # TODO: make this optional (stop after first non-AC test case)
             if verdicts[-1] != 'AC':
@@ -270,4 +282,3 @@ def main(argv):
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv[1:]))
-

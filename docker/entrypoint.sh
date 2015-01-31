@@ -28,8 +28,8 @@ if ! [ -z $CONTEST ]; then
     chmod +x /usr/local/bin/judge
     chmod +x /usr/local/bin/autojudge
 else
-    echo -e "#!/bin/bash \necho \"You need to set \$CONTEST to use this function\"" > /usr/local/bin/judge
-    echo -e "#!/bin/bash \necho \"You need to set \$CONTEST to use this function\"" > /usr/local/bin/autojudge
+    echo -e "#!/bin/bash \necho \"You need to set \\\$CONTEST to use this function\"" > /usr/local/bin/judge
+    echo -e "#!/bin/bash \necho \"You need to set \\\$CONTEST to use this function\"" > /usr/local/bin/autojudge
     chmod +x /usr/local/bin/judge
     chmod +x /usr/local/bin/autojudge
 fi

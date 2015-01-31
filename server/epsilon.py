@@ -1,9 +1,9 @@
-import os, sys
-DIR = os.path.join(os.path.dirname(__file__), "..")
-sys.path.append(DIR)
+import os
+import sys
+BASE_DIR = os.path.join(os.path.dirname(__file__), "..")
+sys.path.insert(0, BASE_DIR)
 
 import argparse
-import hashlib
 import datetime
 import time
 import functools
@@ -28,7 +28,7 @@ from models import db, Submission, SubmissionQueue, Balloon as BalloonModel
 app = Flask(__name__)
 app.secret_key = "V=7Km+XXkg:}>4dT0('cV>Rp1TG82QEjah+X'v;^w:)a']y)^%"
 
-verdict_explanation =  {
+verdict_explanation = {
     'QU': 'in queue',
     'AC': 'accepted',
     'PE': 'presentation error',
@@ -43,6 +43,10 @@ verdict_explanation =  {
     'CJ': 'cannot judge',
 }
 
+opts = None
+contest = None
+
+
 # TODO: make this work for internal redirects
 def url_for(path, **values):
     res = real_url_for(path, **values)
@@ -51,19 +55,26 @@ def url_for(path, **values):
     else:
         return res
 
+
 def is_logged_in():
     return 'team' in session and session['team'] in contest.teams
+
 
 def judge_is_logged_in():
     return 'judge' in session and session['judge'] in contest.judges
 
+
 def get_team():
-    if not is_logged_in(): return None
+    if not is_logged_in():
+        return None
     return contest.teams.get(session['team'])
 
+
 def get_judge():
-    if not judge_is_logged_in(): return None
+    if not judge_is_logged_in():
+        return None
     return contest.judges.get(session['judge'])
+
 
 def login_required(f):
     @functools.wraps(f)
@@ -73,6 +84,7 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated
 
+
 def judge_only(f):
     @functools.wraps(f)
     def decorated(*args, **kwargs):
@@ -81,10 +93,12 @@ def judge_only(f):
         return f(*args, **kwargs)
     return decorated
 
+
 @app.before_request
 def before_request():
     g.request_start_time = time.time()
     g.request_time = lambda: time.time() - g.request_start_time
+
 
 @app.context_processor
 def context_processor():
@@ -101,7 +115,7 @@ def context_processor():
             if sub.verdict == 'AC':
                 solved.add(sub.problem)
                 tried.add(sub.problem)
-            elif sub.verdict not in {'SE','RF','CJ','QU','CE'}:
+            elif sub.verdict not in {'SE', 'RF', 'CJ', 'QU', 'CE'}:
                 tried.add(sub.problem)
 
     return dict(
@@ -122,24 +136,26 @@ def context_processor():
         url_for=url_for,
     )
 
+
 @app.template_filter('format_time')
 def template_format_time(time):
     # return '%02d:%02d:%02d' % (int(time//60//60), int(time//60)%60, int(time)%60)
-    return '%02d:%02d' % (int(time//60), int(time)%60)
+    return '%02d:%02d' % (int(time // 60), int(time) % 60)
 
-@app.route('/scoreboard/', defaults={'opts':''})
+
+@app.route('/scoreboard/', defaults={'opts': ''})
 @app.route('/scoreboard/<opts>/')
 def view_scoreboard(opts):
     phase = contest.get_current_phase()
     if not phase.scoreboard_problems:
         abort(404)
 
-    opts = { s.split('=', 1)[0]: ( s.split('=', 1)[1] if '=' in s else True ) for s in opts.split(',') }
+    opts = {s.split('=', 1)[0]: (s.split('=', 1)[1] if '=' in s else True) for s in opts.split(',')}
     opts['groups'] = set(opts.get('groups', '+'.join(contest.groups.keys())).split('+'))
 
     cur_time = contest.time_elapsed()
     subs = Submission.query.filter(Submission.submitted <= cur_time).filter(Submission.problem.in_(phase.scoreboard_problems)).order_by(Submission.submitted).all()
-    sb = { team: { problem: ScoreboardTeamProblem() for problem in phase.scoreboard_problems } for team, v in contest.teams.items() if len(v.groups & opts['groups']) > 0 }
+    sb = {team: {problem: ScoreboardTeamProblem() for problem in phase.scoreboard_problems} for team, v in contest.teams.items() if len(v.groups & opts['groups']) > 0}
 
     for sub in subs:
         if sub.problem not in phase.scoreboard_problems:
@@ -152,19 +168,20 @@ def view_scoreboard(opts):
 
         if (phase.frozen is not None and sub.submitted >= 60.0 * phase.frozen and (not is_logged_in() or get_team().name != sub.team)) or sub.verdict == 'QU':
             cur.submit_new()
-        elif sub.verdict not in {'SE','RF','CJ','CE'}:
+        elif sub.verdict not in {'SE', 'RF', 'CJ', 'CE'}:
             cur.submit(sub.submitted, sub.verdict == 'AC')
 
-    ssb = sorted(( -sum( sb[team][problem].is_solved() for problem in phase.scoreboard_problems ),
-                   sum( sb[team][problem].time_penalty() for problem in phase.scoreboard_problems ),
-                   team ) for team in sb.keys() )
+    ssb = sorted((-sum(sb[team][problem].is_solved() for problem in phase.scoreboard_problems),
+                  sum(sb[team][problem].time_penalty() for problem in phase.scoreboard_problems),
+                  team) for team in sb.keys())
 
-    sb = [ (s[2], -s[0], s[1], sb[s[2]]) for s in ssb ]
+    sb = [(s[2], -s[0], s[1], sb[s[2]]) for s in ssb]
 
     if opts.get('full', False):
         return render_template('scoreboard_full.html', scoreboard=sb)
     else:
         return render_template('scoreboard.html', scoreboard=sb)
+
 
 @app.route('/submissions/')
 @login_required
@@ -175,10 +192,14 @@ def list_submissions():
 
     def format_verdict_classes(vs):
         vs = set(vs.split('+'))
-        if vs <= {'QU'}: return 'info'
-        if vs <= {'AC'}: return 'success'
-        if vs <= {'SE','RF','CJ','CE'}: return 'warning'
-        if vs <= {'PE','WA','RE','TL','ML','OL'}: return 'error'
+        if vs <= {'QU'}:
+            return 'info'
+        if vs <= {'AC'}:
+            return 'success'
+        if vs <= {'SE', 'RF', 'CJ', 'CE'}:
+            return 'warning'
+        if vs <= {'PE', 'WA', 'RE', 'TL', 'ML', 'OL'}:
+            return 'error'
         return ''
 
     label_class = {
@@ -200,36 +221,42 @@ def list_submissions():
         return "label label-" + label_class.get(v, 'default')
 
     return render_template('submissions.html',
-        submissions=reversed(submissions),
-        format_verdict_classes=format_verdict_classes,
-        label_class_for=label_class_for,
-    )
+                           submissions=reversed(submissions),
+                           format_verdict_classes=format_verdict_classes,
+                           label_class_for=label_class_for
+                           )
+
 
 @app.route('/submission/<int:sub_id>/')
 @login_required
 def view_submission(sub_id):
     team = get_team()
     sub = Submission.query.filter_by(id=sub_id).first()
-    if not sub or sub.team != team.name: abort(404)
+    if not sub or sub.team != team.name:
+        abort(404)
     return render_template('submission.html', submission=sub)
+
 
 @app.route('/problem/<problem_id>/', methods={'GET', 'POST'})
 def view_problem(problem_id):
 
     problem = contest.problems.get(problem_id)
     phase = contest.get_current_phase()
-    if not problem: abort(404)
+    if not problem:
+        abort(404)
     if request.method == 'POST':
 
-        if problem_id not in phase.submit_problems: abort(404)
+        if problem_id not in phase.submit_problems:
+            abort(404)
 
         if not is_logged_in():
             return redirect(url_for('login', next=request.path))
 
         team = get_team()
-        if ('language' in request.form and
-            ('source_file' in request.files or 'source_code' in request.form) and
-            request.form['language'] in contest.languages):
+        if (
+                'language' in request.form and
+                ('source_file' in request.files or 'source_code' in request.form) and
+                request.form['language'] in contest.languages):
 
             if 'source_file' in request.files:
                 code = request.files['source_file'].read().decode('utf-8')
@@ -256,17 +283,22 @@ def view_problem(problem_id):
 
         return redirect(url_for('list_submissions'))
 
-    if problem_id not in phase.visible_problems: abort(404)
+    if problem_id not in phase.visible_problems:
+        abort(404)
     return render_template('problem.html', problem=problem)
+
 
 @app.route('/problem/<problem_id>/assets/<path:asset>')
 def get_problem_asset(problem_id, asset):
     problem = contest.problems.get(problem_id)
     phase = contest.get_current_phase()
-    if not problem or problem_id not in phase.visible_problems: abort(404)
+    if not problem or problem_id not in phase.visible_problems:
+        abort(404)
 
-    if not problem.assets: abort(404)
+    if not problem.assets:
+        abort(404)
     return send_from_directory(problem.assets, asset)
+
 
 @app.route('/login/', methods={'GET', 'POST'})
 def login():
@@ -288,10 +320,12 @@ def login():
             bad_login = True
     return render_template('login.html', team_name=team_name, bad_login=bad_login, registered=registered)
 
+
 @app.route('/logout/')
 def logout():
     session.pop('team', '')
     return redirect(url_for('index'))
+
 
 def _register_team(name, password):
     global opts
@@ -308,10 +342,12 @@ def _register_team(name, password):
 
     contest = Contest.load(opts.contest)
 
+
 @app.route('/register/', methods={'GET', 'POST'})
 def register():
     global contest
-    if not contest.register or is_logged_in(): abort(404)
+    if not contest.register or is_logged_in():
+        abort(404)
 
     team_name = ''
     error = []
@@ -324,17 +360,17 @@ def register():
 
         rx = '^[-_A-Za-z0-9 ]{3,20}$'
         if not re.match(rx, team_name):
-           error.append('Team name is illegal (it must match %s).' % rx)
+            error.append('Team name is illegal (it must match %s).' % rx)
 
         if team_name in contest.teams:
-           error.append('Team name is already taken.')
+            error.append('Team name is already taken.')
 
         rx = '^[-_A-Za-z0-9 ]{5,20}$'
         if not re.match(rx, password):
-           error.append('Password is illegal (it must match %s).' % rx)
+            error.append('Password is illegal (it must match %s).' % rx)
 
         if password != confirm_password:
-           error.append('Password confirmation was incorrect.')
+            error.append('Password confirmation was incorrect.')
 
         if not error:
             _register_team(team_name, password)
@@ -342,14 +378,17 @@ def register():
 
     return render_template('register.html', team_name=team_name, error=error)
 
+
 @app.route('/')
 def index():
     return render_template('index.html')
+
 
 @app.route('/judge/')
 @judge_only
 def judge_index():
     return render_template('judge/index.html')
+
 
 @app.route('/judge/login/', methods={'GET', 'POST'})
 def judge_login():
@@ -370,11 +409,13 @@ def judge_login():
             bad_login = True
     return render_template('judge/login.html', judge_name=judge_name, bad_login=bad_login)
 
+
 @app.route('/judge/logout/')
 @judge_only
 def judge_logout():
     session.pop('judge', '')
     return redirect(url_for('judge_login'))
+
 
 @app.route('/judge/reload/')
 @judge_only
@@ -383,19 +424,20 @@ def judge_reload():
     contest = Contest.load(opts.contest)
     return redirect(url_for('judge_index'))
 
-@app.route('/judge/scoreboard/', defaults={'opts':''})
+
+@app.route('/judge/scoreboard/', defaults={'opts': ''})
 @app.route('/judge/scoreboard/<opts>/')
 def judge_view_scoreboard(opts):
     phase = contest.get_current_phase()
     if not phase.scoreboard_problems:
         abort(404)
 
-    opts = { s.split('=', 1)[0]: ( s.split('=', 1)[1] if '=' in s else True ) for s in opts.split(',') }
+    opts = {s.split('=', 1)[0]: (s.split('=', 1)[1] if '=' in s else True) for s in opts.split(',')}
     opts['groups'] = set(opts.get('groups', '+'.join(contest.groups.keys())).split('+'))
 
     cur_time = contest.time_elapsed()
     subs = Submission.query.filter(Submission.submitted <= cur_time).filter(Submission.problem.in_(phase.scoreboard_problems)).order_by(Submission.submitted).all()
-    sb = { team: { problem: ScoreboardTeamProblem() for problem in phase.scoreboard_problems } for team, v in contest.teams.items() if len(v.groups & opts['groups']) > 0 }
+    sb = {team: {problem: ScoreboardTeamProblem() for problem in phase.scoreboard_problems} for team, v in contest.teams.items() if len(v.groups & opts['groups']) > 0}
 
     for sub in subs:
         if sub.problem not in phase.scoreboard_problems:
@@ -408,18 +450,19 @@ def judge_view_scoreboard(opts):
 
         if sub.verdict == 'QU':
             cur.submit_new()
-        elif sub.verdict not in {'SE','RF','CJ','CE'}:
+        elif sub.verdict not in {'SE', 'RF', 'CJ', 'CE'}:
             cur.submit(sub.submitted, sub.verdict == 'AC')
 
-    ssb = sorted(( -sum( sb[team][problem].is_solved() for problem in phase.scoreboard_problems ),
-                   sum( sb[team][problem].time_penalty() for problem in phase.scoreboard_problems ),
-                   team ) for team in sb.keys() )
+    ssb = sorted((-sum(sb[team][problem].is_solved() for problem in phase.scoreboard_problems),
+                  sum(sb[team][problem].time_penalty() for problem in phase.scoreboard_problems),
+                  team) for team in sb.keys())
 
-    sb = [ (s[2], -s[0], s[1], sb[s[2]]) for s in ssb ]
+    sb = [(s[2], -s[0], s[1], sb[s[2]]) for s in ssb]
 
     return render_template('judge/scoreboard.html', scoreboard=sb)
 
-@app.route('/judge/submissions/', defaults={'team_name':None})
+
+@app.route('/judge/submissions/', defaults={'team_name': None})
 @app.route('/judge/submissions/<team_name>/')
 @judge_only
 def judge_list_submissions(team_name):
@@ -432,10 +475,14 @@ def judge_list_submissions(team_name):
 
     def format_verdict_classes(vs):
         vs = set(vs.split('+'))
-        if vs <= {'QU'}: return 'info'
-        if vs <= {'AC'}: return 'success'
-        if vs <= {'SE','RF','CJ','CE'}: return 'warning'
-        if vs <= {'PE','WA','RE','TL','ML','OL'}: return 'error'
+        if vs <= {'QU'}:
+            return 'info'
+        if vs <= {'AC'}:
+            return 'success'
+        if vs <= {'SE', 'RF', 'CJ', 'CE'}:
+            return 'warning'
+        if vs <= {'PE', 'WA', 'RE', 'TL', 'ML', 'OL'}:
+            return 'error'
         return ''
 
     label_class = {
@@ -457,16 +504,18 @@ def judge_list_submissions(team_name):
         return "label label-" + label_class.get(v, 'default')
 
     return render_template('judge/submissions.html',
-        submissions=reversed(submissions),
-        format_verdict_classes=format_verdict_classes,
-        label_class_for=label_class_for,
-    )
+                           submissions=reversed(submissions),
+                           format_verdict_classes=format_verdict_classes,
+                           label_class_for=label_class_for,
+                           )
+
 
 @app.route('/judge/submission/<int:sub_id>/', methods={'GET', 'POST'})
 @judge_only
 def judge_view_submission(sub_id):
     sub = Submission.query.filter_by(id=sub_id).first()
-    if not sub: abort(404)
+    if not sub:
+        abort(404)
 
     if request.method == 'POST':
         if 'verdict' in request.form and 'judge_response' in request.form:
@@ -491,14 +540,16 @@ def judge_view_submission(sub_id):
 
     return render_template('judge/submission.html', submission=sub)
 
+
 @app.route('/judge/teams/')
 @judge_only
 def judge_list_teams():
     return render_template('judge/teams.html',
-            teams=sorted(contest.teams.values(), key=lambda team: team.title)
-        )
+                           teams=sorted(contest.teams.values(), key=lambda team: team.title)
+                           )
 
-@app.route('/judge/balloons/', defaults={'id':None})
+
+@app.route('/judge/balloons/', defaults={'id': None})
 @app.route('/judge/balloons/deliver/<int:id>/')
 @judge_only
 def judge_balloons(id):
@@ -509,7 +560,7 @@ def judge_balloons(id):
             db.session.commit()
         return redirect(url_for('judge_balloons'))
 
-    submissions = { sub.id: sub for sub in Submission.query.all() }
+    submissions = {sub.id: sub for sub in Submission.query.all()}
     dballoons = BalloonModel.query.all()
     balloons = []
     for balloon in dballoons:
@@ -519,15 +570,17 @@ def judge_balloons(id):
         balloons.append(Balloon(balloon.balloon_id, sub, team, problem, balloon.delivered))
 
     return render_template('judge/balloons.html',
-            balloons=sorted(balloons, key=lambda balloon: balloon.submission.submitted)
-        )
+                           balloons=sorted(balloons, key=lambda balloon: balloon.submission.submitted)
+                           )
+
 
 @app.route('/judge/resolver/')
 @judge_only
 def judge_resolver():
     return render_template('judge/resolver.html')
 
-@app.route('/judge/export/', defaults={'no':None})
+
+@app.route('/judge/export/', defaults={'no': None})
 @app.route('/judge/export/generate/<int:no>/')
 @judge_only
 def judge_export(no):
@@ -546,7 +599,7 @@ def judge_export(no):
             <title>%(title)s</title>
         </info>
     ''' % {
-            'duration': '%02d:%02d:%02d' % (contest.duration // 60, contest.duration % 60, 0),
+                'duration': '%02d:%02d:%02d' % (contest.duration // 60, contest.duration % 60, 0),
                 'title': contest.title,
             }).encode('utf-8'))
 
@@ -564,14 +617,14 @@ def judge_export(no):
         <problem>
             <id>%(id)d</id>
             <name>%(name)s</name>
-        </problem>''' % { 'id': id, 'name': name }).encode('utf-8'))
+        </problem>''' % {'id': id, 'name': name}).encode('utf-8'))
 
             for name, id in teams.items():
                 out.write(('''
         <team>
             <id>%(id)d</id>
             <name>%(name)s</name>
-        </team>''' % { 'id': id, 'name': contest.teams[name].title }).encode('utf-8'))
+        </team>''' % {'id': id, 'name': contest.teams[name].title}).encode('utf-8'))
 
             subs = Submission.query.filter(Submission.verdict != 'QU').all()
             for no, sub in enumerate(sorted(subs, key=lambda sub: sub.submitted)):
@@ -597,7 +650,7 @@ def judge_export(no):
         </run>
     ''' % {
                     'no': no + 1,
-                    'penalty': 'True' if set(sub.verdict.split('+')) <= {'RE','TL','ML','WA','PE'} else 'False',
+                    'penalty': 'True' if set(sub.verdict.split('+')) <= {'RE', 'TL', 'ML', 'WA', 'PE'} else 'False',
                     'problem_id': problems[sub.problem],
                     'verdict': sub.verdict,
                     'solved': 'True' if sub.verdict == 'AC' else 'False',
@@ -611,9 +664,9 @@ def judge_export(no):
 
             out.seek(0)
             return send_file(out,
-                    attachment_filename=contest.id + '_resolver.xml',
-                    as_attachment=True,
-                    mimetype='application/xml')
+                             attachment_filename=contest.id + '_resolver.xml',
+                             as_attachment=True,
+                             mimetype='application/xml')
 
         elif no == 3:
             res = {}
@@ -624,7 +677,6 @@ def judge_export(no):
                 'title': contest.title,
             }
 
-
             teams = {}
             problems = {}
 
@@ -634,7 +686,7 @@ def judge_export(no):
             for name in contest.phases[-1][1].scoreboard_problems:
                 problems[name] = len(problems) + 1
 
-            res['problems'] = [ ]
+            res['problems'] = []
             for name, id in sorted(problems.items(), key=lambda x: x[1]):
                 res['problems'].append(
                     {
@@ -643,7 +695,7 @@ def judge_export(no):
                     }
                 )
 
-            res['teams'] = [ ]
+            res['teams'] = []
             for name, id in teams.items():
                 res['teams'].append(
                     {
@@ -653,12 +705,12 @@ def judge_export(no):
                 )
 
             subs = Submission.query.filter(Submission.verdict != 'QU').all()
-            res['runs'] = [  ]
+            res['runs'] = []
             for no, sub in enumerate(sorted(subs, key=lambda sub: sub.submitted)):
                 res['runs'].append(
                     {
                         'no': no + 1,
-                        'penalty': 'True' if set(sub.verdict.split('+')) <= {'RE','TL','ML','WA','PE'} else 'False',
+                        'penalty': 'True' if set(sub.verdict.split('+')) <= {'RE', 'TL', 'ML', 'WA', 'PE'} else 'False',
                         'problem_id': problems[sub.problem],
                         'verdict': sub.verdict,
                         'solved': 'True' if sub.verdict == 'AC' else 'False',
@@ -672,9 +724,9 @@ def judge_export(no):
 
             out.seek(0)
             return send_file(out,
-                    attachment_filename=contest.id + '_resolver.json',
-                    as_attachment=True,
-                    mimetype='application/json')
+                             attachment_filename=contest.id + '_resolver.json',
+                             as_attachment=True,
+                             mimetype='application/json')
 
     return render_template('judge/export.html')
 
@@ -710,4 +762,3 @@ def main(argv):
 
 if __name__ == '__main__':
     main(sys.argv[1:])
-

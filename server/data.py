@@ -1,7 +1,6 @@
 import os
 import datetime
 import markdown
-import mdx_mathjax
 from os.path import join as pjoin
 import sys
 DIR = os.path.join(os.path.dirname(__file__), "..")
@@ -14,12 +13,14 @@ processor = markdown.Markdown(extensions=['mathjax'])
 #     with open(path) as f:
 #         return yaml.load(f)
 
+
 def read(path):
     try:
         with open(path) as f:
             return f.read()
     except:
         return None
+
 
 class Language:
     def __init__(self, name, filename, compile, execute, highlight, template):
@@ -43,6 +44,7 @@ class Language:
                 highlight=lang['highlight'],
                 template=lang.get('template', '')))
         return langs
+
 
 class Team:
     def __init__(self, name, title, password, location, groups):
@@ -70,6 +72,7 @@ class Team:
 
         return teams, groups
 
+
 class Judge:
     def __init__(self, name, password):
         self.name = name
@@ -88,6 +91,7 @@ class Judge:
 
         return judges
 
+
 class Example:
     def __init__(self, input, output, explanation=None, display='normal'):
         self.input = input
@@ -97,6 +101,7 @@ class Example:
 
         if self.explanation is not None:
             self.explanation = processor.convert(self.explanation)
+
 
 class Problem:
     def __init__(self, id, title, statement, examples, assets):
@@ -141,7 +146,7 @@ class Problem:
                     input=x.get('input', ''),
                     output=x.get('output', ''),
                     explanation=x.get('explanation'),
-                    display=x.get('display','normal')
+                    display=x.get('display', 'normal')
                 ) for x in problem.get('examples', [])
             ],
             assets=assets
@@ -158,6 +163,7 @@ class Problem:
                 problems.append(Problem.load(pjoin(problem_dir, p, 'problem.yml'), p))
         return problems
 
+
 class Phase:
     def __init__(self, contest, start, status, countdown, visible_problems, submit_problems, scoreboard_problems, problem_list, frozen):
         self.contest = contest
@@ -171,9 +177,11 @@ class Phase:
         self.frozen = frozen
 
     def current_countdown(self):
-        if self.countdown is None: return None
+        if self.countdown is None:
+            return None
         return 60.0 * self.countdown - (self.contest.time_elapsed() - 60.0 * self.start)
 
+    @staticmethod
     def load(contest, start, d):
 
         visible_problems = set()
@@ -196,8 +204,10 @@ class Phase:
                     visible_problems.add(pid)
                     problem_list.append(('problem', pid))
 
-                if 'submit' in opts: submit_problems.add(pid)
-                if 'scoreboard' in opts: scoreboard_problems.append(pid)
+                if 'submit' in opts:
+                    submit_problems.add(pid)
+                if 'scoreboard' in opts:
+                    scoreboard_problems.append(pid)
 
         return Phase(
             contest=contest,
@@ -210,6 +220,7 @@ class Phase:
             problem_list=problem_list,
             frozen=d.get('frozen', None),
         )
+
 
 class Contest:
     BEFORE_START = 0
@@ -243,8 +254,10 @@ class Contest:
         return (self.start - datetime.datetime.now()).total_seconds()
 
     def status(self):
-        if self.time_remaining() < 0: return Contest.FINISHED
-        if self.time_elapsed() >= 0: return Contest.RUNNING
+        if self.time_remaining() < 0:
+            return Contest.FINISHED
+        if self.time_elapsed() >= 0:
+            return Contest.RUNNING
         return Contest.BEFORE_START
 
     def get_current_phase(self):
@@ -267,17 +280,18 @@ class Contest:
             db=contest['db'],
             start=contest['start'],
             duration=contest['duration'],
-            teams={ team.name: team for team in teams },
+            teams={team.name: team for team in teams},
             groups=groups,
-            problems={ problem.id: problem for problem in Problem.load_all(path) },
-            languages={ lang.name: lang for lang in Language.load_all(os.path.join(DIR, 'config')) },
+            problems={problem.id: problem for problem in Problem.load_all(path)},
+            languages={lang.name: lang for lang in Language.load_all(os.path.join(DIR, 'config'))},
             phases=None,
-            judges={ judge.name: judge for judge in judges },
+            judges={judge.name: judge for judge in judges},
             register=contest.get('register', False),
         )
 
-        res.phases = [ (k, Phase.load(res, k, v)) for k,v in sorted(contest['phases'].items()) ]
+        res.phases = [(k, Phase.load(res, k, v)) for k, v in sorted(contest['phases'].items())]
         return res
+
 
 class ScoreboardTeamProblem:
     def __init__(self):
@@ -300,8 +314,10 @@ class ScoreboardTeamProblem:
         return self.solved_at is not None
 
     def time_penalty(self):
-        if not self.is_solved(): return 0
+        if not self.is_solved():
+            return 0
         return self.solved_at + self.try_count * 20.0 * 60.0
+
 
 class Balloon:
     def __init__(self, id, submission, team, problem, delivered):
@@ -310,4 +326,3 @@ class Balloon:
         self.team = team
         self.problem = problem
         self.delivered = delivered
-

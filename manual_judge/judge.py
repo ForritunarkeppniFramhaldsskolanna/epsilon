@@ -1,17 +1,26 @@
-import sys, os, argparse, datetime, shutil
+import sys
+import os
+import argparse
+import datetime
+import shutil
+import time
+import random
 from subprocess import Popen, PIPE
+from sqlalchemy import or_
 import yaml
 
-DIR = os.path.join(os.path.dirname(__file__), "..")
-sys.path.append(os.path.join(DIR, 'lib'))
+BASE_DIR = os.path.join(os.path.dirname(__file__), "..")
+sys.path.insert(0, BASE_DIR)
+import lib.judgelib as j
+from lib.judgelib import Submission, SubmissionQueue, SUBMISSION_JUDGE_TIMEOUT
+from lib.yamllib import load
 
-import judgelib as j
-from judgelib import *
+SUBMISSION_WAIT = 1000  # ms
 
-SUBMISSION_WAIT = 1000 # ms
 
 def format_time(time):
-    return '%02d:%02d' % (int(time//60), int(time)%60)
+    return '%02d:%02d' % (int(time // 60), int(time) % 60)
+
 
 def do_list(opts, parser):
     if opts.type not in {'all', 'queue'}:
@@ -27,8 +36,10 @@ def do_list(opts, parser):
         elif opts.type == 'queue':
             subs = sess.query(Submission, SubmissionQueue).join(SubmissionQueue, Submission.id == SubmissionQueue.submission_id)
 
-        if opts.team: subs = subs.filter(Submission.team == opts.team)
-        if opts.problem: subs = subs.filter(Submission.problem == opts.problem)
+        if opts.team:
+            subs = subs.filter(Submission.team == opts.team)
+        if opts.problem:
+            subs = subs.filter(Submission.problem == opts.problem)
 
         for item in subs.order_by(Submission.submitted).all():
             sub = item
@@ -41,6 +52,7 @@ def do_list(opts, parser):
 
     finally:
         sess.close()
+
 
 def do_checkout(opts, parser):
 
@@ -66,7 +78,6 @@ def do_checkout(opts, parser):
                     fst = False
 
                 time.sleep(SUBMISSION_WAIT / 1000.0 + random.random())
-
 
         opts.id = int(opts.id)
 
@@ -106,6 +117,7 @@ def do_checkout(opts, parser):
     finally:
         sess.close()
 
+
 def do_current_submit(opts, parser):
     subdetails = load('submission.yaml')
     sid = int(subdetails['id'])
@@ -141,6 +153,7 @@ def do_current_submit(opts, parser):
     finally:
         sess.close()
 
+
 def do_current_compile(opts, parser):
     subdetails = load('submission.yaml')
     sid = int(subdetails['id'])
@@ -166,9 +179,9 @@ def do_current_compile(opts, parser):
         else:
             sys.stdout.write('no compiler for this language\n')
 
-
     finally:
         sess.close()
+
 
 def do_current_execute(opts, parser):
     subdetails = load('submission.yaml')
@@ -189,6 +202,7 @@ def do_current_execute(opts, parser):
     finally:
         sess.close()
 
+
 def do_current(opts, parser):
     if opts.current_cmd_subparser_name is None:
         parser.print_help()
@@ -196,6 +210,7 @@ def do_current(opts, parser):
 
     actions = {'submit': do_current_submit, 'compile': do_current_compile, 'execute': do_current_execute}
     actions[opts.current_cmd_subparser_name](opts, parser)
+
 
 def main(argv):
 
@@ -243,4 +258,3 @@ def main(argv):
 
 if __name__ == '__main__':
     main(sys.argv[1:])
-

@@ -1,20 +1,22 @@
-import datetime, imp, time, os, random
+import datetime
+import imp
+import time
+import os
+import random
 from sqlalchemy import create_engine, or_, Column, Integer, String, Text, DateTime, ForeignKey, Boolean
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.exc import OperationalError
 from os.path import join as pjoin
 import logging
-import sys
-sys.path.append(os.path.dirname(__file__))
-from yamllib import load
+from lib.yamllib import load
 
 BALLOONS = True
 TESTS_DIR = ''
 LANGUAGES_FILE = os.path.join(os.path.dirname(__file__), "..", 'config/languages.yml')
 DB_CONN_STRING = ''
-SUBMISSION_WAIT = 1000 # ms
-SUBMISSION_JUDGE_TIMEOUT = 3 * 60 * 1000 # ms
+SUBMISSION_WAIT = 1000  # ms
+SUBMISSION_JUDGE_TIMEOUT = 3 * 60 * 1000  # ms
 PROCESS_SUBMISSION = None
 PROCESS_TEST = None
 
@@ -38,11 +40,12 @@ formatter = logging.Formatter('[%(asctime)s, %(levelname)s] %(message)s')
 ch.setFormatter(formatter)
 logger.addHandler(ch)
 
+
 def read(path):
     try:
         with open(path, 'r', encoding='utf8') as f:
             return f.read()
-    except UnicodeDecodeError as e:
+    except UnicodeDecodeError:
         with open(path, 'r', encoding='latin1') as f:
             return f.read()
 
@@ -50,13 +53,16 @@ def read(path):
 #     with open(p, 'r') as f:
 #         return yaml.load(f)
 
+
 def eq_check(expected, obtained):
     # TODO: make this optional
-    expected = [ line.strip() for line in expected.split('\n') if line.strip() ]
-    obtained = [ line.strip() for line in obtained.split('\n') if line.strip() ]
+    expected = [line.strip() for line in expected.split('\n') if line.strip()]
+    obtained = [line.strip() for line in obtained.split('\n') if line.strip()]
     return expected == obtained
 
 Base = declarative_base()
+
+
 class Submission(Base):
     __tablename__ = 'Submission'
     id = Column(Integer, primary_key=True)
@@ -68,8 +74,8 @@ class Submission(Base):
     verdict = Column(String(20), default='QU', nullable=False)
     judge_response = Column(Text())
 
-    time = Column(Integer) # ms
-    memory = Column(Integer) # bytes
+    time = Column(Integer)  # ms
+    memory = Column(Integer)  # bytes
 
     def __init__(self, team, problem, language, file, submitted=None, verdict='QU'):
         self.team = team
@@ -82,6 +88,7 @@ class Submission(Base):
             self.submitted = submitted
         self.verdict = verdict
 
+
 class SubmissionQueue(Base):
     __tablename__ = 'SubmissionQueue'
     submission_id = Column(Integer, ForeignKey('Submission.id'), primary_key=True)
@@ -90,6 +97,7 @@ class SubmissionQueue(Base):
     def __init__(self, submission_id, last_announce=None):
         self.submission_id = submission_id
         self.last_announce = last_announce
+
 
 class Balloon(Base):
     __tablename__ = 'Balloon'
@@ -106,10 +114,12 @@ class Balloon(Base):
     #     self.team = team
     #     self.problem = problem
 
+
 class Test:
     def __init__(self, input, output):
         self.input = input
         self.output = output
+
 
 def compute_verdict(verdicts):
     res = []
@@ -122,21 +132,25 @@ def compute_verdict(verdicts):
             res.append(v)
     return '+'.join(sorted(set(res)))
 
+
 def get_tests(sub):
     cur_tests_dir = pjoin(TESTS_DIR, sub.problem)
     tests = []
     for t in sorted(os.listdir(cur_tests_dir)):
-        if not t.endswith('.in'): continue
+        if not t.endswith('.in'):
+            continue
         input = read(pjoin(cur_tests_dir, t))
         expected = pjoin(cur_tests_dir, t[:-2] + 'out')
         expected = read(expected) if os.path.exists(expected) else None
         tests.append(Test(input, expected))
     return tests
 
+
 def get_db():
     db_engine = create_engine(DB_CONN_STRING, convert_unicode=True)
     db = sessionmaker(bind=db_engine)
     return db
+
 
 def deliver_balloon(sess, sub):
     if BALLOONS:
@@ -225,10 +239,11 @@ def start(process_submission):
         except OperationalError as e:
             logger.exception(e)
             logger.debug('I probably can\'t connect to db...')
-            time.sleep(60) # wait for a minute
+            time.sleep(60)  # wait for a minute
         except Exception as e:
             logger.exception(e)
             time.sleep(SUBMISSION_WAIT / 1000.0 + random.random())
+
 
 def get_all_submissions():
     db_engine = create_engine(DB_CONN_STRING, convert_unicode=True)
@@ -239,7 +254,7 @@ def get_all_submissions():
     finally:
         sess.close()
 
+
 def set_contest_id(contest_id):
     for table in Base.metadata.tables.values():
         table.name = '%s_%s' % (contest_id, table.name)
-

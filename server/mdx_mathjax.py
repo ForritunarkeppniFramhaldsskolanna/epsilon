@@ -1,6 +1,5 @@
-
-
 import markdown
+
 
 class MathJaxPattern(markdown.inlinepatterns.Pattern):
 
@@ -14,12 +13,12 @@ class MathJaxPattern(markdown.inlinepatterns.Pattern):
         node.text = markdown.util.AtomicString(m.group(2) + m.group(3) + m.group(2))
         return node
 
+
 class MathJaxExtension(markdown.Extension):
     def extendMarkdown(self, md, md_globals):
         # Needs to come before escape matching because \ is pretty important in LaTeX
         md.inlinePatterns.add('mathjax', MathJaxPattern(), '<escape')
 
+
 def makeExtension(**kwargs):
     return MathJaxExtension(**kwargs)
-
-

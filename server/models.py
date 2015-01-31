@@ -1,6 +1,6 @@
 from flask.ext.sqlalchemy import SQLAlchemy
-import datetime
 db = SQLAlchemy()
+
 
 class Submission(db.Model):
     __tablename__ = 'Submission'
@@ -13,8 +13,8 @@ class Submission(db.Model):
     verdict = db.Column(db.String(20), default='QU', nullable=False)
     judge_response = db.Column(db.Text())
 
-    time = db.Column(db.Integer) # ms
-    memory = db.Column(db.Integer) # bytes
+    time = db.Column(db.Integer)  # ms
+    memory = db.Column(db.Integer)  # bytes
 
     def __init__(self, team, problem, language, file, submitted, verdict='QU', judge_response=None):
         self.team = team
@@ -25,6 +25,7 @@ class Submission(db.Model):
         self.verdict = verdict
         self.judge_response = judge_response
 
+
 class SubmissionQueue(db.Model):
     __tablename__ = 'SubmissionQueue'
     submission_id = db.Column(db.Integer, db.ForeignKey('Submission.id'), primary_key=True)
@@ -34,6 +35,7 @@ class SubmissionQueue(db.Model):
         self.submission_id = submission_id
         self.last_announce = last_announce
 
+
 class Balloon(db.Model):
     __tablename__ = 'Balloon'
     balloon_id = db.Column(db.Integer, primary_key=True)
@@ -41,4 +43,3 @@ class Balloon(db.Model):
     # team = db.Column(db.String(200), nullable=False)
     # problem = db.Column(db.String(200), nullable=False)
     delivered = db.Column(db.Boolean, default=False, nullable=False)
-

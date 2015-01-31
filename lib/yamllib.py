@@ -1,15 +1,7 @@
-import os
-import sys
 import yaml
 
-sys.path.append(os.path.dirname(__file__))
-from conflib import insert_conf
-
-DIR = os.path.join(os.path.dirname(__file__), "..")
-sys.path.append(DIR)
-sys.path.append(os.path.join(DIR, 'config'))
-
-from config import CONFIG
+from lib.conflib import insert_conf
+from config.config import CONFIG
 
 
 def load(src):

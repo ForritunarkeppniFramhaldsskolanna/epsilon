@@ -5,7 +5,7 @@ import sys
 import shlex
 
 prefix = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
-sys.path.append(prefix)
+sys.path.insert(0, prefix)
 from lib.conflib import insert_conf
 
 CONFIG = {
