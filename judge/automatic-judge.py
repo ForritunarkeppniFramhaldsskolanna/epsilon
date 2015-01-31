@@ -276,7 +276,11 @@ def main(argv):
     USER_NO = str(opts.user)
 
     j.set_contest_id(config['contest_id'])
-    j.start(process_submission)
+    try:
+        j.start(process_submission)
+    except KeyboardInterrupt:
+        print("Shutting down...")
+        pass
     return 0
 
 

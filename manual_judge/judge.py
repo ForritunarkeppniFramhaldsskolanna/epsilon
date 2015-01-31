@@ -7,13 +7,12 @@ import time
 import random
 from subprocess import Popen, PIPE
 from sqlalchemy import or_
-import yaml
 
 BASE_DIR = os.path.join(os.path.dirname(__file__), "..")
 sys.path.insert(0, BASE_DIR)
 import lib.judgelib as j
 from lib.judgelib import Submission, SubmissionQueue, SUBMISSION_JUDGE_TIMEOUT
-from lib.yamllib import load
+from lib.yamllib import load, dump
 
 SUBMISSION_WAIT = 1000  # ms
 
@@ -95,7 +94,7 @@ def do_checkout(opts, parser):
 
         os.mkdir(str(opts.id))
         with open(os.path.join(str(opts.id), 'submission.yaml'), 'w') as f:
-            f.write(yaml.dump({
+            f.write(dump({
                 'id': sub.id,
                 'team': sub.team,
                 'problem': sub.problem,
@@ -253,7 +252,10 @@ def main(argv):
         exit(0)
 
     actions = {'list': do_list, 'checkout': do_checkout, 'current': do_current}
-    actions[opts.subparser_name](opts, parser)
+    try:
+        actions[opts.subparser_name](opts, parser)
+    except KeyboardInterrupt:
+        pass
 
 
 if __name__ == '__main__':

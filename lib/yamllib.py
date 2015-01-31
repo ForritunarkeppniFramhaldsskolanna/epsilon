@@ -10,3 +10,7 @@ def load(src):
         data = f.read()
     data = insert_conf(data, CONFIG, filename=src)
     return yaml.load(data)
+
+
+def dump(data):
+    return yaml.dump(data)
