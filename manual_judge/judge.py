@@ -211,6 +211,27 @@ def do_current(opts, parser):
     actions[opts.current_cmd_subparser_name](opts, parser)
 
 
+verdict_explanation = {
+    'QU': 'in queue',
+    'AC': 'accepted',
+    'PE': 'presentation error',
+    'WA': 'wrong answer',
+    'CE': 'compile time error',
+    'RE': 'runtime error',
+    'TL': 'time limit exceeded',
+    'ML': 'memory limit exceeded',
+    'OL': 'output limit exceeded',
+    'SE': 'submission error',
+    'RF': 'restricted function',
+    'CJ': 'cannot judge',
+}
+
+
+def do_help(opts, parser):
+    if opts.item == "verdicts":
+        print("\n".join("%s: %s" % (k, v) for k, v in verdict_explanation.items()))
+
+
 def main(argv):
 
     parser = argparse.ArgumentParser(description='A command line judge interface.')
@@ -230,13 +251,15 @@ def main(argv):
     current_cmd = subparsers.add_parser('current', help='various operations for the current submission')
 
     current_cmd_subparsers = current_cmd.add_subparsers(dest='current_cmd_subparser_name')
-
-    current_cmd_submit = current_cmd_subparsers.add_parser('submit', help='submit the current submission')
-    current_cmd_submit.add_argument('verdict', help='the verdict')
+    current_cmd_submit = current_cmd_subparsers.add_parser('submit', help='submit the current submission (see help verdicts for explanations)')
+    current_cmd_submit.add_argument('verdict', help='the verdict', choices=verdict_explanation.keys())
     current_cmd_submit.add_argument('-m', '--message', help='a message with the verdict')
 
     current_cmd_compile = current_cmd_subparsers.add_parser('compile', help='compile the current submission')
     current_cmd_execute = current_cmd_subparsers.add_parser('execute', help='execute the current submission')
+
+    help_cmd = subparsers.add_parser('help', help="additional information for submissions")
+    help_cmd.add_argument("item", help="what item to help with")
 
     opts = parser.parse_args(argv)
 
@@ -251,7 +274,7 @@ def main(argv):
         parser.print_help()
         exit(0)
 
-    actions = {'list': do_list, 'checkout': do_checkout, 'current': do_current}
+    actions = {'list': do_list, 'checkout': do_checkout, 'current': do_current, 'help': do_help}
     try:
         actions[opts.subparser_name](opts, parser)
     except KeyboardInterrupt:
