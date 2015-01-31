@@ -10,6 +10,7 @@ import functools
 import re
 import io
 import json
+import lib.textlib as textlib
 from flask import Flask, g, redirect, abort, render_template, url_for as real_url_for, request, session, send_from_directory, send_file
 from data import Contest, ScoreboardTeamProblem, Balloon
 from models import db, Submission, SubmissionQueue, Balloon as BalloonModel
@@ -259,7 +260,11 @@ def view_problem(problem_id):
                 request.form['language'] in contest.languages):
 
             if 'source_file' in request.files:
-                code = request.files['source_file'].read().decode('utf-8')
+                code = request.files['source_file'].read()
+                try:
+                    code = code.decode('utf-8')
+                except UnicodeDecodeError:
+                    code = textlib.bytes2unicode(code)
 
             if 'source_file' not in request.files or not code:
                 code = request.form['source_code']

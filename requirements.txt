@@ -4,3 +4,4 @@ psycopg2 >= 2.5.1
 flask >= 0.10
 flask-sqlalchemy >= 1.0
 markdown >= 2.3.1
+chardet >= 2.3.0

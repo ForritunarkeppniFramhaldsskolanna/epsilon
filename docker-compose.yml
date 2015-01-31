@@ -9,7 +9,8 @@ epsilon:
    - postgres
   environment:
     - CONTEST # Resolves to the host
-    - AUTOMATIC_JUDGE
+    - AUTOJUDGE
+    - DEBUG
   privileged: true
   entrypoint: "/epsilon/docker/entrypoint.sh"
 postgres:
