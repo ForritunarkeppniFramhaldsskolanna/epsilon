@@ -10,10 +10,13 @@ import functools
 import re
 import io
 import json
-import lib.textlib as textlib
+import lib.text as text
 from flask import Flask, g, redirect, abort, render_template, url_for as real_url_for, request, session, send_from_directory, send_file
+from flask.ext.sqlalchemy import SQLAlchemy
 from data import Contest, ScoreboardTeamProblem, Balloon
-from models import db, Submission, SubmissionQueue, Balloon as BalloonModel
+import lib.models as models
+from lib.models import Submission, SubmissionQueue, Balloon as BalloonModel
+
 
 # REDIRECT_SUB = re.compile('^http://localhost(:[0-9]+)?')
 # REDIRECT_SUB_FOR = 'http://localhost/fk_2013_beta'
@@ -28,6 +31,8 @@ from models import db, Submission, SubmissionQueue, Balloon as BalloonModel
 # app = MyFlask(__name__)
 app = Flask(__name__)
 app.secret_key = "V=7Km+XXkg:}>4dT0('cV>Rp1TG82QEjah+X'v;^w:)a']y)^%"
+db = SQLAlchemy(app)
+models.register_base(db)
 
 verdict_explanation = {
     'QU': 'in queue',
@@ -264,7 +269,7 @@ def view_problem(problem_id):
                 try:
                     code = code.decode('utf-8')
                 except UnicodeDecodeError:
-                    code = textlib.bytes2unicode(code)
+                    code = text.bytes2unicode(code)
 
             if 'source_file' not in request.files or not code:
                 code = request.form['source_code']
@@ -534,7 +539,7 @@ def judge_view_submission(sub_id):
             if sub.verdict == 'QU':
                 qsub = SubmissionQueue.query.filter_by(submission_id=sub.id).first()
                 if qsub:
-                    qsub.last_announce = None
+                    qsub.dequeued_at = None
                 else:
                     db.session.add(SubmissionQueue(sub.id))
 
@@ -750,8 +755,7 @@ def main(argv):
     contest = Contest.load(opts.contest)
     app.config['SQLALCHEMY_DATABASE_URI'] = contest.db
 
-    for table in db.metadata.tables.values():
-        table.name = '%s_%s' % (contest.id, table.name)
+    models.set_contest_id(contest.id)
 
     db.init_app(app)
 

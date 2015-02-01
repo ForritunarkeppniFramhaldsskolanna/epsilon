@@ -11,7 +11,7 @@ DIR = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(DIR, 'config'))
 sys.path.append(os.path.join(DIR, 'lib'))
 from config import CONFIG as KEYS, load_executables
-from conflib import insert_conf
+from conf import insert_conf
 
 parser = argparse.ArgumentParser(description='An install script for epsilon.')
 parser.add_argument('--prefix', default='/opt/epsilon', help='the prefix that epsilon should be installed under')

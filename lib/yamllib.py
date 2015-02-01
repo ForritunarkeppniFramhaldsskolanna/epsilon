@@ -1,6 +1,6 @@
 import yaml
 
-from lib.conflib import insert_conf
+from lib.conf import insert_conf
 from config.config import CONFIG
 
 

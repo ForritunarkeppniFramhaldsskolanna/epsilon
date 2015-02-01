@@ -1,21 +1,20 @@
 import sys
 import os
-import errno
 import argparse
 import datetime
 import shutil
-import time
-import random
 from subprocess import Popen, PIPE
-from sqlalchemy import or_
 
 BASE_DIR = os.path.join(os.path.dirname(__file__), "..")
 sys.path.insert(0, BASE_DIR)
 import lib.judgelib as j
-from lib.judgelib import Submission, SubmissionQueue, SUBMISSION_JUDGE_TIMEOUT
+from lib.models import Submission, SubmissionQueue
+import lib.models as models
 from lib.yamllib import load, dump
+import lib.queue as queue
 
 SUBMISSION_WAIT = 1000  # ms
+DB_CONN_STRING = ""
 
 
 def format_time(time):
@@ -27,7 +26,7 @@ def do_list(opts, parser):
         parser.print_help()
         exit(0)
 
-    db = j.get_db()
+    db = models.get_db(DB_CONN_STRING)
     try:
         sess = db()
 
@@ -48,84 +47,80 @@ def do_list(opts, parser):
                 sub = item[0]
                 subq = item[1]
 
-            sys.stdout.write('%d\t%s\t%s\t%s\t%s\t%s\n' % (sub.id, format_time(sub.submitted), sub.team, sub.problem, sub.verdict, '' if subq is None else subq.last_announce))
+            sys.stdout.write('%d\t%s\t%s\t%s\t%s\t%s\n' % (sub.id, format_time(sub.submitted), sub.team, sub.problem, sub.verdict, '' if subq is None else subq.dequeued_at))
 
     finally:
         sess.close()
 
 
 def do_checkout(opts, parser):
+    if opts.id == 'next':
+        sys.stdout.write('waiting for next submission...\n')
+        subs = queue.submissions(DB_CONN_STRING, limit=1)
+        sub2, _ = next(subs)
+        opts.id = sub2.id
+        sys.stdout.write('checking out submission %d\n' % opts.id)
+        # Duplicate so we don't get a detached error
+        sub = Submission(sub2.team, sub2.problem, sub2.language, sub2.file, sub2.submitted, sub2.verdict, sub2.judge_response)
+        sub.id = sub2.id
+        try:
+            next(subs)
+        except:
+            pass
+    else:
+        db = models.get_db(DB_CONN_STRING)
+        try:
+            sess = db()
+            opts.id = int(opts.id)
 
-    db = j.get_db()
-    try:
-        sess = db()
+            sub2 = sess.query(Submission).filter_by(id=opts.id).first()
+            if not sub2:
+                sys.stderr.write('error: submission with id %d not found\n' % opts.id)
+                exit(1)
 
-        if opts.id == 'next':
-            fst = True
-            while True:
+            qsub = sess.query(SubmissionQueue).filter_by(submission_id=opts.id).first()
+            if qsub:
+                qsub.dequeued_at = datetime.datetime.now()
+                qsub.status = 1
+                sess.commit()
+            # Duplicate so we don't get a detached error
+            sub = Submission(sub2.team, sub2.problem, sub2.language, sub2.file, sub2.submitted, sub2.verdict, sub2.judge_response)
+            sub.id = sub2.id
+        finally:
+            sess.close()
 
-                get_before = datetime.datetime.now() - datetime.timedelta(0, SUBMISSION_JUDGE_TIMEOUT / 1000.0)
-                # TODO: do something smarter for concurrency
-                qsub = sess.query(SubmissionQueue).filter(or_(SubmissionQueue.last_announce == None, SubmissionQueue.last_announce < get_before)).first()
+    lang = load(j.LANGUAGES_FILE)[sub.language]
 
-                if qsub:
-                    opts.id = qsub.submission_id
-                    sys.stdout.write('checking out submission %d\n' % opts.id)
-                    break
+    if os.path.isdir(str(opts.id)):
+        shutil.rmtree(str(opts.id))
 
-                if fst:
-                    sys.stdout.write('waiting for next submission...\n')
-                    fst = False
+    os.mkdir(str(opts.id))
+    with open(os.path.join(str(opts.id), 'submission.yaml'), 'w') as f:
+        f.write(dump({
+            'id': sub.id,
+            'team': sub.team,
+            'problem': sub.problem,
+            'submitted': sub.submitted,
+            'verdict': sub.verdict,
+            'judge_response': sub.judge_response,
+            'language': {
+                'name': sub.language,
+                'compile': lang.get('compile'),
+                'execute': lang.get('execute')
+            }
+        }))
 
-                time.sleep(SUBMISSION_WAIT / 1000.0 + random.random())
+    with open(os.path.join(str(opts.id), lang['filename']), 'w') as f:
+        f.write(sub.file)
 
-        opts.id = int(opts.id)
-
-        sub = sess.query(Submission).filter_by(id=opts.id).first()
-        if not sub:
-            sys.stderr.write('error: submission with id %d not found\n' % opts.id)
-            exit(1)
-
-        qsub = sess.query(SubmissionQueue).filter_by(submission_id=opts.id).first()
-        if qsub:
-            qsub.last_announce = datetime.datetime.now()
-            sess.commit()
-
-        lang = load(j.LANGUAGES_FILE)[sub.language]
-
-        if os.path.isdir(str(opts.id)):
-            shutil.rmtree(str(opts.id))
-
-        os.mkdir(str(opts.id))
-        with open(os.path.join(str(opts.id), 'submission.yaml'), 'w') as f:
-            f.write(dump({
-                'id': sub.id,
-                'team': sub.team,
-                'problem': sub.problem,
-                'submitted': sub.submitted,
-                'verdict': sub.verdict,
-                'judge_response': sub.judge_response,
-                'language': {
-                    'name': sub.language,
-                    'compile': lang.get('compile'),
-                    'execute': lang.get('execute')
-                }
-            }))
-
-        with open(os.path.join(str(opts.id), lang['filename']), 'w') as f:
-            f.write(sub.file)
-
-        shutil.copytree(os.path.join(j.TESTS_DIR, sub.problem), os.path.join(str(opts.id), 'tests'))
-
-    finally:
-        sess.close()
+    shutil.copytree(os.path.join(j.TESTS_DIR, sub.problem), os.path.join(str(opts.id), 'tests'))
 
 
 def do_current_submit(opts, parser):
     subdetails = load('submission.yaml')
     sid = int(subdetails['id'])
 
-    db = j.get_db()
+    db = models.get_db(DB_CONN_STRING)
     try:
         sess = db()
         sub = sess.query(Submission).filter_by(id=sid).first()
@@ -136,7 +131,8 @@ def do_current_submit(opts, parser):
         qsub = sess.query(SubmissionQueue).filter_by(submission_id=sid).first()
         if opts.verdict == 'QU':
             if qsub:
-                qsub.last_announce = None
+                qsub.dequeued_at = None
+                qsub.status = 0
             else:
                 sess.add(SubmissionQueue(sid))
         else:
@@ -161,7 +157,7 @@ def do_current_compile(opts, parser):
     subdetails = load('submission.yaml')
     sid = int(subdetails['id'])
 
-    db = j.get_db()
+    db = models.get_db(DB_CONN_STRING)
     try:
         sess = db()
         sub = sess.query(Submission).filter_by(id=sid).first()
@@ -190,7 +186,7 @@ def do_current_execute(opts, parser):
     subdetails = load('submission.yaml')
     sid = int(subdetails['id'])
 
-    db = j.get_db()
+    db = models.get_db(DB_CONN_STRING)
     try:
         sess = db()
         sub = sess.query(Submission).filter_by(id=sid).first()
@@ -237,7 +233,7 @@ def do_help(opts, parser):
 
 
 def main(argv):
-
+    global DB_CONN_STRING
     parser = argparse.ArgumentParser(description='A command line judge interface.')
     parser.add_argument('-c', '--config', default='config.yml', help='config file')
 
@@ -271,7 +267,7 @@ def main(argv):
 
     j.set_contest_id(config['contest_id'])
 
-    j.DB_CONN_STRING = config['db_conn_string']
+    DB_CONN_STRING = j.DB_CONN_STRING = config['db_conn_string']
     j.TESTS_DIR = os.path.abspath(os.path.join(os.path.dirname(opts.config), config['tests_dir']))
 
     if opts.subparser_name is None:
