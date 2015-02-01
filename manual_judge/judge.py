@@ -1,5 +1,6 @@
 import sys
 import os
+import errno
 import argparse
 import datetime
 import shutil
@@ -91,6 +92,9 @@ def do_checkout(opts, parser):
             sess.commit()
 
         lang = load(j.LANGUAGES_FILE)[sub.language]
+
+        if os.path.isdir(str(opts.id)):
+            shutil.rmtree(str(opts.id))
 
         os.mkdir(str(opts.id))
         with open(os.path.join(str(opts.id), 'submission.yaml'), 'w') as f:
