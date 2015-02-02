@@ -12,7 +12,7 @@
             <div>Username: {{ team.name }}</div>
             <div>Location: {{ team.location }}</div>
             <div>Groups: {{ ', '.join(team.groups) }}</div>
-            <div><a href="{{ url_for('judge_list_submissions', team_name=team.name) }}">Submissions</a></div>
+            <div><a href="{{ url_for('judge.list_submissions', team_name=team.name) }}">Submissions</a></div>
             <hr />
         </div>
     </li>

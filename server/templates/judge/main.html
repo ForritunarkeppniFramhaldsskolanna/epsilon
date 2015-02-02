@@ -4,7 +4,7 @@
 <div class="navbar navbar-static-top" id="header">
     <div class="navbar-inner">
         <div class="container-fluid">
-            <a class="brand" href="{{ url_for('judge_index') }}">{{ contest.title }}</a>
+            <a class="brand" href="{{ url_for('judge.index') }}">{{ contest.title }}</a>
             {% if phase.status %}
                 <p class="navbar-text pull-left">{{ phase.status }}</p>
             {% endif %}
@@ -15,7 +15,7 @@
                 <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-user"></i> {{ judge.name }} <b class="caret"></b></a>
                     <ul class="dropdown-menu">
-                        <li><a href="{{ url_for('judge_logout') }}">Log out</a></li>
+                        <li><a href="{{ url_for('judge.logout') }}">Log out</a></li>
                     </ul>
                 </li>
             </ul>
@@ -29,15 +29,15 @@
         <div class="span2">
             <ul class="nav sidebar-nav nav-list well" id="problem-list">
                 {% if phase.scoreboard_problems %}
-                    <li><a href="{{ url_for('judge_view_scoreboard') }}">Scoreboard</a></li>
+                    <li><a href="{{ url_for('judge.view_scoreboard') }}">Scoreboard</a></li>
                 {% endif %}
 
-                <li><a href="{{ url_for('judge_list_submissions') }}">Submissions</a></i>
-                <li><a href="{{ url_for('judge_list_teams') }}">Teams</a></i>
-                <li><a href="{{ url_for('judge_balloons') }}">Balloons</a></i>
-                <li><a href="{{ url_for('judge_export') }}">Export</a></i>
-                <li><a href="{{ url_for('judge_resolver') }}">Resolver</a></i>
-                <li><a href="{{ url_for('judge_reload') }}">Reload Config</a></i>
+                <li><a href="{{ url_for('judge.list_submissions') }}">Submissions</a></i>
+                <li><a href="{{ url_for('judge.list_teams') }}">Teams</a></i>
+                <li><a href="{{ url_for('judge.balloons') }}">Balloons</a></i>
+                <li><a href="{{ url_for('judge.export') }}">Export</a></i>
+                <li><a href="{{ url_for('judge.resolver') }}">Resolver</a></i>
+                <li><a href="{{ url_for('judge.reload') }}">Reload Config</a></i>
             </ul>
         </div>
         <div class="span10" id="content">

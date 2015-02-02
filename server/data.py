@@ -13,6 +13,21 @@ processor = markdown.Markdown(extensions=['mathjax'])
 #     with open(path) as f:
 #         return yaml.load(f)
 
+verdict_explanation = {
+    'QU': 'in queue',
+    'AC': 'accepted',
+    'PE': 'presentation error',
+    'WA': 'wrong answer',
+    'CE': 'compile time error',
+    'RE': 'runtime error',
+    'TL': 'time limit exceeded',
+    'ML': 'memory limit exceeded',
+    'OL': 'output limit exceeded',
+    'SE': 'submission error',
+    'RF': 'restricted function',
+    'CJ': 'cannot judge',
+}
+
 
 def read(path):
     try:

@@ -316,7 +316,7 @@ jQuery(function ($) {
         next_row();
     };
 
-    var json_url = "{{ url_for('judge_export', no=3) }}";
+    var json_url = "{{ url_for('judge.export', no=3) }}";
     $.getJSON(json_url, function (data) {
 
         var info = data['info'];

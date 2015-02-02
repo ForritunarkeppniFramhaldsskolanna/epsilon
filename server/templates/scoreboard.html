@@ -15,7 +15,7 @@
     </button>
     <ul class="dropdown-menu">
         {% for title, group in sorted(map(reversed, contest.groups.items())) %}
-            <li><a href="{{ url_for('view_scoreboard', opts='groups=' + group) }}">{{ title }}</a></li>
+            <li><a href="{{ url_for('default.view_scoreboard', opts='groups=' + group) }}">{{ title }}</a></li>
         {% endfor %}
     </ul>
 </div>

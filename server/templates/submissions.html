@@ -16,10 +16,10 @@
         </tr>
         {% for sub in submissions %}
             <tr class="row-success {{ format_verdict_classes(sub.verdict) }}">
-                <td class="sub_id"><a href="{{ url_for('view_submission', sub_id=sub.id) }}">{{ sub.id }}</a></td>
+                <td class="sub_id"><a href="{{ url_for('default.view_submission', sub_id=sub.id) }}">{{ sub.id }}</a></td>
                 <td class="sub_submitted">{{ sub.submitted | format_time }}</td>
                 <td class="sub_team">{{ sub.team }}</td>
-                <td class="sub_problem"><a href="{{ url_for('view_problem', problem_id=sub.problem) }}">{{ contest.problems[sub.problem].title }}</a></td>
+                <td class="sub_problem"><a href="{{ url_for('default.view_problem', problem_id=sub.problem) }}">{{ contest.problems[sub.problem].title }}</a></td>
                 <td class="sub_language">{{ sub.language }}</td>
                 <td class="sub_verdict">
                     {% for verdict in sub.verdict.split('+') %}

@@ -16,13 +16,13 @@
                     <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-user"></i> {{ team.name }} <b class="caret"></b></a>
                         <ul class="dropdown-menu">
-                            <li><a href="{{ url_for('logout') }}">Log out</a></li>
+                            <li><a href="{{ url_for('default.logout') }}">Log out</a></li>
                         </ul>
                     </li>
                 {% else %}
-                    <li><a href="{{ url_for('login') }}"><i class="icon-user"></i> Log in</a></li>
+                    <li><a href="{{ url_for('default.login') }}"><i class="icon-user"></i> Log in</a></li>
                     {% if contest.register %}
-                        <li><a href="{{ url_for('register') }}"><i class="icon-plus-sign"></i> Register</a></li>
+                        <li><a href="{{ url_for('default.register') }}"><i class="icon-plus-sign"></i> Register</a></li>
                     {% endif %}
                 {% endif %}
             </ul>
@@ -36,10 +36,10 @@
         <div class="span2">
             <ul class="nav sidebar-nav nav-list well" id="problem-list">
                 {% if phase.scoreboard_problems %}
-                    <li><a href="{{ url_for('view_scoreboard') }}">Scoreboard</a></li>
+                    <li><a href="{{ url_for('default.view_scoreboard') }}">Scoreboard</a></li>
                 {% endif %}
                 {% if team %}
-                    <li><a href="{{ url_for('list_submissions') }}">Submissions</a></i>
+                    <li><a href="{{ url_for('default.list_submissions') }}">Submissions</a></i>
                 {% endif %}
                 <li class="nav-header">Problems</li>
                 {% if phase.problem_list %}
@@ -52,7 +52,7 @@
                         {% elif k == 'problem' %}
 
                             <li class="problem {% if problem and problem.id == v %}active{% endif %} {% if v in solved %}ac{% elif v in tried %}wa{% endif %}">
-                                <a href="{{ url_for('view_problem', problem_id=v) }}"><span class="number">{{ cnt }}.</span> {{ contest.problems[v].title }}</a>
+                                <a href="{{ url_for('default.view_problem', problem_id=v) }}"><span class="number">{{ cnt }}.</span> {{ contest.problems[v].title }}</a>
                             </li>
 
                             {% set cnt = cnt + 1 %}

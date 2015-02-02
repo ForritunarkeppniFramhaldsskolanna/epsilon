@@ -10,10 +10,10 @@
             <span class="caret"></span>
         </button>
         <ul class="dropdown-menu">
-                <li><a href="{{ url_for('judge_list_submissions') }}">All</a></li>
+                <li><a href="{{ url_for('judge.list_submissions') }}">All</a></li>
                 <li class="divider"></li>
             {% for name, team in sorted(contest.teams.items()) %}
-                <li><a title="{{ name }}" href="{{ url_for('judge_list_submissions', team_name=name) }}">{{ team.title }}</a></li>
+                <li><a title="{{ name }}" href="{{ url_for('judge.list_submissions', team_name=name) }}">{{ team.title }}</a></li>
             {% endfor %}
         </ul>
     </div>
@@ -31,10 +31,10 @@
         </tr>
         {% for sub in submissions %}
             <tr class="row-success {{ format_verdict_classes(sub.verdict) }}">
-                <td class="sub_id"><a href="{{ url_for('judge_view_submission', sub_id=sub.id) }}">{{ sub.id }}</a></td>
+                <td class="sub_id"><a href="{{ url_for('judge.view_submission', sub_id=sub.id) }}">{{ sub.id }}</a></td>
                 <td class="sub_submitted">{{ sub.submitted | format_time }}</td>
                 <td class="sub_team">{{ sub.team }}</td>
-                <td class="sub_problem"><a href="{{ url_for('view_problem', problem_id=sub.problem) }}">{{ contest.problems[sub.problem].title }}</a></td>
+                <td class="sub_problem"><a href="{{ url_for('default.view_problem', problem_id=sub.problem) }}">{{ contest.problems[sub.problem].title }}</a></td>
                 <td class="sub_language">{{ sub.language }}</td>
                 <td class="sub_verdict">
                     {% for verdict in sub.verdict.split('+') %}
