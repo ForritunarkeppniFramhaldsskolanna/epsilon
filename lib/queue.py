@@ -25,12 +25,10 @@ def dequeue(sess):
     if sub is None:
         sess.commit()
         return None
-
-    sub = SubmissionQueue(sub.submission_id, sub.status, sub.dequeued_at)
-    sess.merge(sub)
+    # Another query to attach it to the session, so its easy to work with the object
+    sub = sess.query(SubmissionQueue).filter(SubmissionQueue.submission_id == sub.submission_id).one()
     sub.status = 1
     sub.dequeued_at = datetime.datetime.now()
-    # sess.query(SubmissionQueue).filter(SubmissionQueue.submission_id == sub.submission_id).update({"status": 1, "dequeued_at": datetime.datetime.now()})
     sess.commit()
     return sub
 
