@@ -12,6 +12,20 @@
 
             return 0;
         }
+"C++11 (g++ 4.8.2)":
+    filename: "sol.cpp"
+    compile: ["__EPSILON_PREFIX__/judge/scripts/compile_cpp11.sh"]
+    execute: ["./a.out"]
+    highlight: 'clike'
+    template: |
+        #include<iostream>
+        using namespace std;
+
+        int main()
+        {
+
+            return 0;
+        }
 "C (gcc 4.8.2)":
     filename: "sol.c"
     compile: ["__EPSILON_PREFIX__/judge/scripts/compile_c.sh"]

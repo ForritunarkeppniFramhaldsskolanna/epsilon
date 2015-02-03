@@ -1,5 +1,4 @@
 
-- add C++11
 - fix --prefix for /_reload and sign in request when submitting
 - test submissions from last years contest (after diff limit has been implemented), make sure verdicts are similar
 
