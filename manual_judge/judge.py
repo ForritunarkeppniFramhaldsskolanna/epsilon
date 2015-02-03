@@ -15,9 +15,12 @@ import lib.queue as queue
 
 SUBMISSION_WAIT = 1000  # ms
 DB_CONN_STRING = ""
+contest = None
 
 
 def format_time(time):
+    if isinstance(time, datetime.datetime):
+        time = (time - contest["start"]).total_seconds()
     return '%02d:%02d' % (int(time // 60), int(time) % 60)
 
 
@@ -233,7 +236,7 @@ def do_help(opts, parser):
 
 
 def main(argv):
-    global DB_CONN_STRING
+    global DB_CONN_STRING, contest
     parser = argparse.ArgumentParser(description='A command line judge interface.')
     parser.add_argument('-c', '--config', default='config.yml', help='config file')
 
@@ -264,6 +267,7 @@ def main(argv):
     opts = parser.parse_args(argv)
 
     config = j.load(opts.config)
+    contest = j.load(os.path.abspath(os.path.join(os.path.dirname(opts.config), "contest.yml")))
 
     j.set_contest_id(config['contest_id'])
 

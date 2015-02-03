@@ -1,4 +1,4 @@
-
+import datetime
 import functools
 from flask import redirect, url_for as real_url_for, request, session, current_app as app
 from server.data import verdict_explanation
@@ -60,7 +60,7 @@ def context_processor():
     judge = get_judge()
 
     if team:
-        cur_time = app.contest.time_elapsed()
+        cur_time = datetime.datetime.now()
         subs = Submission.query.filter(Submission.submitted <= cur_time).filter_by(team=team.name).all()
         for sub in subs:
             if sub.verdict == 'AC':

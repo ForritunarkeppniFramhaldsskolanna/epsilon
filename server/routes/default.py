@@ -21,7 +21,7 @@ def view_scoreboard(opts):
     opts = {s.split('=', 1)[0]: (s.split('=', 1)[1] if '=' in s else True) for s in opts.split(',')}
     opts['groups'] = set(opts.get('groups', '+'.join(app.contest.groups.keys())).split('+'))
 
-    cur_time = app.contest.time_elapsed()
+    cur_time = datetime.datetime.now()
     subs = Submission.query.filter(Submission.submitted <= cur_time).filter(Submission.problem.in_(phase.scoreboard_problems)).order_by(Submission.submitted).all()
     sb = {team: {problem: ScoreboardTeamProblem() for problem in phase.scoreboard_problems} for team, v in app.contest.teams.items() if len(v.groups & opts['groups']) > 0}
 
@@ -34,10 +34,10 @@ def view_scoreboard(opts):
 
         cur = sb[sub.team][sub.problem]
 
-        if (phase.frozen is not None and sub.submitted >= 60.0 * phase.frozen and (not is_logged_in() or get_team().name != sub.team)) or sub.verdict == 'QU':
+        if (phase.frozen is not None and sub.submitted >= app.contest.second_format(60.0 * phase.frozen) and (not is_logged_in() or get_team().name != sub.team)) or sub.verdict == 'QU':
             cur.submit_new()
         elif sub.verdict not in {'SE', 'RF', 'CJ', 'CE'}:
-            cur.submit(sub.submitted, sub.verdict == 'AC')
+            cur.submit((sub.submitted - app.contest.start).total_seconds(), sub.verdict == 'AC')
 
     ssb = sorted((-sum(sb[team][problem].is_solved() for problem in phase.scoreboard_problems),
                   sum(sb[team][problem].time_penalty() for problem in phase.scoreboard_problems),
@@ -55,7 +55,7 @@ def view_scoreboard(opts):
 @login_required
 def list_submissions():
     team = get_team()
-    cur_time = app.contest.time_elapsed()
+    cur_time = datetime.datetime.now()
     submissions = Submission.query.filter_by(team=team.name).filter(Submission.submitted <= cur_time).order_by(Submission.submitted).all()
 
     def format_verdict_classes(vs):
@@ -118,7 +118,7 @@ def view_problem(problem_id):
             abort(404)
 
         if not is_logged_in():
-            return redirect(url_for('login', next=request.path))
+            return redirect(url_for('default.login', next=request.path))
 
         team = get_team()
         if (
@@ -141,7 +141,7 @@ def view_problem(problem_id):
                 problem=problem_id,
                 language=request.form['language'],
                 file=code,
-                submitted=(datetime.datetime.now() - app.contest.start).total_seconds(),
+                submitted=datetime.datetime.now()
             )
 
             team.last_used_language = request.form['language']
@@ -153,7 +153,7 @@ def view_problem(problem_id):
         else:
             abort(400)
 
-        return redirect(url_for('list_submissions'))
+        return redirect(url_for('default.list_submissions'))
 
     if problem_id not in phase.visible_problems:
         abort(404)
@@ -246,6 +246,6 @@ def register():
 
         if not error:
             _register_team(team_name, password)
-            return redirect(url_for('login', register='True'))
+            return redirect(url_for('default.login', register='True'))
 
     return render_template('register.html', team_name=team_name, error=error)

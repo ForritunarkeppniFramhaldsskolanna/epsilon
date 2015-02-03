@@ -1,7 +1,7 @@
 # from flask.ext.sqlalchemy import SQLAlchemy
 # db = SQLAlchemy()
 import datetime
-from sqlalchemy import create_engine, Column, Integer, Float, String, Text, DateTime, ForeignKey, Boolean
+from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime, ForeignKey, Boolean
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.exc import OperationalError
@@ -17,8 +17,8 @@ class Submission(Base):
     problem = Column(String(200), nullable=False)
     language = Column(String(200), nullable=False)
     file = Column(Text(), nullable=False)
-    submitted = Column(Float(), nullable=False) 
-    # submitted = Column(DateTime(), nullable=False)
+    # submitted = Column(Float(), nullable=False) 
+    submitted = Column(DateTime(), nullable=False)
     verdict = Column(String(20), default='QU', nullable=False)
     judge_response = Column(Text())
 
@@ -30,11 +30,10 @@ class Submission(Base):
         self.problem = problem
         self.language = language
         self.file = file
-        # if submitted is None:
-        #     self.submitted = datetime.datetime.now()
-        # else:
-        #     self.submitted = submitted
-        self.submitted = submitted
+        if submitted is None:
+            self.submitted = datetime.datetime.now()
+        else:
+            self.submitted = submitted
         self.verdict = verdict
         self.judge_response = judge_response
 

@@ -1,6 +1,6 @@
 import io
 import json
-
+import datetime
 from flask import redirect, abort, render_template, request, session, send_file, Blueprint, current_app as app
 from server.data import Contest, ScoreboardTeamProblem, Balloon, verdict_explanation
 from lib.models import Submission, SubmissionQueue, Balloon as BalloonModel
@@ -61,7 +61,7 @@ def view_scoreboard(opts):
     opts = {s.split('=', 1)[0]: (s.split('=', 1)[1] if '=' in s else True) for s in opts.split(',')}
     opts['groups'] = set(opts.get('groups', '+'.join(app.contest.groups.keys())).split('+'))
 
-    cur_time = app.contest.time_elapsed()
+    cur_time = datetime.datetime.now()
     subs = Submission.query.filter(Submission.submitted <= cur_time).filter(Submission.problem.in_(phase.scoreboard_problems)).order_by(Submission.submitted).all()
     sb = {team: {problem: ScoreboardTeamProblem() for problem in phase.scoreboard_problems} for team, v in app.contest.teams.items() if len(v.groups & opts['groups']) > 0}
 
@@ -77,7 +77,7 @@ def view_scoreboard(opts):
         if sub.verdict == 'QU':
             cur.submit_new()
         elif sub.verdict not in {'SE', 'RF', 'CJ', 'CE'}:
-            cur.submit(sub.submitted, sub.verdict == 'AC')
+            cur.submit((sub.submitted - app.contest.start).total_seconds(), sub.verdict == 'AC')
 
     ssb = sorted((-sum(sb[team][problem].is_solved() for problem in phase.scoreboard_problems),
                   sum(sb[team][problem].time_penalty() for problem in phase.scoreboard_problems),
@@ -92,7 +92,7 @@ def view_scoreboard(opts):
 @judge.route('/submissions/<team_name>/')
 @judge_only
 def list_submissions(team_name):
-    cur_time = app.contest.time_elapsed()
+    cur_time = datetime.datetime.now()
     submissions = Submission.query
     if team_name is not None:
         submissions = submissions.filter_by(team=team_name)

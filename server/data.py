@@ -196,6 +196,11 @@ class Phase:
             return None
         return 60.0 * self.countdown - (self.contest.time_elapsed() - 60.0 * self.start)
 
+    def frozen_time(self):
+        if self.frozen is None:
+            return None
+        return self.contest.start + datetime.timedelta(seconds=self.frozen * 60)
+
     @staticmethod
     def load(contest, start, d):
 
@@ -267,6 +272,9 @@ class Contest:
 
     def time_to_start(self):
         return (self.start - datetime.datetime.now()).total_seconds()
+
+    def second_format(self, s):
+        return (self.start + datetime.timedelta(seconds=s))
 
     def status(self):
         if self.time_remaining() < 0:

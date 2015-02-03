@@ -5,6 +5,7 @@ sys.path.insert(0, BASE_DIR)
 
 import argparse
 import time
+import datetime
 from flask import Flask, g, render_template
 from flask.ext.sqlalchemy import SQLAlchemy
 from server.data import Contest
@@ -52,6 +53,8 @@ def before_request():
 @app.template_filter('format_time')
 def template_format_time(time):
     # return '%02d:%02d:%02d' % (int(time//60//60), int(time//60)%60, int(time)%60)
+    if isinstance(time, datetime.datetime):
+        time = (time - app.contest.start).total_seconds()
     return '%02d:%02d' % (int(time // 60), int(time) % 60)
 
 
