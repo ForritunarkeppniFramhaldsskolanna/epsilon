@@ -65,7 +65,7 @@ class Balloon(Base):
 
 
 def get_db(conn_string):
-    db_engine = create_engine(conn_string, convert_unicode=True)
+    db_engine = create_engine(conn_string, convert_unicode=True, client_encoding='utf8')
     db = sessionmaker(bind=db_engine)
     return db
 
