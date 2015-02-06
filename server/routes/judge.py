@@ -19,7 +19,7 @@ def index():
 
 @judge.route('/login/', methods={'GET', 'POST'})
 def login():
-    goto = request.args.get('next', url_for('judge_index'))
+    goto = request.args.get('next', url_for('judge.index'))
     judge_name = ''
     bad_login = False
     if judge_is_logged_in():
@@ -41,7 +41,7 @@ def login():
 @judge_only
 def logout():
     session.pop('judge', '')
-    return redirect(url_for('judge_login'))
+    return redirect(url_for('judge.login'))
 
 
 @judge.route('/reload/')
@@ -160,7 +160,7 @@ def view_submission(sub_id):
                     app.db.session.add(SubmissionQueue(sub.id))
 
             app.db.session.commit()
-            return redirect(url_for('judge_view_submission', sub_id=sub_id))
+            return redirect(url_for('judge.view_submission', sub_id=sub_id))
         else:
             abort(400)
 
@@ -184,7 +184,7 @@ def balloons(id):
         if balloon:
             balloon.delivered = True
             app.db.session.commit()
-        return redirect(url_for('judge_balloons'))
+        return redirect(url_for('judge.balloons'))
 
     submissions = {sub.id: sub for sub in Submission.query.all()}
     dballoons = BalloonModel.query.all()
