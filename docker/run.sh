@@ -7,7 +7,7 @@ if [ -z $CONTEST ]; then
     exit 0
 fi
 
-AUTOJUDGE=${AUTOJUDGE:-true}
+AUTOJUDGE=${AUTOJUDGE:-false}
 if $AUTOJUDGE; then
     autojudge 1 &
 fi
