@@ -15,6 +15,6 @@ epsilon:
   privileged: true
   entrypoint: "/epsilon/docker/entrypoint.sh"
 postgres:
-  image: postgres:9.4
+  image: postgres:9.4.0
   ports:
    - "5432"
