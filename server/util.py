@@ -8,10 +8,11 @@ from lib.models import Submission
 # TODO: make this work for internal redirects
 def url_for(path, **values):
     res = real_url_for(path, **values)
-    if app.opts.prefix:
-        return app.opts.prefix + res
-    else:
-        return res
+    return res
+    # if app.opts.prefix:
+    #     return app.opts.prefix + res
+    # else:
+    #     return res
 
 
 def is_logged_in():

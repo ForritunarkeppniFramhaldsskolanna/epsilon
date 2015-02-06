@@ -27,6 +27,22 @@ from server.routes.judge import judge
 #         return response
 
 # app = MyFlask(__name__)
+class ReverseProxied(object):
+    def __init__(self, app, script_name):
+        self.app = app
+        self.script_name = script_name
+
+    def __call__(self, environ, start_response):
+        if self.script_name:
+            environ['SCRIPT_NAME'] = self.script_name
+            path_info = environ['PATH_INFO']
+            if path_info.startswith(self.script_name):
+                environ['PATH_INFO'] = path_info[len(self.script_name):]
+
+        scheme = environ.get('HTTP_X_SCHEME', '')
+        if scheme:
+            environ['wsgi.url_scheme'] = scheme
+        return self.app(environ, start_response)
 app = Flask(__name__)
 app.secret_key = "V=7Km+XXkg:}>4dT0('cV>Rp1TG82QEjah+X'v;^w:)a']y)^%"
 db = app.db = SQLAlchemy(app)
@@ -71,12 +87,17 @@ def main(argv):
     parser.add_argument('-H', '--host', default='', help='the host to listen on')
     parser.add_argument('-d', '--debug', default=False, action='store_true', help='run in debug mode')
     parser.add_argument('--prefix', default=None, help='run under prefix')
+    parser.add_argument('--server_name', default=None, help='server name')
     # parser.add_argument('--hostname', default=None, help='run with the specified hostname')
     parser.add_argument('--droptables', default=False, action='store_true', help='drop database tables and exit')
     opts = app.opts = parser.parse_args(argv)
     contest = app.contest = Contest.load(opts.contest)
     app.config['SQLALCHEMY_DATABASE_URI'] = contest.db
-
+    if opts.prefix:
+        # app.config['APPLICATION_ROOT'] = opts.prefix
+        app.wsgi_app = ReverseProxied(app.wsgi_app, opts.prefix)
+    if opts.server_name:
+        app.config['SERVER_NAME'] = opts.server_name
     models.set_contest_id(contest.id)
 
     db.init_app(app)
