@@ -11,6 +11,7 @@ epsilon:
     - CONTEST # Resolves to the host
     - AUTOJUDGE
     - DEBUG
+    - OPTS
   privileged: true
   entrypoint: "/epsilon/docker/entrypoint.sh"
 postgres:

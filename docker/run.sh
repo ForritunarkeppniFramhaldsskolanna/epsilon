@@ -11,7 +11,7 @@ AUTOJUDGE=${AUTOJUDGE:-false}
 if $AUTOJUDGE; then
     autojudge 1 &
 fi
-OPTS=""
+OPTS=${OPTS:-""}
 DEBUG=${DEBUG:-false}
 if $DEBUG; then
     OPTS+=" -d"
