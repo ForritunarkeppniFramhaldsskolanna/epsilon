@@ -39,7 +39,7 @@ def login_required(f):
     @functools.wraps(f)
     def decorated(*args, **kwargs):
         if not is_logged_in():
-            return redirect(url_for('default.login', next=request.path))
+            return redirect(url_for('default.login', next=request.script_root + request.path))
         return f(*args, **kwargs)
     return decorated
 
@@ -48,7 +48,7 @@ def judge_only(f):
     @functools.wraps(f)
     def decorated(*args, **kwargs):
         if not judge_is_logged_in():
-            return redirect(url_for('judge.login', next=request.path))
+            return redirect(url_for('judge.login', next=request.script_root + request.path))
         return f(*args, **kwargs)
     return decorated
 
