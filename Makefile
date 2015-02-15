@@ -1,3 +1,3 @@
 all:
 	$(MAKE) -C problemtools
-	$(MAKE) -C isolate
+	$(MAKE) -C judge/isolate
