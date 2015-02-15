@@ -49,8 +49,9 @@ class Jail:
             args += ['--wall-time=%d' % max(60, math.ceil(timelim) * 10)]
 
         if memlim is not None:
-            # args += ['--mem=%d' % memlim]
-            args += ['--cg-mem=%d' % memlim]
+            # args += ['--mem=%d' % (512 << 10)]
+            args += ['--cg-mem=%d' % (512 << 10)]
+            args += ['--soft-mem=%d' % memlim]
 
         args += ['--processes=%d' % processes]
 
@@ -126,13 +127,13 @@ class Jail:
         #    - SG: interrupted
         #    - TO: time limit exceeded
         #    - RE: runtime error
+        #    - ML: memory limit exceeded
         #    - OK
-
         if 'status' not in meta:
             meta['status'] = 'OK'
 
         if meta['status'] == 'OK':
-            if float(meta['time']) > timelim:
+            if 'time' in meta and float(meta['time']) > timelim:
                 meta['status'] = 'TO'
 
         return meta
