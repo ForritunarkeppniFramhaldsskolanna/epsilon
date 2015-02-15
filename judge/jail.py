@@ -46,7 +46,7 @@ class Jail:
             args += ['--wall-time=%d' % max(60, math.ceil(timelim) * 10)]
 
         if memlim is not None:
-            args += ['--mem=%d' % memlim]
+            # args += ['--mem=%d' % memlim]
             args += ['--cg-mem=%d' % memlim]
 
         args += ['--processes=%d' % processes]
