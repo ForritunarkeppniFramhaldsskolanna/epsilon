@@ -1,4 +1,6 @@
-import sys, os, math
+import sys
+import os
+import math
 from subprocess import Popen, PIPE
 from tempfile import mkstemp
 
@@ -6,6 +8,7 @@ DIR = os.path.abspath(os.path.dirname(__file__))
 BASE_DIR = os.path.abspath(os.path.join(DIR, '..'))
 sys.path.insert(0, BASE_DIR)
 from config.config import CONFIG
+
 
 class Jail:
     def __init__(self, id):
@@ -31,7 +34,7 @@ class Jail:
         self.box_dir = os.path.join(self.jail_dir, 'box')
 
     def run(self, command,
-            timelim=None, # seconds, can be a float
+            timelim=None,  # seconds, can be a float
             memlim=None,  # Kbytes, integer
             processes=1,
             stdin=None,
@@ -41,7 +44,7 @@ class Jail:
         args += ['-c', '/box']
 
         if timelim is not None:
-            args += ['--time=%d' % math.ceil(timelim)]
+            args += ['--time=%d' % (math.ceil(timelim))]
             args += ['--cg-timing']
             args += ['--wall-time=%d' % max(60, math.ceil(timelim) * 10)]
 
@@ -51,7 +54,8 @@ class Jail:
 
         args += ['--processes=%d' % processes]
 
-        if not env: env = {}
+        if not env:
+            env = {}
         for k, v in self.default_env.items():
             if k not in env:
                 env[k] = v
@@ -76,7 +80,8 @@ class Jail:
         stdin_file = None
         if stdin is not None:
             handle, stdin_file = self._get_tempfile(self.box_dir)
-            with os.fdopen(handle, 'w') as f: f.write(stdin)
+            with os.fdopen(handle, 'w') as f:
+                f.write(stdin)
             args += ['--stdin=%s' % os.path.join('/box', os.path.relpath(stdin_file, self.box_dir))]
 
         handle, stdout_file = self._get_tempfile(self.box_dir)
@@ -114,7 +119,8 @@ class Jail:
         except:
             pass
 
-        if meta_file: os.unlink(meta_file)
+        if meta_file:
+            os.unlink(meta_file)
 
         # meta['status'] can be:
         #    - SG: interrupted
@@ -147,7 +153,6 @@ class Jail:
 #             )
 #     finally:
 #         jail.cleanup()
-# 
+#
 #     for k, v in sorted(res.items()):
 #         print(k, v)
-
