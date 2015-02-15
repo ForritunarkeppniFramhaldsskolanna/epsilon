@@ -153,7 +153,7 @@ def process_submission(sub, check, time_limit, memory_limit, language, tests):
                 #     f.write(test.input)
 
                 res = jail.run(language['execute'],
-                               timelim=time_limit,
+                               timelim=time_limit / 1000.0,
                                memlim=max(memory_limit, language.get('min_mem', 0)),
                                processes=language.get('nprocs', 1),
                                stdin=test.input)
@@ -239,7 +239,7 @@ def process_submission(sub, check, time_limit, memory_limit, language, tests):
                         logger.debug('message: %s\n' % res['message'])
 
                 if verdicts[-1] == 'TL':
-                    res['time'] = str(time_limit)
+                    res['time'] = str(time_limit / 1000.0)
                 if verdicts[-1] == 'ML':
                     res['mem'] = str(memory_limit)
 
@@ -255,7 +255,9 @@ def process_submission(sub, check, time_limit, memory_limit, language, tests):
             if judge_response:
                 sub.judge_response = judge_response
 
-        # shutil.rmtree(sub_dir)
+        if mxcpu is not None:
+            mxcpu *= 1000.0
+
         return (verdicts, mxcpu, mxmem)
     finally:
         jail.cleanup()
