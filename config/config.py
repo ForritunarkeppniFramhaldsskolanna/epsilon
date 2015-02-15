@@ -71,22 +71,22 @@ def _sh_com(cmd, stdin, cwd=None, die=True):
     return stdout.decode('utf-8')
 
 
-def load_libs(found):
-    libs = []
-    try:
-        ldd = _sh_com(['ldd', found], None, cwd='/', die=False)
-        if ldd.strip() != 'not a dynamic executable':
-            for line in ldd.strip().split('\n'):
-                sline = line.split('(')[0].strip()
-                if '=>' in sline:
-                    rest = sline.split('=>')[1].strip()
-                    if rest:
-                        libs.append(rest)
-                else:
-                    libs.append(sline)
-    except:
-        pass
-    return libs
+# def load_libs(found):
+#     libs = []
+#     try:
+#         ldd = _sh_com(['ldd', found], None, cwd='/', die=False)
+#         if ldd.strip() != 'not a dynamic executable':
+#             for line in ldd.strip().split('\n'):
+#                 sline = line.split('(')[0].strip()
+#                 if '=>' in sline:
+#                     rest = sline.split('=>')[1].strip()
+#                     if rest:
+#                         libs.append(rest)
+#                 else:
+#                     libs.append(sline)
+#     except:
+#         pass
+#     return libs
 
 
 def load_executables():
@@ -111,25 +111,32 @@ def load_executables():
         if found is None:
             if key_name in OPTIONAL_EXECUTABLES:
                 CONFIG['EXE_' + key_name] = ''
-                CONFIG['LIBS_' + key_name] = ''
+                # CONFIG['LIBS_' + key_name] = ''
             else:
                 log('no path found for executable %s' % key_name)
         else:
             CONFIG['EXE_' + key_name] = found
             log('path for executable %s is %s' % (key_name, found))
-            libs = load_libs(found)
-            if libs:
-                CONFIG['LIBS_' + key_name] = ', ' + ', '.join(libs)
-                log('libraries for %s are %s' % (key_name, ', '.join(libs)))
-            else:
-                CONFIG['LIBS_' + key_name] = ''
+            # libs = load_libs(found)
+            # if libs:
+            #     CONFIG['LIBS_' + key_name] = ', ' + ', '.join(libs)
+            #     log('libraries for %s are %s' % (key_name, ', '.join(libs)))
+            # else:
+            #     CONFIG['LIBS_' + key_name] = ''
 
         if key_name in OPTIONAL_EXECUTABLES:
             CONFIG['OPT_EXE_' + key_name] = ', ' + found if found else ''
 
     os.environ['PATH'] = old_path
 
+
+def load_env():
+    global CONFIG
+    for k, v in CONFIG.items():
+        CONFIG[k] = os.getenv("EPSILON_" + k, v)
+
 load_executables()
+load_env()
 
 # Output environment exports if this file was executed directly.
 if __name__ == "__main__":

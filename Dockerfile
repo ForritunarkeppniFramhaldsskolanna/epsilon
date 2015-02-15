@@ -9,6 +9,9 @@ RUN locale-gen en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LC_CTYPE en_US.UTF-8
+
+ENV EPSILON_ISOLATE /usr/local/bin/isolate
+
 # Install add-apt-repository
 RUN sed -i 's/archive.ubuntu.com/is.archive.ubuntu.com/' /etc/apt/sources.list
 RUN apt-get update -qq && apt-get install -y software-properties-common
@@ -23,6 +26,8 @@ RUN pip3 install -r requirements.txt
 # Build isolate
 WORKDIR /epsilon/judge/isolate
 RUN make && sudo ./fix_mod.sh
+RUN cp isolate /usr/local/bin/isolate
+RUN chown root /usr/local/bin/isolate && chmod u+s /usr/local/bin/isolate
 WORKDIR /epsilon
 
 ENTRYPOINT ["/epsilon/docker/entrypoint.sh"]
