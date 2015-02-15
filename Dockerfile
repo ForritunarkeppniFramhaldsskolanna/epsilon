@@ -20,12 +20,9 @@ ADD . /epsilon/
 RUN ./scripts/ubuntu/setup-all.sh
 RUN pip3 install -r requirements.txt
 
-# Build safeexec
-WORKDIR /epsilon/judge/SafeExec
-RUN make && make install && make clean
+# Build isolate
+WORKDIR /epsilon/judge/isolate
+RUN make && sudo ./fix_mod.sh
 WORKDIR /epsilon
-
-ENV EPSILON_JAIL /epsilon_jail
-RUN ./judge/jail-setup.sh
 
 ENTRYPOINT ["/epsilon/docker/entrypoint.sh"]

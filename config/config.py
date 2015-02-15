@@ -11,7 +11,8 @@ from lib.conf import insert_conf
 CONFIG = {
     'PREFIX': prefix,
     'JUDGE_USER_PREFIX': 'epsilon',
-    'JUDGE_USERS': '4'
+    'JUDGE_USERS': '4',
+    'ISOLATE': os.path.join(prefix, 'judge', 'isolate', 'isolate')
 }
 
 EXECUTABLES = {

@@ -1,0 +1,6 @@
+[submodule "problemtools"]
+	path = problemtools
+	url = https://github.com/Kattis/problemtools.git
+[submodule "judge/isolate"]
+	path = judge/isolate
+	url = https://github.com/cms-dev/isolate.git

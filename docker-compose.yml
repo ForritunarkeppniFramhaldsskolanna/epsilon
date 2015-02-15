@@ -5,6 +5,7 @@ epsilon:
    - "31415:31415"
   volumes:
    - .:/epsilon
+   - /sys/fs/cgroup:/sys/fs/cgroup
   links:
    - postgres
   environment:

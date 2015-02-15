@@ -16,7 +16,6 @@ sudo apt-get install -y python3.4 python3.4-dev libpython3.4 libpython3.4-dev
 sudo apt-get install -y build-essential gcc g++ python
 
 # $BASE_DIR/setup-python3.3.sh
-$BASE_DIR/setup-jailkit.sh
 
 wget -q https://bootstrap.pypa.io/ez_setup.py -O - | sudo python3
 

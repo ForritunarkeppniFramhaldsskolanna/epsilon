@@ -1,7 +1,7 @@
 id: fk_2014_trinity
 title: FK 2014 - Trinity deild
 start: 2014-03-22 10:00:00.000
-db: postgresql://user:password@localhost:5432/database
+db: postgresql://postgres:postgres@postgres:5432/postgres
 duration: 360
 
 phases:
@@ -74,24 +74,24 @@ phases:
         status: "Keppni lokið"
         problems:
             - "Fyrir hádegi"
-            - bilad_lyklabord: [visible, scoreboard]
-            - saldur_eratosthenesar: [visible, scoreboard]
-            - eg_elska_hana: [visible, scoreboard]
-            - gongutur: [visible, scoreboard]
-            - rod: [visible, scoreboard]
-            - hq9plus: [visible, scoreboard]
-            - evil_odious: [visible, scoreboard]
-            - teiknum_krossa: [visible, scoreboard]
-            - popp: [visible, scoreboard]
+            - bilad_lyklabord: [visible, submit, scoreboard]
+            - saldur_eratosthenesar: [visible, submit, scoreboard]
+            - eg_elska_hana: [visible, submit, scoreboard]
+            - gongutur: [visible, submit, scoreboard]
+            - rod: [visible, submit, scoreboard]
+            - hq9plus: [visible, submit, scoreboard]
+            - evil_odious: [visible, submit, scoreboard]
+            - teiknum_krossa: [visible, submit, scoreboard]
+            - popp: [visible, submit, scoreboard]
 
             - "Eftir hádegi"
-            - netkerfi: [visible, scoreboard]
-            - sjukdomagreining: [visible, scoreboard]
-            - deiling: [visible, scoreboard]
-            - ip_address: [visible, scoreboard]
-            - bencoding: [visible, scoreboard]
-            - tonlist: [visible, scoreboard]
-            - ordasamsetning: [visible, scoreboard]
-            - stofn_og_lauf_plott: [visible, scoreboard]
-            - robotavandraedi: [visible, scoreboard]
+            - netkerfi: [visible, submit, scoreboard]
+            - sjukdomagreining: [visible, submit, scoreboard]
+            - deiling: [visible, submit, scoreboard]
+            - ip_address: [visible, submit, scoreboard]
+            - bencoding: [visible, submit, scoreboard]
+            - tonlist: [visible, submit, scoreboard]
+            - ordasamsetning: [visible, submit, scoreboard]
+            - stofn_og_lauf_plott: [visible, submit, scoreboard]
+            - robotavandraedi: [visible, submit, scoreboard]
 

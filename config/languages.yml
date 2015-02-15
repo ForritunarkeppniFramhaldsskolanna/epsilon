@@ -110,6 +110,7 @@
     filename: "sol.m"
     execute: ["__EPSILON_EXE_OCTAVE__", "--silent", "--no-window-system", "--no-history", "--no-init-file", "--no-line-editing", "--no-site-file", "--norc", "sol.m"]
     highlight: 'octave'
+    min_mem: 1000000
 # "Haskell (ghc 7.6.3)":
 #     filename: "sol.hs"
 #     compile: ["/usr/bin/ghc", "-O", "--make", "sol"]
