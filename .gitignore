@@ -2,16 +2,9 @@
 *.pyc
 __pycache__
 
-/config/config.out.ini
-
 /judge/venv
-/judge/jail
 /judge/submissions/*
 !/judge/submissions/empty
-
-/judge/bin/SafeExec/safeexec
-/judge/bin/SafeExec/os-detect
-/judge/bin/SafeExec/*.o
 
 /server/venv
 /server/judges/ideone/venv
