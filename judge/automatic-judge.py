@@ -4,7 +4,7 @@ import os
 import shutil
 import difflib
 import tempfile
-from subprocess import Popen, PIPE, TimeoutExpired
+from subprocess import Popen, PIPE
 from cgi import escape
 
 DIR = os.path.abspath(os.path.dirname(__file__))
@@ -37,8 +37,6 @@ def process_submission(sub, checker, checker_options, time_limit, memory_limit, 
 
         with open(os.path.join(sub_dir, language['filename']), 'w') as f:
             f.write(sub.file)
-
-        compiled = True
         if 'compile' in language:
 
             res = jail.run(language['compile'], timelim=60, processes=100)
@@ -50,133 +48,117 @@ def process_submission(sub, checker, checker_options, time_limit, memory_limit, 
                 logger.debug('compile error:\n' + res.get('stderr', ''))
                 if 'message' in res:
                     logger.debug('message: %s\n' % res['message'])
-                compiled = False
                 verdicts.append('CE')
+                return (verdicts, None, None)
 
         mxcpu = None
         mxmem = None
-        if compiled:
-            first_wa = True
-            for test_no, test in enumerate(tests):
-                logger.debug('running test %d' % test_no)
+        first_wa = True
+        for test_no, test in enumerate(tests):
+            logger.debug('running test %d' % test_no)
 
-                # with open(os.path.join(sub_dir, 'in'), 'w') as f:
-                #     f.write(test.input)
+            # with open(os.path.join(sub_dir, 'in'), 'w') as f:
+            #     f.write(test.input)
 
-                res = jail.run(language['execute'],
-                               timelim=time_limit / 1000.0,
-                               memlim=max(memory_limit, language.get('min_mem', 0)),
-                               processes=language.get('nprocs', 1),
-                               stdin=test.input)
+            res = jail.run(language['execute'],
+                           timelim=time_limit / 1000.0,
+                           memlim=max(memory_limit, language.get('min_mem', 0)),
+                           processes=language.get('nprocs', 1),
+                           stdin=test.input)
 
-                if res['status'] == 'TO':
-                    logger.debug('time limit exceeded')
-                    judge_response += """<h4>Time limit exceeded on test %d</h4>""" % (test_no + 1)
-                    verdicts.append('TL')
-                elif res['status'] in {'RE', 'SG'}:
-                    verdicts.append('RE')
-                    judge_response += """<h4>Runtime error on test %d</h4><p><pre><code>%s</code></pre></p>""" % (test_no + 1, escape(res.get('stderr', '')))
-                    logger.debug('runtime error:\n' + res.get('stderr', ''))
-                    if 'message' in res:
-                        logger.debug('message: %s\n' % res['message'])
-                elif res['status'] == 'ML':
-                    logger.debug('memory limit exceeded')
-                    judge_response += """<h4>Memory limit exceeded on test %d</h4>""" % (test_no + 1)
-                    verdicts.append('ML')
-                # elif ver == 'OL':
-                #     logger.debug('output limit exceeded')
-                #     judge_response += """<h4>Output limit exceeded on test %d</h4>""" % (test_no + 1)
-                #     verdicts.append('OL')
-                # elif ver == 'RF':
-                #     logger.debug('restricted function')
-                #     judge_response += """<h4>Restricted function on test %d</h4>""" % (test_no + 1)
-                #     verdicts.append('RF')
-                # elif ver == 'SE':
-                #     logger.debug('submission error')
-                #     judge_response += """<h4>Submission error on test %d</h4>""" % (test_no + 1)
-                #     verdicts.append('SE')
-                elif res['status'] == 'OK':
+            if res['status'] == 'TO':
+                logger.debug('time limit exceeded')
+                judge_response += """<h4>Time limit exceeded on test %d</h4>""" % (test_no + 1)
+                verdicts.append('TL')
+            elif res['status'] in {'RE', 'SG'}:
+                verdicts.append('RE')
+                judge_response += """<h4>Runtime error on test %d</h4><p><pre><code>%s</code></pre></p>""" % (test_no + 1, escape(res.get('stderr', '')))
+                logger.debug('runtime error:\n' + res.get('stderr', ''))
+                if 'message' in res:
+                    logger.debug('message: %s\n' % res['message'])
+            elif res['status'] == 'ML':
+                logger.debug('memory limit exceeded')
+                judge_response += """<h4>Memory limit exceeded on test %d</h4>""" % (test_no + 1)
+                verdicts.append('ML')
+            # elif ver == 'OL':
+            #     logger.debug('output limit exceeded')
+            #     judge_response += """<h4>Output limit exceeded on test %d</h4>""" % (test_no + 1)
+            #     verdicts.append('OL')
+            # elif ver == 'RF':
+            #     logger.debug('restricted function')
+            #     judge_response += """<h4>Restricted function on test %d</h4>""" % (test_no + 1)
+            #     verdicts.append('RF')
+            # elif ver == 'SE':
+            #     logger.debug('submission error')
+            #     judge_response += """<h4>Submission error on test %d</h4>""" % (test_no + 1)
+            #     verdicts.append('SE')
+            elif res['status'] == 'OK':
 
-                    try:
-                        if type(checker) is str:
+                try:
+                    if type(checker) is str:
 
-                            tmp_dir = tempfile.mkdtemp(prefix='epsilon')
-                            judge_in = os.path.join(tmp_dir, 'judge_in')
-                            judge_ans = os.path.join(tmp_dir, 'judge_ans')
-                            with open(judge_in, 'w') as f: f.write(test.input)
-                            with open(judge_ans, 'w') as f: f.write(test.output)
+                        tmp_dir = tempfile.mkdtemp(prefix='epsilon')
+                        judge_in = os.path.join(tmp_dir, 'judge_in')
+                        judge_ans = os.path.join(tmp_dir, 'judge_ans')
+                        with open(judge_in, 'w') as f:
+                            f.write(test.input)
+                        with open(judge_ans, 'w') as f:
+                            f.write(test.output)
 
-                            # TODO: maybe run checker inside jail?
-                            proc = Popen([checker, judge_in, judge_ans, tmp_dir] + (checker_options if checker_options else []), stdin=PIPE, stdout=PIPE, stderr=PIPE, cwd=os.path.dirname(checker))
-                            proc.communicate(res['stdout'].encode('utf-8'))
-                            ok = proc.returncode == 42
-                            shutil.rmtree(tmp_dir)
-                        else:
-                            ok = check(expected=test.output, obtained=res['stdout'])
-                    except Exception as e:
-                        ok = False
-                        logger.warning('exception occured in checker, treating as WA')
-                        logger.exception(e)
-
-                    if ok:
-                        verdicts.append('AC')
-                        judge_response += """<h4>Accepted on test %d</h4>""" % (test_no + 1)
-                        logger.debug('accepted')
+                        # TODO: maybe run checker inside jail?
+                        proc = Popen([checker, judge_in, judge_ans, tmp_dir] + (checker_options if checker_options else []), stdin=PIPE, stdout=PIPE, stderr=PIPE, cwd=os.path.dirname(checker))
+                        proc.communicate(res['stdout'].encode('utf-8'))
+                        ok = proc.returncode == 42
+                        shutil.rmtree(tmp_dir)
                     else:
-                        verdicts.append('WA')
-                        logger.debug('wrong answer')
+                        ok = checker(expected=test.output, obtained=res['stdout'])
+                except Exception as e:
+                    ok = False
+                    logger.warning('exception occured in checker, treating as WA')
+                    logger.exception(e)
 
-                        judge_response += """<h4>Wrong answer on test %d</h4>""" % (test_no + 1)
-
-                        if first_wa:
-                            first_wa = False
-
-                            if DISPLAY_INPUT:
-                                judge_response += """<h5>Input</h5><pre>%s</pre>""" % escape(test.input)
-
-                            if DISPLAY_DIFF:
-                                judge_response += """<h5>Output</h5>"""
-
-                                linesa = res['stdout'].split('\n')
-                                linesb = test.output.split('\n')
-                                trunc = False
-                                if len(linesa) > MAX_DIFF or len(linesb) > MAX_DIFF:
-                                    trunc = True
-                                    linesa = linesa[:MAX_DIFF]
-                                    linesb = linesb[:MAX_DIFF]
-
-                                judge_response += difflib.HtmlDiff(tabsize=4).make_table(
-                                    linesa,
-                                    linesb,
-                                    'Obtained',
-                                    'Expected')
-
-                                if trunc:
-                                    judge_response += "<p>Note that the output was truncated.</p>"
-
+                if ok:
+                    verdicts.append('AC')
+                    judge_response += """<h4>Accepted on test %d</h4>""" % (test_no + 1)
+                    logger.debug('accepted')
                 else:
-                    # Nooo, some verdict I don't know about
-                    logger.debug('unknown verdict')
-                    verdicts.append('SE')
-                    if 'message' in res:
-                        logger.debug('message: %s\n' % res['message'])
+                    verdicts.append('WA')
+                    logger.debug('wrong answer')
 
-                if verdicts[-1] == 'TL':
-                    res['time'] = str(time_limit / 1000.0)
-                if verdicts[-1] == 'ML':
-                    res['mem'] = str(memory_limit)
+                    judge_response += """<h4>Wrong answer on test %d</h4>""" % (test_no + 1)
 
-                if 'time' in res and (mxcpu is None or float(res['time']) > mxcpu):
-                    mxcpu = float(res['time'])
-                if 'cg-mem' in res and (mxmem is None or float(res['cg-mem']) > mxmem):
-                    mxmem = float(res['cg-mem'])
+                    if first_wa:
+                        first_wa = False
 
-                # TODO: make this optional (stop after first non-AC test case)
-                if verdicts[-1] != 'AC':
-                    break
+                        if DISPLAY_INPUT:
+                            judge_response += """<h5>Input</h5><pre>%s</pre>""" % escape(test.input)
 
-            if judge_response:
-                sub.judge_response = judge_response
+                        if DISPLAY_DIFF:
+                            judge_response += wa_output(res, test)
+
+            else:
+                # Nooo, some verdict I don't know about
+                logger.debug('unknown verdict')
+                verdicts.append('SE')
+                if 'message' in res:
+                    logger.debug('message: %s\n' % res['message'])
+
+            if verdicts[-1] == 'TL':
+                res['time'] = str(time_limit / 1000.0)
+            if verdicts[-1] == 'ML':
+                res['mem'] = str(memory_limit)
+
+            if 'time' in res and (mxcpu is None or float(res['time']) > mxcpu):
+                mxcpu = float(res['time'])
+            if 'cg-mem' in res and (mxmem is None or float(res['cg-mem']) > mxmem):
+                mxmem = float(res['cg-mem'])
+
+            # TODO: make this optional (stop after first non-AC test case)
+            if verdicts[-1] != 'AC':
+                break
+
+        if judge_response:
+            sub.judge_response = judge_response
 
         if mxcpu is not None:
             mxcpu *= 1000.0
@@ -184,6 +166,28 @@ def process_submission(sub, checker, checker_options, time_limit, memory_limit, 
         return (verdicts, mxcpu, mxmem)
     finally:
         jail.cleanup()
+
+
+def wa_output(res, test):
+    judge_response = """<h5>Output</h5>"""
+
+    linesa = res['stdout'].split('\n')
+    linesb = test.output.split('\n')
+    trunc = False
+    if len(linesa) > MAX_DIFF or len(linesb) > MAX_DIFF:
+        trunc = True
+        linesa = linesa[:MAX_DIFF]
+        linesb = linesb[:MAX_DIFF]
+
+    judge_response += difflib.HtmlDiff(tabsize=4).make_table(
+        linesa,
+        linesb,
+        'Obtained',
+        'Expected')
+
+    if trunc:
+        judge_response += "<p>Note that the output was truncated.</p>"
+    return judge_response
 
 
 def main(argv):
