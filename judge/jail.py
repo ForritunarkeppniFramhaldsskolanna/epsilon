@@ -10,6 +10,14 @@ sys.path.insert(0, BASE_DIR)
 from config.config import CONFIG
 
 
+def mkjail(id):
+    j = Jail(id)
+    try:
+        yield j
+    finally:
+        j.cleanup()
+
+
 class Jail:
     def __init__(self, id):
         self.box_id = id
