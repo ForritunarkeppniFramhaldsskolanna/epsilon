@@ -3,6 +3,7 @@ import sys
 import os
 import shutil
 import difflib
+import tempfile
 from subprocess import Popen, PIPE, TimeoutExpired
 from cgi import escape
 
@@ -13,7 +14,6 @@ MAX_DIFF = 400
 sys.path.insert(0, BASE_DIR)
 
 from config.config import CONFIG
-from lib.yamllib import load
 import lib.judgelib as j
 from lib.judgelib import logger
 from jail import Jail
@@ -24,95 +24,7 @@ DISPLAY_DIFF = None
 DISPLAY_INPUT = None
 
 
-# def read_file(path):
-#     try:
-#         with open(path, 'r', encoding='utf8') as f:
-#             return f.read()
-#     except UnicodeDecodeError:
-#         with open(path, 'r', encoding='latin1') as f:
-#             return f.read()
-
-
-# def execute_submission(sub_id, sub_real_id, cpu, mem, nprocs, cmd):
-#     global USER_NO
-#     assert USER_NO is not None
-# 
-#     proc = Popen(['sudo', "-E", os.path.join(DIR, 'execute-submission.sh'),
-#                   str(USER_NO),
-#                   '%d:%d' % (os.getuid(), os.getgid()),
-#                   str(sub_real_id),
-#                   str(cpu // 1000),
-#                   str(mem),
-#                   str(nprocs),
-#                   ' '.join(cmd)],
-#                  cwd=DIR)
-# 
-#     retcode = proc.wait()
-# 
-#     stderr = stdout = usage = ""
-#     try:
-#         stdout = read_file(os.path.join(DIR, 'submissions', sub_id, 'out'))
-#         stderr = read_file(os.path.join(DIR, 'submissions', sub_id, 'err'))
-#         usage = read_file(os.path.join(DIR, 'submissions', sub_id, 'usage'))
-# 
-#         os.unlink(os.path.join(DIR, 'submissions', sub_id, 'out'))
-#         os.unlink(os.path.join(DIR, 'submissions', sub_id, 'err'))
-#         os.unlink(os.path.join(DIR, 'submissions', sub_id, 'usage'))
-#     except Exception as e:
-#         logger.exception(e)
-# 
-#         if stderr:
-#             logger.error('safeexec failed:')
-#             logger.error(stderr)
-#         else:
-#             logger.error('safeexec failed')
-# 
-#         # safeexec failed for whatever reason :(
-#         return 'SE', retcode, None, None, stdout, stderr
-# 
-#     logger.debug('usage:')
-#     logger.debug('\n' + usage)
-# 
-#     usage = usage.split('\n')
-# 
-#     retcode = 0
-#     if usage[0].startswith('Command exited with non-zero status'):
-#         retcode = int(usage[0].split('(')[1].split(')')[0])
-#         ver = 'RE'
-#     elif usage[0].startswith('Command terminated by signal'):
-#         retcode = int(usage[0].split('(')[1].split(':')[0])
-#         ver = 'RE'
-#     elif usage[0] == 'Memory Limit Exceeded':
-#         ver = 'ML'
-#     elif usage[0] == 'Time Limit Exceeded':
-#         ver = 'TL'
-#     elif usage[0] == 'Output Limit Exceeded':
-#         ver = 'OL'
-#     elif usage[0] == 'Invalid Function':
-#         ver = 'RF'
-#     elif usage[0] == 'Internal Error':
-#         ver = 'SE'
-#     elif usage[0] == 'OK':
-#         ver = 'OK'
-#     else:
-# 
-#         # Nooo, some verdict I don't know about
-#         ver = 'DNO'
-# 
-#         logger.error('safeexec returned an unknown status:')
-#         logger.error(usage)
-# 
-#     try:
-#         cpu = int(float(usage[3].split(': ')[1].split(' ')[0]) * 1000)
-#         mem = int(usage[2].split(': ')[1].split(' ')[0])
-#     except:
-#         cpu = None
-#         mem = None
-# 
-#     return ver, retcode, cpu, mem, stdout, stderr
-
-
-def process_submission(sub, check, time_limit, memory_limit, language, tests):
+def process_submission(sub, checker, checker_options, time_limit, memory_limit, language, tests):
     assert USER_NO is not None
 
     jail = Jail(USER_NO)
@@ -129,7 +41,6 @@ def process_submission(sub, check, time_limit, memory_limit, language, tests):
         compiled = True
         if 'compile' in language:
 
-            # TODO: timeout compilation
             res = jail.run(language['compile'], timelim=60, processes=100)
 
             if res['status'] == 'OK':
@@ -186,10 +97,22 @@ def process_submission(sub, check, time_limit, memory_limit, language, tests):
                 #     verdicts.append('SE')
                 elif res['status'] == 'OK':
 
-                    # TODO: use output validator from problem package
-
                     try:
-                        ok = check(expected=test.output, obtained=res['stdout'])
+                        if type(checker) is str:
+
+                            tmp_dir = tempfile.mkdtemp(prefix='epsilon')
+                            judge_in = os.path.join(tmp_dir, 'judge_in')
+                            judge_ans = os.path.join(tmp_dir, 'judge_ans')
+                            with open(judge_in, 'w') as f: f.write(test.input)
+                            with open(judge_ans, 'w') as f: f.write(test.output)
+
+                            # TODO: maybe run checker inside jail?
+                            proc = Popen([checker, judge_in, judge_ans, tmp_dir] + (checker_options if checker_options else []), stdin=PIPE, stdout=PIPE, stderr=PIPE, cwd=os.path.dirname(checker))
+                            proc.communicate(res['stdout'].encode('utf-8'))
+                            ok = proc.returncode == 42
+                            shutil.rmtree(tmp_dir)
+                        else:
+                            ok = check(expected=test.output, obtained=res['stdout'])
                     except Exception as e:
                         ok = False
                         logger.warning('exception occured in checker, treating as WA')
@@ -267,23 +190,17 @@ def main(argv):
 
     parser = argparse.ArgumentParser(description='An automatic programming contest judge.')
 
-    parser.add_argument('config', help='the contest judge config file')
+    parser.add_argument('contest', help='the contest directory')
     parser.add_argument('user', default=1, type=int, help='the number of the judge user to use')
 
     opts = parser.parse_args(argv)
 
-    config = load(opts.config)
-
-    global DISPLAY_DIFF, DISPLAY_INPUT, USER, USER_NO
-    j.BALLOONS = config.get('balloons', False)
-    j.TESTS_DIR = os.path.abspath(os.path.join(os.path.dirname(opts.config), config['tests_dir']))
-    j.DB_CONN_STRING = config['db_conn_string']
-    DISPLAY_DIFF = config.get('display_diff', False)
-    DISPLAY_INPUT = config.get('display_input', False)
+    global USER, USER_NO
     USER = CONFIG['JUDGE_USER_PREFIX'] + '-' + str(opts.user)
     USER_NO = str(opts.user)
 
-    j.set_contest_id(config['contest_id'])
+    j.load_contest(opts.contest)
+
     try:
         j.start(process_submission)
     except KeyboardInterrupt:

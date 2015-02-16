@@ -7,12 +7,14 @@ from lib.models import Submission, Balloon, get_db, set_contest_id
 import lib.queue as queue
 
 BALLOONS = True
-TESTS_DIR = ''
+CONTEST_DIR = None
 LANGUAGES_FILE = os.path.join(os.path.dirname(__file__), "..", 'config/languages.yml')
 DB_CONN_STRING = ''
 SUBMISSION_JUDGE_TIMEOUT = 3 * 60 * 1000  # ms
 PROCESS_SUBMISSION = None
 PROCESS_TEST = None
+DISPLAY_DIFF = False
+DISPLAY_INPUT = False
 
 VERDICTS = [
     ('AC', 0),
@@ -50,8 +52,19 @@ def read(path):
 #         return yaml.load(f)
 
 
+def load_contest(path):
+    config = load(os.path.join(path, 'contest.yml'))
+
+    global BALLOONS, CONTEST_DIR, DB_CONN_STRING, DISPLAY_DIFF, DISPLAY_INPUT
+    CONTEST_DIR = path
+    BALLOONS = config.get('balloons', False)
+    DB_CONN_STRING = config['db']
+    DISPLAY_DIFF = config.get('display_diff', False)
+    DISPLAY_INPUT = config.get('display_input', False)
+
+    set_contest_id(config['id'])
+
 def eq_check(expected, obtained):
-    # TODO: make this optional
     expected = [line.strip() for line in expected.split('\n') if line.strip()]
     obtained = [line.strip() for line in obtained.split('\n') if line.strip()]
     return expected == obtained
@@ -76,7 +89,10 @@ def compute_verdict(verdicts):
 
 
 def get_tests(sub):
-    cur_tests_dir = pjoin(TESTS_DIR, sub.problem)
+    cur_tests_dir = pjoin(CONTEST_DIR, 'problems', sub.problem, 'tests')
+    if not os.path.isdir(cur_tests_dir):
+        cur_tests_dir = pjoin(CONTEST_DIR, 'problems', sub.problem, '.epsilon', 'tests')
+
     tests = []
     for t in sorted(os.listdir(cur_tests_dir)):
         if not t.endswith('.in'):
@@ -114,20 +130,22 @@ def start(process_submission):
         logger.debug('problem = %s' % sub.problem)
         logger.debug('language = %s' % sub.language)
 
-        cur_tests_dir = pjoin(TESTS_DIR, sub.problem)
+        cur_tests_dir = pjoin(CONTEST_DIR, 'problems', sub.problem, 'tests')
+        if not os.path.isdir(cur_tests_dir):
+            cur_tests_dir = pjoin(CONTEST_DIR, 'problems', sub.problem, '.epsilon', 'tests')
+
         cur_config = load(pjoin(cur_tests_dir, 'tests.yml'))
-        check = eq_check
+        checker = eq_check
         if 'checker' in cur_config:
-            p = pjoin(cur_tests_dir, cur_config['checker'])
-            with open(p) as f:
-                check = imp.load_source('checker', p, f).check
+            checker = pjoin(cur_tests_dir, cur_config['checker'])
 
         lang = langs[sub.language]
 
         try:
             res, cpu, mem = process_submission(
                 sub=sub,
-                check=check,
+                checker=checker,
+                checker_options=cur_config.get('checker_options'),
                 time_limit=int(cur_config['time_limit']),
                 memory_limit=int(cur_config['memory_limit']),
                 language=lang,

@@ -8,7 +8,9 @@
 
         <div id="problem_description">
 
-            <h1>{{ problem.title }}</h1>
+            {% if problem.show_title %}
+                <h1>{{ problem.title | safe }}</h1>
+            {% endif %}
 
             {{ problem.statement | safe }}
 

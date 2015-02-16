@@ -52,7 +52,7 @@
                         {% elif k == 'problem' %}
 
                             <li class="problem {% if problem and problem.id == v %}active{% endif %} {% if v in solved %}ac{% elif v in tried %}wa{% endif %}">
-                                <a href="{{ url_for('default.view_problem', problem_id=v) }}"><span class="number">{{ cnt }}.</span> {{ contest.problems[v].title }}</a>
+                                <a href="{{ url_for('default.view_problem', problem_id=v) }}"><span class="number">{{ cnt }}.</span> {{ contest.problems[v].title | safe }}</a>
                             </li>
 
                             {% set cnt = cnt + 1 %}

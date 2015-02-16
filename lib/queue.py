@@ -42,18 +42,17 @@ def submissions(conn_string, limit=0):
                 sess = db()
                 try:
                     qsub = dequeue(sess)
-                    if qsub is None:
-                        continue
-                    sub = sess.query(Submission).filter_by(id=qsub.submission_id).one()
-                    yield sub, sess
-                    sess.query(SubmissionQueue).filter(SubmissionQueue.submission_id == qsub.submission_id).delete()
-                    sess.commit()
-                    processed_submissions += 1
-                    if limit != 0 and processed_submissions >= limit:
-                        return
-                    time.sleep(SUBMISSION_WAIT / 1000.0 + random.random())
+                    if qsub is not None:
+                        sub = sess.query(Submission).filter_by(id=qsub.submission_id).one()
+                        yield sub, sess
+                        sess.query(SubmissionQueue).filter(SubmissionQueue.submission_id == qsub.submission_id).delete()
+                        sess.commit()
+                        processed_submissions += 1
+                        if limit != 0 and processed_submissions >= limit:
+                            return
                 finally:
                     sess.close()
+                time.sleep(SUBMISSION_WAIT / 1000.0 + random.random())
 
         except OperationalError as e:
             if logger:

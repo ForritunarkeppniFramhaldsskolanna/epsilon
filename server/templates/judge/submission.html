@@ -4,7 +4,7 @@
 {% endblock %}
 {% block content %}
     <h3>Details for submission {{ submission.id }}</h3>
-    <h5>Team {{ submission.team }}, problem {{ contest.problems[submission.problem].title }}, submitted at {{ submission.submitted | format_time }}</h5>
+    <h5>Team {{ submission.team }}, problem {{ contest.problems[submission.problem].title | safe }}, submitted at {{ submission.submitted | format_time }}</h5>
     {# <pre><code>{{ submission.file }}</code></pre> #}
     <textarea id="source_code">{{ submission.file }}</textarea>
     <hr />

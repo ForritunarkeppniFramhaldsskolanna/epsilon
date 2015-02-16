@@ -119,12 +119,13 @@ class Example:
 
 
 class Problem:
-    def __init__(self, id, title, statement, examples, assets):
+    def __init__(self, id, title, statement, examples, assets, show_title=True):
         self.id = id
         self.title = title
         self.statement = statement
         self.examples = examples
         self.assets = assets
+        self.show_title = show_title
 
     def __repr__(self):
         return '<Problem %s>' % repr(self.title)
@@ -134,37 +135,52 @@ class Problem:
         path = os.path.abspath(path)
 
         problem = load(path)
-        md = os.path.splitext(path)[0] + '.md'
-        if not os.path.isfile(md):
-            md = pjoin(os.path.dirname(path), 'statement.md')
 
-        with open(md, encoding='utf-8') as f:
+        statement = os.path.splitext(path)[0] + '.md'
+        md = True
+
+        if not os.path.isfile(md):
+            statement = pjoin(os.path.dirname(path), 'statement.md')
+            md = True
+
+        if not os.path.isfile(md):
+            statement = pjoin(os.path.dirname(path), 'statement', 'index.html')
+            md = False
+
+        assert os.path.isfile(statement)
+
+        with open(statement, encoding='utf-8') as f:
             statement = f.read()
 
-        statement = processor.convert(statement)
-
-        if os.path.isdir(pjoin(os.path.dirname(path), 'assets')):
-            assets = pjoin(os.path.dirname(path), 'assets')
-        elif os.path.isdir(pjoin(path, 'assets')):
-            assets = pjoin(path, 'assets')
-        else:
-            assets = None
-
-        return Problem(
-            # id=os.path.splitext(os.path.basename(path))[0],
-            id=id,
-            title=problem['title'],
-            # statement=problem['statement'],
-            statement=statement,
-            examples=[
+        if md:
+            statement = processor.convert(statement)
+            examples = [
                 Example(
                     input=x.get('input', ''),
                     output=x.get('output', ''),
                     explanation=x.get('explanation'),
                     display=x.get('display', 'normal')
                 ) for x in problem.get('examples', [])
-            ],
-            assets=assets
+            ]
+        else:
+            examples = []
+
+        if os.path.isdir(pjoin(os.path.dirname(path), 'assets')):
+            assets = pjoin(os.path.dirname(path), 'assets')
+        elif os.path.isdir(pjoin(path, 'assets')):
+            assets = pjoin(path, 'assets')
+        elif os.path.isdir(pjoin(path, 'statement')):
+            assets = pjoin(path, 'statement')
+        else:
+            assets = None
+
+        return Problem(
+            id=id,
+            title=problem['title'],
+            show_title=md,
+            statement=statement,
+            examples=examples,
+            assets=assets,
         )
 
     @staticmethod
@@ -174,8 +190,10 @@ class Problem:
         for p in os.listdir(problem_dir):
             if p.endswith('.yml'):
                 problems.append(Problem.load(pjoin(problem_dir, p), os.path.splitext(p)[0]))
-            elif os.path.isdir(pjoin(problem_dir, p)) and os.path.isfile(pjoin(problem_dir, p, 'problem.yml')):
+            elif os.path.isfile(pjoin(problem_dir, p, 'problem.yml')):
                 problems.append(Problem.load(pjoin(problem_dir, p, 'problem.yml'), p))
+            elif os.path.isfile(pjoin(problem_dir, p, '.epsilon', 'problem.yml')):
+                problems.append(Problem.load(pjoin(problem_dir, p, '.epsilon', 'problem.yml'), p))
         return problems
 
 

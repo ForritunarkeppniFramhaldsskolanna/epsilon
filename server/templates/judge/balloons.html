@@ -17,7 +17,7 @@
             {% if not balloon.delivered %}
                 <tr>
                     <td>{{ balloon.team.title }}</td>
-                    <td>{{ balloon.problem.title }}</td>
+                    <td>{{ balloon.problem.title | safe }}</td>
                     <td>{{ balloon.team.location }}</td>
                     <td><a href="{{ url_for('judge.balloons', id=balloon.id) }}" class="btn btn-success">Deliver</a></td>
                 </tr>
@@ -37,7 +37,7 @@
             {% if balloon.delivered %}
                 <tr>
                     <td>{{ balloon.team.title }}</td>
-                    <td>{{ balloon.problem.title }}</td>
+                    <td>{{ balloon.problem.title | safe }}</td>
                     <td>{{ team.location }}</td>
                 </tr>
             {% endif %}
