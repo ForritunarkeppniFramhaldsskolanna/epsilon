@@ -3,4 +3,4 @@
 	url = https://github.com/Kattis/problemtools.git
 [submodule "judge/isolate"]
 	path = judge/isolate
-	url = https://github.com/cms-dev/isolate.git
+	url = https://github.com/jamiees2/isolate.git

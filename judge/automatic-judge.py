@@ -73,16 +73,16 @@ def process_submission(sub, checker, checker_options, time_limit, memory_limit, 
                     logger.debug('time limit exceeded')
                     judge_response += """<h4>Time limit exceeded on test %d</h4>""" % (test_no + 1)
                     verdicts.append('TL')
-                elif res['status'] in {'RE','SG'}:
+                elif res['status'] in {'RE', 'SG'}:
                     verdicts.append('RE')
                     judge_response += """<h4>Runtime error on test %d</h4><p><pre><code>%s</code></pre></p>""" % (test_no + 1, escape(res.get('stderr', '')))
                     logger.debug('runtime error:\n' + res.get('stderr', ''))
                     if 'message' in res:
                         logger.debug('message: %s\n' % res['message'])
-                # elif ver == 'ML':
-                #     logger.debug('memory limit exceeded')
-                #     judge_response += """<h4>Memory limit exceeded on test %d</h4>""" % (test_no + 1)
-                #     verdicts.append('ML')
+                elif res['status'] == 'ML':
+                    logger.debug('memory limit exceeded')
+                    judge_response += """<h4>Memory limit exceeded on test %d</h4>""" % (test_no + 1)
+                    verdicts.append('ML')
                 # elif ver == 'OL':
                 #     logger.debug('output limit exceeded')
                 #     judge_response += """<h4>Output limit exceeded on test %d</h4>""" % (test_no + 1)
