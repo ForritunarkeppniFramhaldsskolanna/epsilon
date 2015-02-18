@@ -7,14 +7,10 @@ if [ -z $CONTEST ]; then
     exit 0
 fi
 
-AUTOJUDGE=${AUTOJUDGE:-false}
-if $AUTOJUDGE; then
-    autojudge 1 &
-fi
 OPTS=${OPTS:-""}
 DEBUG=${DEBUG:-false}
 if $DEBUG; then
     OPTS+=" -d"
 fi
 
-python3 server/epsilon.py -H 0.0.0.0 "$CONTEST" $OPTS
+epsilon $OPTS
