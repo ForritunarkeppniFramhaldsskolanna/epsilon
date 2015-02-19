@@ -89,15 +89,16 @@ class Submissions:
             ORDER BY submission_id asc
             LIMIT 1
             FOR UPDATE
-            """ % (SubmissionQueue.__tablename__, "1 seconds"))  # For safe measure, also check out submissions checked out over 10 minutes ago
+            """ % (SubmissionQueue.__tablename__, "10 minutes"))  # For safe measure, also check out submissions checked out over 10 minutes ago
 
-        self._qsub = result.first()
-        if self._qsub is None:
+        qsub = result.first()
+        if qsub is None:
             self._sess.commit()
+            self._qsub = None
             return
 
         # Another query to attach it to the session, so its easy to work with the object
-        self._qsub = self._sess.query(SubmissionQueue).filter(SubmissionQueue.submission_id == self._qsub.submission_id).one()
+        self._qsub = self._sess.query(SubmissionQueue).filter(SubmissionQueue.submission_id == qsub.submission_id).one()
         self._qsub.status = 1
         self._qsub.dequeued_at = datetime.datetime.now()
         self._sess.commit()
