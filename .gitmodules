@@ -1,5 +1,5 @@
 [submodule "problemtools"]
-	path = problemtools
+	path = problems/problemtools
 	url = https://github.com/Kattis/problemtools.git
 [submodule "judge/isolate"]
 	path = judge/isolate

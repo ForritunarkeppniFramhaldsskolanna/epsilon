@@ -1,0 +1,7 @@
+problemtools:
+  build: .
+  command: bash
+  environment:
+    PROBLEMTOOLS: /problemtools
+  volumes:
+   - ..:/epsilon
