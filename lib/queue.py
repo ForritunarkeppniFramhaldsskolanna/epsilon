@@ -38,7 +38,7 @@ class Submissions:
     def _connect_db(self):
         while True:
             try:
-                self._db, self._db_engine = models.get_db(self._conn_string)
+                self._db, self._db_engine = models.get_db(self._conn_string, engine=True)
                 break
             except OperationalError as e:
                 if logger:
