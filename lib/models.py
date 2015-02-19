@@ -64,10 +64,13 @@ class Balloon(Base):
         self.submission_id = submission_id
 
 
-def get_db(conn_string):
+def get_db(conn_string, engine=False):
     db_engine = create_engine(conn_string, convert_unicode=True, client_encoding='utf8')
     db = sessionmaker(bind=db_engine)
-    return db
+    if engine:
+        return db, db_engine
+    else:
+        return db
 
 
 def set_contest_id(contest_id):

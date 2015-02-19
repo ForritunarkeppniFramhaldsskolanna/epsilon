@@ -4,7 +4,8 @@ from os.path import join as pjoin
 import logging
 from lib.yamllib import load
 from lib.models import Submission, Balloon, get_db, set_contest_id
-import lib.queue as queue
+from lib.queue import Submissions
+import lib.queue
 
 BALLOONS = True
 CONTEST_DIR = None
@@ -36,7 +37,7 @@ formatter = logging.Formatter('[%(asctime)s, %(levelname)s] %(message)s')
 ch.setFormatter(formatter)
 logger.addHandler(ch)
 
-queue.logger = logger
+lib.queue.logger = logger
 
 
 def read(path):
@@ -122,52 +123,51 @@ def deliver_balloon(sess, sub):
 def start(process_submission):
     logger.debug('started')
     langs = load(LANGUAGES_FILE)
+    with Submissions(DB_CONN_STRING) as queue:
+        for sub in queue:
+            logger.debug('-------------')
+            logger.debug('got submission %d' % sub.id)
+            logger.debug('team = %s' % sub.team)
+            logger.debug('problem = %s' % sub.problem)
+            logger.debug('language = %s' % sub.language)
+            cur_tests_dir = pjoin(CONTEST_DIR, 'problems', sub.problem, 'tests')
+            if not os.path.isdir(cur_tests_dir):
+                cur_tests_dir = pjoin(CONTEST_DIR, 'problems', sub.problem, '.epsilon', 'tests')
 
-    for sub, sess in queue.submissions(DB_CONN_STRING):
-        logger.debug('-------------')
-        logger.debug('got submission %d' % sub.id)
-        logger.debug('team = %s' % sub.team)
-        logger.debug('problem = %s' % sub.problem)
-        logger.debug('language = %s' % sub.language)
+            cur_config = load(pjoin(cur_tests_dir, 'tests.yml'))
+            checker = eq_check
+            if 'checker' in cur_config:
+                checker = pjoin(cur_tests_dir, cur_config['checker'])
 
-        cur_tests_dir = pjoin(CONTEST_DIR, 'problems', sub.problem, 'tests')
-        if not os.path.isdir(cur_tests_dir):
-            cur_tests_dir = pjoin(CONTEST_DIR, 'problems', sub.problem, '.epsilon', 'tests')
+            lang = langs[sub.language]
 
-        cur_config = load(pjoin(cur_tests_dir, 'tests.yml'))
-        checker = eq_check
-        if 'checker' in cur_config:
-            checker = pjoin(cur_tests_dir, cur_config['checker'])
+            try:
+                res, cpu, mem = process_submission(
+                    sub=sub,
+                    checker=checker,
+                    checker_options=cur_config.get('checker_options'),
+                    time_limit=int(cur_config['time_limit']),
+                    memory_limit=int(cur_config['memory_limit']),
+                    language=lang,
+                    tests=get_tests(sub),
+                )
 
-        lang = langs[sub.language]
+                if isinstance(res, list):
+                    res = compute_verdict(res)
 
-        try:
-            res, cpu, mem = process_submission(
-                sub=sub,
-                checker=checker,
-                checker_options=cur_config.get('checker_options'),
-                time_limit=int(cur_config['time_limit']),
-                memory_limit=int(cur_config['memory_limit']),
-                language=lang,
-                tests=get_tests(sub),
-            )
-
-            if isinstance(res, list):
-                res = compute_verdict(res)
-
-            sub.verdict = res
-            sub.time = cpu
-            sub.memory = mem
-        except Exception as e:
-            logger.error('failed to judge submission %d' % sub.id)
-            logger.exception(e)
-            sub.verdict = 'SE'
-
-        if sub.verdict == 'AC':
-            deliver_balloon(sess, sub)
-
-        logger.debug('verdict = %s' % sub.verdict)
-        logger.debug('-------------')
+                sub.verdict = res
+                sub.time = cpu
+                sub.memory = mem
+                queue.commit()
+            except Exception as e:
+                logger.error('failed to judge submission %d' % sub.id)
+                logger.exception(e)
+                sub.verdict = 'SE'
+                queue.commit()
+            if sub.verdict == 'AC':
+                deliver_balloon(queue.get_session(), sub)
+            logger.debug('verdict = %s' % sub.verdict)
+            logger.debug('-------------')
 
 
 def get_all_submissions():
