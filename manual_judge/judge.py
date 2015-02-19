@@ -11,10 +11,9 @@ import lib.judgelib as j
 from lib.models import Submission, SubmissionQueue
 import lib.models as models
 from lib.yamllib import load, dump
-import lib.queue as queue
+from lib.queue import Submissions
 
 SUBMISSION_WAIT = 1000  # ms
-DB_CONN_STRING = ""
 contest = None
 
 
@@ -29,7 +28,7 @@ def do_list(opts, parser):
         parser.print_help()
         exit(0)
 
-    db = models.get_db(DB_CONN_STRING)
+    db = models.get_db(j.DB_CONN_STRING)
     try:
         sess = db()
 
@@ -57,21 +56,19 @@ def do_list(opts, parser):
 
 
 def do_checkout(opts, parser):
+    sub = None
     if opts.id == 'next':
         sys.stdout.write('waiting for next submission...\n')
-        subs = queue.submissions(DB_CONN_STRING, limit=1)
-        sub2, _ = next(subs)
-        opts.id = sub2.id
-        sys.stdout.write('checking out submission %d\n' % opts.id)
-        # Duplicate so we don't get a detached error
-        sub = Submission(sub2.team, sub2.problem, sub2.language, sub2.file, sub2.submitted, sub2.verdict, sub2.judge_response)
-        sub.id = sub2.id
-        try:
-            next(subs)
-        except:
-            pass
+
+        with Submissions(j.DB_CONN_STRING, timeout=False) as subs:
+            sub2 = next(subs)
+            opts.id = sub2.id
+            sys.stdout.write('checking out submission %d\n' % opts.id)
+            # Duplicate so we don't get a detached error
+            sub = Submission(sub2.team, sub2.problem, sub2.language, sub2.file, sub2.submitted, sub2.verdict, sub2.judge_response)
+            sub.id = sub2.id
     else:
-        db = models.get_db(DB_CONN_STRING)
+        db = models.get_db(j.DB_CONN_STRING)
         try:
             sess = db()
             opts.id = int(opts.id)
@@ -116,14 +113,23 @@ def do_checkout(opts, parser):
     with open(os.path.join(str(opts.id), lang['filename']), 'w') as f:
         f.write(sub.file)
 
-    shutil.copytree(os.path.join(j.TESTS_DIR, sub.problem), os.path.join(str(opts.id), 'tests'))
+    test_dir = os.path.join(j.CONTEST_DIR, 'problems', sub.problem, '.epsilon', 'tests')
+    test_dst = os.path.abspath(os.path.join(str(opts.id), 'tests'))
+
+    shutil.copytree(test_dir, test_dst,
+                    ignore=lambda dir, files: [f for f in files if not (f.endswith(".in") or f.endswith(".out"))])
+
+    for (dirpath, dirnames, filenames) in os.walk(test_dst):
+        for f in filenames:
+            a = f.replace("sample", "sa").replace("secret", "sc").replace("__", "")
+            os.rename(os.path.join(dirpath, f), os.path.join(dirpath, a))
 
 
 def do_current_submit(opts, parser):
     subdetails = load('submission.yaml')
     sid = int(subdetails['id'])
 
-    db = models.get_db(DB_CONN_STRING)
+    db = models.get_db(j.DB_CONN_STRING)
     try:
         sess = db()
         sub = sess.query(Submission).filter_by(id=sid).first()
@@ -160,7 +166,7 @@ def do_current_compile(opts, parser):
     subdetails = load('submission.yaml')
     sid = int(subdetails['id'])
 
-    db = models.get_db(DB_CONN_STRING)
+    db = models.get_db(j.DB_CONN_STRING)
     try:
         sess = db()
         sub = sess.query(Submission).filter_by(id=sid).first()
@@ -189,7 +195,7 @@ def do_current_execute(opts, parser):
     subdetails = load('submission.yaml')
     sid = int(subdetails['id'])
 
-    db = models.get_db(DB_CONN_STRING)
+    db = models.get_db(j.DB_CONN_STRING)
     try:
         sess = db()
         sub = sess.query(Submission).filter_by(id=sid).first()
@@ -236,9 +242,9 @@ def do_help(opts, parser):
 
 
 def main(argv):
-    global DB_CONN_STRING, contest
+    global contest
     parser = argparse.ArgumentParser(description='A command line judge interface.')
-    parser.add_argument('-c', '--config', default='config.yml', help='config file')
+    parser.add_argument('-c', '--contest', help='contest')
 
     subparsers = parser.add_subparsers(dest='subparser_name')
 
@@ -266,13 +272,7 @@ def main(argv):
 
     opts = parser.parse_args(argv)
 
-    config = j.load(opts.config)
-    contest = j.load(os.path.abspath(os.path.join(os.path.dirname(opts.config), "contest.yml")))
-
-    j.set_contest_id(config['contest_id'])
-
-    DB_CONN_STRING = j.DB_CONN_STRING = config['db_conn_string']
-    j.TESTS_DIR = os.path.abspath(os.path.join(os.path.dirname(opts.config), config['tests_dir']))
+    contest = j.load_contest(opts.contest)
 
     if opts.subparser_name is None:
         parser.print_help()

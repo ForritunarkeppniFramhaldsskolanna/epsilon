@@ -13,13 +13,14 @@ logger = None
 
 
 class Submissions:
-    def __init__(self, conn_string):
+    def __init__(self, conn_string, timeout=True):
         self._conn_string = conn_string
         self._sess = None
         self._qsub = None
         self._db = None
         self.stopped = False
         self._checked_out = False
+        self._timeout=timeout
         self._connect_db()
 
     def __enter__(self):
@@ -82,14 +83,17 @@ class Submissions:
     def _dequeue(self):
         if self._sess is None:
             return None
+        t = ""
+        if self._timeout:
+            t = " OR dequeued_at < current_timestamp - interval '10 minutes'"
         result = self._sess.execute("""
             SELECT submission_id, status, dequeued_at FROM \"%s\"
-            WHERE (status=0 OR dequeued_at < current_timestamp - interval '%s')
+            WHERE (status=0%s)
                   AND pg_try_advisory_xact_lock(submission_id)
             ORDER BY submission_id asc
             LIMIT 1
             FOR UPDATE
-            """ % (SubmissionQueue.__tablename__, "10 minutes"))  # For safe measure, also check out submissions checked out over 10 minutes ago
+            """ % (SubmissionQueue.__tablename__, t))  # For safe measure, also check out submissions checked out over 10 minutes ago
 
         qsub = result.first()
         if qsub is None:

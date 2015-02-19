@@ -65,6 +65,8 @@ def load_contest(path):
 
     set_contest_id(config['id'])
 
+    return config
+
 def eq_check(expected, obtained):
     expected = [line.strip() for line in expected.split('\n') if line.strip()]
     obtained = [line.strip() for line in obtained.split('\n') if line.strip()]
