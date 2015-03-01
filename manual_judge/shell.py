@@ -130,6 +130,19 @@ class ManualJudge(cmd.Cmd):
         opts = parser.parse_args(arg)
         judge.do_current_execute(opts, parser, cwd=self.cwd)
 
+    def do_submit(self, arg):
+        if not os.path.isfile(os.path.join(self.cwd, "submission.yaml")):
+            print("Not in submission directory, exiting...")
+            return False
+        parser = argparse.ArgumentParser(prog="submit", description='submit the current submission')
+        parser.add_argument('verdict', help='the verdict  (see `verdicts` for explanations)', choices=judge.verdict_explanation.keys())
+        parser.add_argument('-m', '--message', help='a message with the verdict')
+        opts = parser.parse_args(arg)
+        judge.do_current_submit(opts, parser, cwd=self.cwd)
+
+    def do_verdicts(self, arg):
+        print("\n".join("%s: %s" % (k, v) for k, v in judge.verdict_explanation.items()))
+
     def do_edit(self, arg):
         """Open file in $EDITOR"""
         call([EDITOR] + arg, cwd=self.cwd)

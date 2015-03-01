@@ -237,7 +237,6 @@ verdict_explanation = {
     'RE': 'runtime error',
     'TL': 'time limit exceeded',
     'ML': 'memory limit exceeded',
-    'OL': 'output limit exceeded',
     'SE': 'submission error',
     'RF': 'restricted function',
     'CJ': 'cannot judge',
