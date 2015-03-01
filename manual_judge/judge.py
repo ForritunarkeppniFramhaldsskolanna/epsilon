@@ -15,6 +15,7 @@ from lib.queue import Submissions
 
 SUBMISSION_WAIT = 1000  # ms
 contest = None
+CWD = os.getcwd()
 
 
 def format_time(time):
@@ -90,12 +91,12 @@ def do_checkout(opts, parser):
             sess.close()
 
     lang = load(j.LANGUAGES_FILE)[sub.language]
+    path = os.path.join(CWD, str(opts.id))
+    if os.path.isdir(path):
+        shutil.rmtree(path)
 
-    if os.path.isdir(str(opts.id)):
-        shutil.rmtree(str(opts.id))
-
-    os.mkdir(str(opts.id))
-    with open(os.path.join(str(opts.id), 'submission.yaml'), 'w') as f:
+    os.mkdir(path)
+    with open(os.path.join(path, 'submission.yaml'), 'w') as f:
         f.write(dump({
             'id': sub.id,
             'team': sub.team,
@@ -110,11 +111,11 @@ def do_checkout(opts, parser):
             }
         }))
 
-    with open(os.path.join(str(opts.id), lang['filename']), 'w') as f:
+    with open(os.path.join(path, lang['filename']), 'w') as f:
         f.write(sub.file)
 
     test_dir = os.path.join(j.CONTEST_DIR, 'problems', sub.problem, '.epsilon', 'tests')
-    test_dst = os.path.abspath(os.path.join(str(opts.id), 'tests'))
+    test_dst = os.path.abspath(os.path.join(path, 'tests'))
 
     shutil.copytree(test_dir, test_dst,
                     ignore=lambda dir, files: [f for f in files if not (f.endswith(".in") or f.endswith(".out"))])
@@ -123,10 +124,13 @@ def do_checkout(opts, parser):
         for f in filenames:
             a = f.replace("sample", "sa").replace("secret", "sc").replace("__", "")
             os.rename(os.path.join(dirpath, f), os.path.join(dirpath, a))
+    return path
 
 
-def do_current_submit(opts, parser):
-    subdetails = load('submission.yaml')
+def do_current_submit(opts, parser, cwd=None):
+    if cwd is None:
+        cwd = CWD
+    subdetails = load(os.path.join(cwd, 'submission.yaml'))
     sid = int(subdetails['id'])
 
     db = models.get_db(j.DB_CONN_STRING)
@@ -162,8 +166,10 @@ def do_current_submit(opts, parser):
         sess.close()
 
 
-def do_current_compile(opts, parser):
-    subdetails = load('submission.yaml')
+def do_current_compile(opts, parser, cwd=None):
+    if cwd is None:
+        cwd = CWD
+    subdetails = load(os.path.join(cwd, 'submission.yaml'))
     sid = int(subdetails['id'])
 
     db = models.get_db(j.DB_CONN_STRING)
@@ -177,7 +183,7 @@ def do_current_compile(opts, parser):
         lang = load(j.LANGUAGES_FILE)[sub.language]
 
         if 'compile' in lang:
-            proc = Popen(lang['compile'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+            proc = Popen(lang['compile'], stdin=PIPE, stdout=PIPE, stderr=PIPE, cwd=cwd)
             comp_err = proc.communicate()[1]
             comp_err = '' if comp_err is None else comp_err.decode('utf-8')
             if proc.wait() != 0:
@@ -191,8 +197,10 @@ def do_current_compile(opts, parser):
         sess.close()
 
 
-def do_current_execute(opts, parser):
-    subdetails = load('submission.yaml')
+def do_current_execute(opts, parser, cwd=None, stdin=None):
+    if cwd is None:
+        cwd = CWD
+    subdetails = load(os.path.join(cwd, 'submission.yaml'))
     sid = int(subdetails['id'])
 
     db = models.get_db(j.DB_CONN_STRING)
@@ -204,7 +212,7 @@ def do_current_execute(opts, parser):
             exit(1)
 
         lang = load(j.LANGUAGES_FILE)[sub.language]
-        proc = Popen(lang['execute'])
+        proc = Popen(lang['execute'], stdin=stdin, cwd=cwd)
         proc.wait()
 
     finally:
@@ -241,8 +249,15 @@ def do_help(opts, parser):
         print("\n".join("%s: %s" % (k, v) for k, v in verdict_explanation.items()))
 
 
-def main(argv):
+def load_contest(name=None):
     global contest
+    if name:
+        contest = j.load_contest(name)
+    else:
+        contest = j.load_contest(os.getenv("CONTEST", name))
+
+
+def main(argv):
     parser = argparse.ArgumentParser(description='A command line judge interface.')
     parser.add_argument('-c', '--contest', help='contest')
 
@@ -271,8 +286,7 @@ def main(argv):
     help_cmd.add_argument("item", help="what item to help with")
 
     opts = parser.parse_args(argv)
-
-    contest = j.load_contest(opts.contest)
+    load_contest(opts.contest)
 
     if opts.subparser_name is None:
         parser.print_help()
