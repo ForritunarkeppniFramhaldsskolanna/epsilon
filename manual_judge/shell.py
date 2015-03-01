@@ -3,33 +3,67 @@
 import sys
 import os
 import argparse
-import datetime
-import shutil
 import readline
 import shlex
 import logging
 import cmd
 import tempfile
-from subprocess import Popen, PIPE, call
+
+from functools import wraps
+from subprocess import call
 
 BASE_DIR = os.path.join(os.path.dirname(__file__), "..")
 sys.path.insert(0, BASE_DIR)
 import judge
 
 SUBMISSION_WAIT = 1000  # ms
-EDITOR = os.environ.get('EDITOR', 'vim')  #that easy!
+EDITOR = os.environ.get('EDITOR', 'vim')  # that easy!
 contest = None
 ROOT = tempfile.mkdtemp(prefix="epsilon")
 judge.CWD = ROOT
 
+PROMPT = "ɛ %s > "
+
+
+def current(func):
+    @wraps(func)
+    def validate(*args, **kwargs):
+        if not os.path.isfile(os.path.join(args[0].cwd(), "submission.yaml")):
+            print("Not in submission directory, exiting...")
+            return False
+        return func(*args, **kwargs)
+    return validate
+
+
+def ar(*args, **kwargs):
+    return args, kwargs
+
+
+def arguments(*gargs, **gkwargs):
+    def decorator(func):
+        if "prog" not in gargs[0][1]:
+            gargs[0][1]["prog"] = func.__name__[3:]
+        parser = argparse.ArgumentParser(*gargs[0][0], **gargs[0][1])
+        for i in range(1, len(gargs)):
+            parser.add_argument(*gargs[i][0], **gargs[i][1])
+
+        @wraps(func)
+        def args(*args, **kwargs):
+            opts = parser.parse_args(args[1])
+            args = args + (opts, parser)
+            return func(*args, **kwargs)
+        args.__doc__ = parser.format_help()
+        return args
+    return decorator
+
 
 class ManualJudge(cmd.Cmd):
     """ɛMJ Command line"""
-    prompt = "ɛ > "
 
     def __init__(self):
         cmd.Cmd.__init__(self)
-        self.cwd = ROOT
+        self.path = ""
+        self.prompt = PROMPT % self.path
 
     def onecmd(self, line):
         """Mostly ripped from Python's cmd.py"""
@@ -50,113 +84,106 @@ class ManualJudge(cmd.Cmd):
                 return self.default(line)
             try:
                 return func(arg)
-            except SystemExit:
+            except (SystemExit, KeyboardInterrupt):
                 return False
-            except KeyboardInterrupt:
-                pass
             except Exception:
                 logging.exception("%s failed" % (cmd))
+
+    def cwd(self):
+        return os.path.join(ROOT, self.path)
+
+    def update_prompt(self):
+        self.prompt = PROMPT % self.path
 
     def do_help(self, arg):
         return cmd.Cmd.do_help(self, " ".join(arg))
 
-    def do_list(self, arg):
-        """
-        usage: list [-h] [-t TEAM] [-p PROBLEM] type
-
-        List submissions
-
-        positional arguments:
-          type                  which submissions to list
-
-        optional arguments:
-          -h, --help            show this help message and exit
-          -t TEAM, --team TEAM  filter by team
-          -p PROBLEM, --problem PROBLEM
-                                filter by problem"""
-        parser = argparse.ArgumentParser(prog="list", description='List submissions')
-        parser.add_argument('type', help='which submissions to list')
-        parser.add_argument('-t', '--team', help='filter by team')
-        parser.add_argument('-p', '--problem', help='filter by problem')
-        opts = parser.parse_args(arg)
+    @arguments(
+        ar(description='List submissions'),
+        ar('type', help='which submissions to list'),
+        ar('-t', '--team', help='filter by team'),
+        ar('-p', '--problem', help='filter by problem')
+    )
+    def do_list(self, arg, opts, parser):
         judge.do_list(opts, parser)
 
-    def do_checkout(self, arg):
-        """
-        usage: checkout [-h] id
+    @arguments(
+        ar(description='Checkout submission'),
+        ar('id', help='which submissions to checkout')
+    )
+    def do_checkout(self, arg, opts, parser):
+        submission_id = judge.do_checkout(opts, parser)
+        self.path = submission_id
+        self.update_prompt()
 
-        Checkout submission
+    @current
+    @arguments(
+        ar(description='Compile current submission')
+    )
+    def do_compile(self, arg, opts, parser):
+        judge.do_current_compile(opts, parser, cwd=self.cwd())
 
-        positional arguments:
-          id          which submissions to checkout
+    @current
+    @arguments(
+        ar(description='Execute current submission'),
+        ar('test', nargs="?", default="")
+    )
+    def do_execute(self, arg, opts, parser):
+        data = None
+        if opts.test:
+            path = os.path.join(self.cwd(), "tests", opts.test + ".in")
+            if not os.path.isfile(path):
+                print("Test %s does not exist, exiting." % opts.test)
+                return False
+            with open(path, 'r', encoding='utf-8') as f:
+                data = f.read()
+        judge.do_current_execute(opts, parser, cwd=self.cwd(), data=data)
 
-        optional arguments:
-          -h, --help  show this help message and exit
-        """
-        parser = argparse.ArgumentParser(prog="checkout", description='Checkout submission')
-        parser.add_argument('id', help='which submissions to checkout')
-        opts = parser.parse_args(arg)
-        self.cwd = judge.do_checkout(opts, parser)
-
-    def do_compile(self, arg):
-        """
-        usage: compile [-h]
-
-        Compile current submission
-
-        optional arguments:
-          -h, --help  show this help message and exit
-        """
-        if not os.path.isfile(os.path.join(self.cwd, "submission.yaml")):
-            print("Not in submission directory, exiting...")
-            return False
-        parser = argparse.ArgumentParser(prog="compile", description='Compile current submission')
-        opts = parser.parse_args(arg)
-        judge.do_current_compile(opts, parser, cwd=self.cwd)
-
-    def do_execute(self, arg):
-        """
-        usage: execute [-h]
-
-        Execute current submission
-
-        optional arguments:
-          -h, --help  show this help message and exit
-        """
-        if not os.path.isfile(os.path.join(self.cwd, "submission.yaml")):
-            print("Not in submission directory, exiting...")
-            return False
-        parser = argparse.ArgumentParser(prog="execute", description='Execute current submission')
-        opts = parser.parse_args(arg)
-        judge.do_current_execute(opts, parser, cwd=self.cwd)
-
-    def do_submit(self, arg):
-        if not os.path.isfile(os.path.join(self.cwd, "submission.yaml")):
-            print("Not in submission directory, exiting...")
-            return False
-        parser = argparse.ArgumentParser(prog="submit", description='submit the current submission')
-        parser.add_argument('verdict', help='the verdict  (see `verdicts` for explanations)', choices=judge.verdict_explanation.keys())
-        parser.add_argument('-m', '--message', help='a message with the verdict')
-        opts = parser.parse_args(arg)
-        judge.do_current_submit(opts, parser, cwd=self.cwd)
+    @current
+    @arguments(
+        ar(description='submit the current submission'),
+        ar('verdict', help='the verdict  (see `verdicts` for explanations)', choices=judge.verdict_explanation.keys()),
+        ar('-m', '--message', help='a message with the verdict')
+    )
+    def do_submit(self, arg, opts, parser):
+        judge.do_current_submit(opts, parser, cwd=self.cwd())
 
     def do_verdicts(self, arg):
+        """Lists the available verdicts"""
         print("\n".join("%s: %s" % (k, v) for k, v in judge.verdict_explanation.items()))
+
+    @current
+    def do_tests(self, arg):
+        """Lists the available tests"""
+        files = [f[0:-3] for f in os.listdir(os.path.join(self.cwd(), "tests")) if f.endswith(".in")]
+        # Fix this sorting shit
+        files.sort(key=lambda s: (s.split("__")[0], int(s.split("__")[1].split(".")[0])))
+        for f in files:
+            print(f)
 
     def do_edit(self, arg):
         """Open file in $EDITOR"""
-        call([EDITOR] + arg, cwd=self.cwd)
+        call([EDITOR] + arg, cwd=self.cwd())
 
     def do_shell(self, arg):
-        call(arg, cwd=self.cwd)
+        call(arg, cwd=self.cwd())
+
+    def do_ls(self, arg):
+        return self.do_shell(['ls'] + arg)
+
+    def do_cat(self, arg):
+        return self.do_shell(['cat'] + arg)
 
     def do_cd(self, arg):
         """Change working directory"""
-        cwd = os.path.abspath(os.path.join(self.cwd, arg[0]))
-        if cwd.startswith(ROOT):
-            self.cwd = cwd
-        else:
-            self.cwd = ROOT
+        path = os.path.normpath(os.path.join(self.path, arg[0]))
+        if path == ".":
+            path = ""
+        if not os.path.isdir(os.path.join(ROOT, path)):
+            print("cd: no such file or directory: %s" % arg[0])
+            return
+        self.path = path
+        self.update_prompt()
 
     def do_EOF(self, arg):
         return True

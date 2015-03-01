@@ -120,11 +120,11 @@ def do_checkout(opts, parser):
     shutil.copytree(test_dir, test_dst,
                     ignore=lambda dir, files: [f for f in files if not (f.endswith(".in") or f.endswith(".out"))])
 
-    for (dirpath, dirnames, filenames) in os.walk(test_dst):
-        for f in filenames:
-            a = f.replace("sample", "sa").replace("secret", "sc").replace("__", "")
-            os.rename(os.path.join(dirpath, f), os.path.join(dirpath, a))
-    return path
+    # for (dirpath, dirnames, filenames) in os.walk(test_dst):
+    #     for f in filenames:
+    #         a = f.replace("sample", "sa").replace("secret", "sc").replace("__", "")
+    #         os.rename(os.path.join(dirpath, f), os.path.join(dirpath, a))
+    return str(opts.id)
 
 
 def do_current_submit(opts, parser, cwd=None):
@@ -197,7 +197,7 @@ def do_current_compile(opts, parser, cwd=None):
         sess.close()
 
 
-def do_current_execute(opts, parser, cwd=None, stdin=None):
+def do_current_execute(opts, parser, cwd=None, data=None):
     if cwd is None:
         cwd = CWD
     subdetails = load(os.path.join(cwd, 'submission.yaml'))
@@ -212,7 +212,12 @@ def do_current_execute(opts, parser, cwd=None, stdin=None):
             exit(1)
 
         lang = load(j.LANGUAGES_FILE)[sub.language]
-        proc = Popen(lang['execute'], stdin=stdin, cwd=cwd)
+        proc = None
+        if data:
+            proc = Popen(lang['execute'], stdin=PIPE, cwd=cwd)
+            proc.communicate(input=data.encode())
+        else:
+            proc = Popen(lang['execute'], cwd=cwd)
         proc.wait()
 
     finally:
