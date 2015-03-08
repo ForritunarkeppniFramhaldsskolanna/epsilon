@@ -1,9 +1,10 @@
 #!/bin/bash
-
 set -e
 
+
 BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
-eval $(python3 $BASE_DIR/../config/config.py export)
+EPSILON_DIR=${EPSILON_DIR:-"$BASE_DIR/.."}
+eval $(python3 $EPSILON_DIR/config/config.py export)
 
 # If we are supposed to load a contest, setup the aliases
 if ! [ -z $CONTEST ]; then
