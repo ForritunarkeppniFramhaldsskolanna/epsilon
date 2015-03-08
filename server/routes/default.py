@@ -3,7 +3,7 @@ import os
 import datetime
 import lib.text as text
 from flask import redirect, abort, render_template, request, session, send_from_directory, Blueprint, current_app as app
-from server.data import ScoreboardTeamProblem
+from server.data import ScoreboardTeamProblem, Contest
 from lib.models import Submission, SubmissionQueue
 from server.util import url_for, get_team, is_logged_in, login_required
 
@@ -212,7 +212,7 @@ def _register_team(name, password):
             if line.strip() == 'teams:':
                 f.write('    "%s": {pass: "%s", location: unknown, groups:[all]}\n' % (name, password))
 
-    contest = app.Contest.load(app.opts.contest)
+    app.contest = Contest.load(app.opts.contest)
 
 
 @default.route('/register/', methods={'GET', 'POST'})
