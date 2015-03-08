@@ -274,10 +274,11 @@ class ManualJudge(Cmd2):
         ar('-m', '--message', help='a message with the verdict')
     )
     def do_submit(self, arg, opts, parser):
+        opts.verdict = opts.verdict.upper()
         judge.do_current_submit(opts, parser, cwd=self.cwd())
 
     def complete_submit(self, *arg):
-        return [k for k in judge.verdict_explanation.keys() if k.startswith(arg[0])]
+        return [k for k in judge.verdict_explanation.keys() if k.startswith(arg[0].upper())]
 
     @current(error=False)
     def get_tests(self):

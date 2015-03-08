@@ -47,6 +47,7 @@ table a {
 #content .problem {
     max-width: 580px;
     margin: 0 auto;
+    font-size: 1.2em;
 }
 
 #content .problem h1 {
@@ -58,10 +59,6 @@ table a {
     margin-top: 0.8em;
     margin-bottom: 0.1em;
     font-size: 1.4em;
-}
-
-#content .problem p {
-    font-size: 1.2em;
 }
 
 #content .problem p + p {
@@ -158,3 +155,20 @@ table a {
   border-radius: 500px;
 }
 
+table.sample {
+  width: 100%;
+}
+
+table.sample th{
+  text-align: left;
+  width: 50%;
+}
+
+table.sample th, table.sample td{
+  vertical-align: baseline;
+}
+
+.problemheader h3{
+  font-size: 14px;
+  line-height: normal;
+}
