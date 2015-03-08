@@ -8,6 +8,7 @@ import shlex
 import logging
 import cmd
 import tempfile
+import re
 
 from functools import wraps
 from subprocess import call, Popen, PIPE
@@ -27,14 +28,25 @@ PROMPT = "ɛ %s > "
 
 # Decorator functions
 # for making sure the current directory is a submission directory
-def current(func):
-    @wraps(func)
-    def validate(*args, **kwargs):
-        if not os.path.isfile(os.path.join(args[0].cwd(), "submission.yaml")):
-            print("Not in submission directory, exiting...")
-            return False
-        return func(*args, **kwargs)
-    return validate
+def current(*arg, **kwarg):
+    error = True
+    if arg and not callable(arg[0]):
+        error = False
+    elif kwarg:
+        error = kwarg["error"]
+
+    def decorator(func):
+        @wraps(func)
+        def validate(*args, **kwargs):
+            if not os.path.isfile(os.path.join(args[0].cwd(), "submission.yaml")):
+                if error:
+                    print("Not in submission directory, exiting...")
+                return False
+            return func(*args, **kwargs)
+        return validate
+    if arg and callable(arg[0]):
+        return decorator(arg[0])
+    return decorator
 
 
 # A cool helper function to make a tuple of arguments
@@ -93,8 +105,12 @@ def _exec(cmd, cwd, stdin=None):
     return (proc.returncode, stdout.decode('utf-8'), stderr.decode('utf-8'))
 
 
+def getno(name):
+    ar = re.findall(r'\d+', name)
+    return int(ar[-1])
+
+
 class Cmd2(cmd.Cmd):
-    use_rawinput = False
 
     def __init__(self):
         cmd.Cmd.__init__(self)
@@ -153,20 +169,24 @@ class Cmd2(cmd.Cmd):
                     if self.cmdqueue:
                         line = self.cmdqueue.pop(0)
                     else:
-                        self.stdout.write(self.prompt)
-                        self.stdout.flush()
-                        line = self.stdin.readline()
-                        if not len(line):
-                            line = 'EOF'
+                        if self.use_rawinput:
+                            try:
+                                line = input(self.prompt)
+                            except EOFError:
+                                line = 'EOF'
                         else:
-                            line = line.rstrip('\r\n')
+                            self.stdout.write(self.prompt)
+                            self.stdout.flush()
+                            line = self.stdin.readline()
+                            if not len(line):
+                                line = 'EOF'
+                            else:
+                                line = line.rstrip('\r\n')
                     line = self.precmd(line)
                     stop = self.onecmd(line)
                     stop = self.postcmd(stop, line)
                 except KeyboardInterrupt:
-                    self.stdout.flush()
-                    self.stdout.write("\nUse `exit` or EOF (C-D) to exit")
-                    self.stdout.flush()
+                    print("\nUse `exit` or EOF (C-D) to exit")
             self.postloop()
         finally:
             if self.use_rawinput and self.completekey:
@@ -222,7 +242,7 @@ class ManualJudge(Cmd2):
     @current
     @arguments(
         ar(description='Execute current submission'),
-        ar('test', nargs="?", default=""),
+        ar('test', nargs="?", default="", help="The test case to execute"),
         ar('-d', "--diff", const=True, nargs="?", help="diff")
     )
     def do_execute(self, arg, opts, parser):
@@ -244,6 +264,9 @@ class ManualJudge(Cmd2):
         if val[2].strip():
             print("stderr:\n%s" % val[2].strip())
 
+    def complete_execute(self, *arg):
+        return [a for a in self.get_tests() if a.startswith(arg[0])]
+
     @current
     @arguments(
         ar(description='submit the current submission'),
@@ -253,13 +276,17 @@ class ManualJudge(Cmd2):
     def do_submit(self, arg, opts, parser):
         judge.do_current_submit(opts, parser, cwd=self.cwd())
 
+    @current(error=False)
+    def get_tests(self):
+        files = [f[0:-3] for f in os.listdir(os.path.join(self.cwd(), "tests")) if f.endswith(".in")]
+        # Fix this sorting shit
+        files.sort(key=lambda s: (s.split("__")[0], getno(s)))
+        return files
+
     @current
     def do_tests(self, arg):
         """Lists the available tests"""
-        files = [f[0:-3] for f in os.listdir(os.path.join(self.cwd(), "tests")) if f.endswith(".in")]
-        # Fix this sorting shit
-        files.sort(key=lambda s: (s.split("__")[0], int(s.split("__")[1].split(".")[0])))
-        for f in files:
+        for f in self.get_tests():
             print(f)
 
     def do_verdicts(self, arg):
