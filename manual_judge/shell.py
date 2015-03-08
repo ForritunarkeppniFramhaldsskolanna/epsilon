@@ -10,7 +10,7 @@ import cmd
 import tempfile
 
 from functools import wraps
-from subprocess import call
+from subprocess import call, Popen, PIPE
 
 BASE_DIR = os.path.join(os.path.dirname(__file__), "..")
 sys.path.insert(0, BASE_DIR)
@@ -25,6 +25,8 @@ judge.CWD = ROOT
 PROMPT = "ɛ %s > "
 
 
+# Decorator functions
+# for making sure the current directory is a submission directory
 def current(func):
     @wraps(func)
     def validate(*args, **kwargs):
@@ -35,10 +37,12 @@ def current(func):
     return validate
 
 
+# A cool helper function to make a tuple of arguments
 def ar(*args, **kwargs):
     return args, kwargs
 
 
+# Runs argparse on the arguments passed before running the function
 def arguments(*gargs, **gkwargs):
     def decorator(func):
         if "prog" not in gargs[0][1]:
@@ -57,18 +61,51 @@ def arguments(*gargs, **gkwargs):
     return decorator
 
 
-class ManualJudge(cmd.Cmd):
-    """ɛMJ Command line"""
+# Execute helper functions
+def execute(cwd, test=False, data=None):
+    subdetails = judge.load(os.path.join(cwd, 'submission.yaml'))
+    sid = int(subdetails['id'])
+
+    db = judge.models.get_db(judge.j.DB_CONN_STRING)
+    try:
+        sess = db()
+        sub = sess.query(judge.Submission).filter_by(id=sid).first()
+        if not sub:
+            sys.stderr.write('error: submission with id %d not found\n' % sid)
+            exit(1)
+
+        lang = judge.load(judge.j.LANGUAGES_FILE)[sub.language]
+        if test:
+            return _exec(lang['execute'], cwd, stdin=data)
+        else:
+            return _exec(lang['execute'], cwd, stdin=False)
+    finally:
+        sess.close()
+
+
+def _exec(cmd, cwd, stdin=None):
+    if stdin is False:
+        proc = Popen(cmd, stdin=None, stdout=PIPE, stderr=PIPE, cwd=cwd)
+        stdout, stderr = proc.communicate()
+    else:
+        proc = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE, cwd=cwd)
+        stdout, stderr = proc.communicate(stdin.encode('utf-8') if stdin is not None else b'')
+    return (proc.returncode, stdout.decode('utf-8'), stderr.decode('utf-8'))
+
+
+class Cmd2(cmd.Cmd):
+    use_rawinput = False
 
     def __init__(self):
         cmd.Cmd.__init__(self)
-        self.path = ""
-        self.prompt = PROMPT % self.path
 
     def onecmd(self, line):
         """Mostly ripped from Python's cmd.py"""
         cmd, arg, line = self.parseline(line)
-        arg = shlex.split(arg)
+        if arg:
+            arg = shlex.split(arg)
+        else:
+            arg = []
 
         if not line:
             return self.emptyline()
@@ -88,6 +125,65 @@ class ManualJudge(cmd.Cmd):
                 return False
             except Exception:
                 logging.exception("%s failed" % (cmd))
+
+    def cmdloop(self, intro=None):
+        """Repeatedly issue a prompt, accept input, parse an initial prefix
+        off the received input, and dispatch to action methods, passing them
+        the remainder of the line as argument.
+
+        """
+
+        self.preloop()
+        if self.use_rawinput and self.completekey:
+            try:
+                import readline
+                self.old_completer = readline.get_completer()
+                readline.set_completer(self.complete)
+                readline.parse_and_bind(self.completekey + ": complete")
+            except ImportError:
+                pass
+        try:
+            if intro is not None:
+                self.intro = intro
+            if self.intro:
+                self.stdout.write(str(self.intro) + "\n")
+            stop = None
+            while not stop:
+                try:
+                    if self.cmdqueue:
+                        line = self.cmdqueue.pop(0)
+                    else:
+                        self.stdout.write(self.prompt)
+                        self.stdout.flush()
+                        line = self.stdin.readline()
+                        if not len(line):
+                            line = 'EOF'
+                        else:
+                            line = line.rstrip('\r\n')
+                    line = self.precmd(line)
+                    stop = self.onecmd(line)
+                    stop = self.postcmd(stop, line)
+                except KeyboardInterrupt:
+                    self.stdout.flush()
+                    self.stdout.write("\nUse `exit` or EOF (C-D) to exit")
+                    self.stdout.flush()
+            self.postloop()
+        finally:
+            if self.use_rawinput and self.completekey:
+                try:
+                    import readline
+                    readline.set_completer(self.old_completer)
+                except ImportError:
+                    pass
+
+
+class ManualJudge(Cmd2):
+    """ɛMJ Command line"""
+
+    def __init__(self):
+        Cmd2.__init__(self)
+        self.path = ""
+        self.prompt = PROMPT % self.path
 
     def cwd(self):
         return os.path.join(ROOT, self.path)
@@ -126,7 +222,8 @@ class ManualJudge(cmd.Cmd):
     @current
     @arguments(
         ar(description='Execute current submission'),
-        ar('test', nargs="?", default="")
+        ar('test', nargs="?", default=""),
+        ar('-d', "--diff", const=True, nargs="?", help="diff")
     )
     def do_execute(self, arg, opts, parser):
         data = None
@@ -137,7 +234,15 @@ class ManualJudge(cmd.Cmd):
                 return False
             with open(path, 'r', encoding='utf-8') as f:
                 data = f.read()
-        judge.do_current_execute(opts, parser, cwd=self.cwd(), data=data)
+            val = execute(self.cwd(), test=True, data=data)
+        else:
+            val = execute(self.cwd())
+
+        print("Return code %d." % val[0])
+        if val[1].strip():
+            print("stdout:\n%s" % val[1].strip())
+        if val[2].strip():
+            print("stderr:\n%s" % val[2].strip())
 
     @current
     @arguments(
@@ -148,10 +253,6 @@ class ManualJudge(cmd.Cmd):
     def do_submit(self, arg, opts, parser):
         judge.do_current_submit(opts, parser, cwd=self.cwd())
 
-    def do_verdicts(self, arg):
-        """Lists the available verdicts"""
-        print("\n".join("%s: %s" % (k, v) for k, v in judge.verdict_explanation.items()))
-
     @current
     def do_tests(self, arg):
         """Lists the available tests"""
@@ -160,6 +261,10 @@ class ManualJudge(cmd.Cmd):
         files.sort(key=lambda s: (s.split("__")[0], int(s.split("__")[1].split(".")[0])))
         for f in files:
             print(f)
+
+    def do_verdicts(self, arg):
+        """Lists the available verdicts"""
+        print("\n".join("%s: %s" % (k, v) for k, v in judge.verdict_explanation.items()))
 
     def do_edit(self, arg):
         """Open file in $EDITOR"""
@@ -185,8 +290,10 @@ class ManualJudge(cmd.Cmd):
         self.path = path
         self.update_prompt()
 
-    def do_EOF(self, arg):
+    def do_exit(self, arg):
         return True
+
+    do_EOF = do_exit
 
 
 def main(argv):
@@ -195,7 +302,10 @@ def main(argv):
     opts = parser.parse_args(argv)
 
     judge.load_contest(opts.contest)
-    ManualJudge().cmdloop()
+    try:
+        ManualJudge().cmdloop()
+    except KeyboardInterrupt:
+        sys.exit(0)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
