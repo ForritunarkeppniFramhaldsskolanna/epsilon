@@ -4,6 +4,10 @@ start: 2014-03-22 10:00:00.000
 db: postgresql://postgres:postgres@postgres:5432/postgres
 duration: 360
 
+balloons: true
+display_diff: true
+display_input: true
+
 phases:
     -60:
         status: "Keppni ekki hafin"
