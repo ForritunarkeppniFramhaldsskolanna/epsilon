@@ -1,9 +1,9 @@
 
-pat = input()
-n = int(input())
+pat = raw_input()
+n = int(raw_input())
 
 for _ in range(n):
-    s = input()
+    s = raw_input()
 
     if '*' in pat:
         a, b = pat.split('*')

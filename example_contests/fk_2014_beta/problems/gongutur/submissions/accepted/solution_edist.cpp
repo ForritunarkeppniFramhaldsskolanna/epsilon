@@ -34,14 +34,11 @@ template <class T> int size(T &x) { return x.size(); }
 
 // assert or gtfo
 
-double edist(complex<double> p1, complex<double> p2){
-    return sqrt( (p2.real() - p1.real()) * (p2.real() - p1.real()) + (p2.imag() - p1.imag()) * (p2.imag() - p1.imag()) );
-}
-
 int main()
 {
     int n;
     scanf("%d\n", &n);
+
     double res = 0.0;
     complex<double> last, cur;
 
@@ -51,7 +48,7 @@ int main()
         scanf("%lf %lf\n", &x, &y);
         cur = complex<double>(x, y);
         if (i > 0)
-            res += edist(last, cur);
+            res += abs(last - cur);
 
         last = cur;
     }
