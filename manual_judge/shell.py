@@ -276,6 +276,9 @@ class ManualJudge(Cmd2):
     def do_submit(self, arg, opts, parser):
         judge.do_current_submit(opts, parser, cwd=self.cwd())
 
+    def complete_submit(self, *arg):
+        return [k for k in judge.verdict_explanation.keys() if k.startswith(arg[0])]
+
     @current(error=False)
     def get_tests(self):
         files = [f[0:-3] for f in os.listdir(os.path.join(self.cwd(), "tests")) if f.endswith(".in")]
