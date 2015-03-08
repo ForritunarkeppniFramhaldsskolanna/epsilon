@@ -1,3 +1,4 @@
+\problemname{Sáldur Eratosthenesar}
 
 Frumtala er jákvæð heiltala sem hefur nákvæmlega tvo deila: töluna sjálfa og
 töluna einn. Fyrstu sex frumtölurnar eru $2, 3, 5, 7, 11, 13$ og dæmi um stóra
@@ -14,20 +15,19 @@ hvort talan sé frumtala. Til eru hraðari reiknirit, og ætlum við að skoða 
 þeirra. Reikniritið kallast Sáldur Eratosþenesar og virkar
 á eftirfarandi hátt:
 
-<ol>
-    <li value="1">Búa til lista af öllum tölum frá <span class="tex2jax_process">$1$</span> upp í <span class="tex2jax_process">$n$</span></li>
-    <li value="2">Krota <span class="tex2jax_process">$X$</span> yfir töluna <span class="tex2jax_process">$1$</span> í listanum</li>
-    <li value="3">Fyrir hverja heiltölu <span class="tex2jax_process">$i$</span> frá <span class="tex2jax_process">$2$</span> og þar til <span class="tex2jax_process">$i\times i > n$</span>:
-        <ol>
-            <li value="4">Ef búið er að krota <span class="tex2jax_process">$X$</span> yfir töluna <span class="tex2jax_process">$i$</span> í listanum, halda áfram með lykkju í skrefi <span class="tex2jax_process">$3$</span></li>
-            <li value="5">Fyrir hverja heiltölu <span class="tex2jax_process">$k$</span> frá <span class="tex2jax_process">$i$</span> og þar til <span class="tex2jax_process">$k\times i > n$</span>:
-                <ol>
-                    <li value="6">Krota <span class="tex2jax_process">$X$</span> yfir töluna <span class="tex2jax_process">$k\times i$</span> í listanum</li>
-                </ol>
-            </li>
-        </ol>
-    </li>
-</ol>
+\begin{enumerate}
+    \item Búa til lista af öllum tölum frá $1$ upp í $n$
+    \item Krota $X$ yfir töluna $1$ í listanum
+    \item Fyrir hverja heiltölu $i$ frá $2$ og þar til $i\times i > n$:
+        \begin{enumerate}
+            \item Ef búið er að krota $X$ yfir töluna $i$ í listanum, halda áfram með lykkju í skrefi $3$
+            \item Fyrir hverja heiltölu $k$ frá $i$ og þar til $k\times i > n$:
+                \begin{enumerate}
+                    Krota $X$ yfir töluna $k\times i$ í listanum
+                \end{enumerate}
+        \end{enumerate}
+    
+\end{enumerate}
 
 Reikniritið útilokar tölur sem eru ekki frumtölur með því að krota $X$ yfir
 þær, og í lok reikniritsins munu tölurnar sem ekki er búið að krota yfir vera
