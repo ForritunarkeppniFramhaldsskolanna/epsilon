@@ -168,7 +168,8 @@ def view_problem(problem_id, sub_id):
     return render_template('problem.html', problem=problem, sub=sub)
 
 
-@default.route('/problem/<problem_id>/assets/<path:asset>')
+# @default.route('/problem/<problem_id>/assets/<path:asset>')
+@default.route('/problem/<problem_id>/<path:asset>')
 def get_problem_asset(problem_id, asset):
     problem = app.contest.problems.get(problem_id)
     phase = app.contest.get_current_phase()
@@ -177,6 +178,7 @@ def get_problem_asset(problem_id, asset):
 
     if not problem.assets:
         abort(404)
+
     return send_from_directory(problem.assets, asset)
 
 

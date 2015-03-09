@@ -24,6 +24,10 @@ ROOT = tempfile.mkdtemp(prefix="epsilon")
 judge.CWD = ROOT
 
 PROMPT = "ɛ %s > "
+ALIAS = {
+    'l': 'ls',
+    'c': 'cd',
+}
 
 
 # Decorator functions
@@ -131,6 +135,9 @@ class Cmd2(cmd.Cmd):
         if cmd == '':
             return self.default(line)
         else:
+            if cmd in ALIAS:
+                cmd = ALIAS[cmd]
+
             try:
                 func = getattr(self, 'do_' + cmd)
             except AttributeError:

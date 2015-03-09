@@ -165,12 +165,11 @@ class Problem:
         else:
             examples = []
 
-        if os.path.isdir(pjoin(os.path.dirname(path), 'assets')):
-            assets = pjoin(os.path.dirname(path), 'assets')
-        elif os.path.isdir(pjoin(path, 'assets')):
-            assets = pjoin(path, 'assets')
-        elif os.path.isdir(pjoin(path, 'statement')):
-            assets = pjoin(path, 'statement')
+        dpath = os.path.dirname(path)
+        if os.path.isdir(pjoin(dpath, 'assets')):
+            assets = pjoin(dpath, 'assets')
+        elif os.path.isdir(pjoin(dpath, 'statement')):
+            assets = pjoin(dpath, 'statement')
         else:
             assets = None
 
