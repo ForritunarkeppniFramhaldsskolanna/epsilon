@@ -115,6 +115,9 @@ table a {
 .problem-list a {
   color: #999999;
 }
+.problem-list .fa {
+  color: white;
+}
 .problem-list .nav-header {
   color: #aaa;
   text-transform: uppercase;
@@ -142,6 +145,9 @@ table a {
   background-color: #eee;
   color: #111;
   text-decoration: none;
+}
+.problem-list>li.active>a .fa, .problem-list>li>a:focus .fa, .problem-list>li>a:hover .fa {
+  color: #000;
 }
 
 

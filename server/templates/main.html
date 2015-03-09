@@ -29,7 +29,7 @@
                         <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> {{ team.name }} <b class="caret"></b></a>
                             <ul class="dropdown-menu">
-                                <li><a href="{{ url_for('default.logout') }}">Log out</a></li>
+                                <li><a href="{{ url_for('default.logout') }}"><i class="fa fa-user-times"></i> Log out</a></li>
                             </ul>
                         </li>
                     {% else %}
@@ -49,10 +49,10 @@
     <div class="sidebar-wrapper">
         <ul class="nav sidebar nav-stacked problem-list">
             {% if phase.scoreboard_problems %}
-                <li><a href="{{ url_for('default.view_scoreboard') }}">Scoreboard</a></li>
+                <li><a href="{{ url_for('default.view_scoreboard') }}"><i class="fa fa-flag"></i> Scoreboard</a></li>
             {% endif %}
             {% if team %}
-                <li><a href="{{ url_for('default.list_submissions') }}">Submissions</a></i>
+                <li><a href="{{ url_for('default.list_submissions') }}"><i class="fa fa-check-square-o"></i> Submissions</a></i>
             {% endif %}
             <!-- <li class="nav-header">Problems</li> -->
             {% if phase.problem_list %}
