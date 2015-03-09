@@ -110,6 +110,7 @@ table a {
 .problem-list {
   background: #111;
   padding: 0;
+  padding-top: 20px;
   overflow: hidden;
 }
 .problem-list a {
@@ -122,6 +123,7 @@ table a {
   color: #aaa;
   text-transform: uppercase;
   font-weight: bold;
+  margin-top: 20px;
 }
 
 .problem-list li {
@@ -157,6 +159,15 @@ table a {
 }
 
 /*The problem description*/
+.problemheader {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.problemheader h3 {
+    display: none;
+}
+
 .content .problem {
     max-width: 580px;
     margin: 0 auto;
@@ -170,17 +181,34 @@ table a {
 }
 
 .content .problem h2 {
-    margin-top: 0.8em;
+    margin-top: 1.2em;
     margin-bottom: 0.1em;
     font-size: 1.4em;
 }
 
+<<<<<<< HEAD
+=======
+.content .problem center {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.content .problem p {
+    text-align: justify;
+}
+
+>>>>>>> 398e6c3... Update
 .content .problem p + p {
     text-indent: 1em;
 }
 
 .content .problem fieldset legend h2 {
     margin-top: 1.4em;
+}
+
+
+.content .problem table.sample:first-of-type {
+    margin-top: 30px;
 }
 
 .content .problem table.sample {
@@ -342,3 +370,17 @@ body.code_mode .CodeMirror {
   -moz-border-radius: 500px;
   border-radius: 500px;
 }
+
+div.illustration {
+  float: right;
+  padding-left: 20px;
+}
+
+div.illustration .illustration {
+    width: 100%;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    -o-border-radius: 4px;
+    border-radius: 4px;
+}
+
