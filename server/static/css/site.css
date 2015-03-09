@@ -186,8 +186,6 @@ table a {
     font-size: 1.4em;
 }
 
-<<<<<<< HEAD
-=======
 .content .problem center {
     margin-top: 20px;
     margin-bottom: 20px;
@@ -197,7 +195,6 @@ table a {
     text-align: justify;
 }
 
->>>>>>> 398e6c3... Update
 .content .problem p + p {
     text-indent: 1em;
 }
