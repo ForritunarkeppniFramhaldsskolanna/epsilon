@@ -72,7 +72,6 @@ table a {
   margin-left: -250px;
   background: #111;
   padding-top: 50px;
-  overflow: hidden;
   -webkit-transition: all 0.5s ease;
   -moz-transition: all 0.5s ease;
   -o-transition: all 0.5s ease;
