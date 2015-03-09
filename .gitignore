@@ -15,4 +15,4 @@ __pycache__
 
 .epsilon
 
-server/static/components
+# server/static/components
