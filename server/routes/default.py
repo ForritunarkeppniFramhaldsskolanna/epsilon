@@ -80,9 +80,9 @@ def list_submissions():
         'TL': 'danger',
         'ML': 'danger',
         'OL': 'danger',
-        'SE': 'inverse',
-        'RF': 'inverse',
-        'CJ': 'inverse',
+        'SE': 'default',
+        'RF': 'default',
+        'CJ': 'default',
     }
 
     def label_class_for(v):

@@ -108,22 +108,22 @@ def list_submissions(team_name):
         if vs <= {'SE', 'RF', 'CJ', 'CE'}:
             return 'warning'
         if vs <= {'PE', 'WA', 'RE', 'TL', 'ML', 'OL'}:
-            return 'error'
+            return 'danger'
         return ''
 
     label_class = {
         'QU': 'info',
         'AC': 'success',
         'PE': 'warning',
-        'WA': 'important',
+        'WA': 'danger',
         'CE': 'warning',
-        'RE': 'important',
-        'TL': 'important',
-        'ML': 'important',
-        'OL': 'important',
-        'SE': 'inverse',
-        'RF': 'inverse',
-        'CJ': 'inverse',
+        'RE': 'danger',
+        'TL': 'danger',
+        'ML': 'danger',
+        'OL': 'danger',
+        'SE': 'default',
+        'RF': 'default',
+        'CJ': 'default',
     }
 
     def label_class_for(v):
