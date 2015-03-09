@@ -24,6 +24,8 @@ class Jail:
         self.default_env = {
             'HOME': '/box',
             'PATH': '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
+            'LC_ALL': 'en_US.UTF-8',
+            'LANG': 'en_US.UTF-8'
         }
 
     def _execute(self, cmd, stdin=None):
