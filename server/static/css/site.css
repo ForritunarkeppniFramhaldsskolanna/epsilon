@@ -204,17 +204,17 @@ table a {
 }
 /*CodeMirror setup*/
 
-.CodeMirror {
+.problem .CodeMirror {
     clear: both;
     position: relative;
 }
 
-#code_wrapper {
+.problem #code_wrapper {
     margin-top: 10px;
     margin-bottom: 30px;
 }
 
-#code_buttons {
+.problem #code_buttons {
     position: absolute;
     right: 0;
     top: 0;

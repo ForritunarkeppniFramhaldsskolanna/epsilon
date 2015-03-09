@@ -7,6 +7,11 @@
     <h5>Team {{ submission.team }}, problem {{ contest.problems[submission.problem].title | safe }}, submitted at {{ submission.submitted | format_time }}</h5>
     {# <pre><code>{{ submission.file }}</code></pre> #}
     <textarea id="source_code">{{ submission.file }}</textarea>
+    <div class="form-group">
+        <h4>Actions:</h4>
+        <a href="{{url_for('default.view_problem', problem_id=submission.problem)}}" class="btn btn-primary"><i class="fa fa-eye"></i> View Problem</a>
+        <a href="{{url_for('default.view_problem', problem_id=submission.problem, sub_id=submission.id)}}" class="btn btn-warning"><i class="fa fa-edit"></i> Edit</a>
+    </div>
     <hr />
     <h4>Verdict: {{ submission.verdict }}</h4>
     <hr />

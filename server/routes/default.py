@@ -105,8 +105,9 @@ def view_submission(sub_id):
     return render_template('submission.html', submission=sub)
 
 
-@default.route('/problem/<problem_id>/', methods={'GET', 'POST'})
-def view_problem(problem_id):
+@default.route('/problem/<problem_id>/', methods={'GET', 'POST'}, defaults={"sub_id": None})
+@default.route('/problem/<problem_id>/<int:sub_id>', methods={'GET', 'POST'})
+def view_problem(problem_id, sub_id):
 
     problem = app.contest.problems.get(problem_id)
     phase = app.contest.get_current_phase()
@@ -157,7 +158,14 @@ def view_problem(problem_id):
 
     if problem_id not in phase.visible_problems:
         abort(404)
-    return render_template('problem.html', problem=problem)
+
+    sub = None
+    if sub_id is not None:
+        team = get_team()
+        sub = Submission.query.filter_by(id=sub_id).first()
+        if not sub or sub.team != team.name:
+            abort(404)
+    return render_template('problem.html', problem=problem, sub=sub)
 
 
 @default.route('/problem/<problem_id>/assets/<path:asset>')

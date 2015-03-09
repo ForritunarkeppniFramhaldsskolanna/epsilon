@@ -72,7 +72,11 @@
                             <select class="form-control" name="language" id="language">
                                 <option value="not selected">Choose language</option>
                                 {% for _, lang in sorted(contest.languages.items()) %}
-                                    <option {{ 'selected' if lang.name == team.last_used_language else '' }} value="{{ lang.name }}">{{ lang.name }}</option>
+                                    {% if sub %}
+                                        <option {{ 'selected' if lang.name == sub.language else '' }} value="{{ lang.name }}">{{ lang.name }}</option>
+                                    {% else %}
+                                        <option {{ 'selected' if lang.name == team.last_used_language else '' }} value="{{ lang.name }}">{{ lang.name }}</option>
+                                    {% endif %}
                                 {% endfor %}
                             </select>
                         </div>
@@ -80,7 +84,11 @@
                         <div>
                             <label class="control-label" for="source_code">Source code</label>
                             <div id="code_wrapper">
-                                <textarea name="source_code" id="source_code" class="form-control clearfix" rows="5"></textarea>
+                                {% if sub %}
+                                    <textarea name="source_code" id="source_code" class="form-control clearfix" rows="5">{{ sub.file }}</textarea>
+                                {% else %}
+                                    <textarea name="source_code" id="source_code" class="form-control clearfix" rows="5"></textarea>
+                                {% endif %}
                             </div>
                             <div id="code_buttons" class="btn-group">
                                 <button id="code_normal_mode" class="btn btn-default btn-mini active">Normal</button>
@@ -110,57 +118,6 @@
     </div>
 {% endblock %}
 {% block below %}
-<style type="text/css">
-    .CodeMirror {
-        clear: both;
-        position: relative;
-    }
-
-    #code_wrapper {
-        margin-top: 10px;
-        margin-bottom: 30px;
-    }
-
-    #code_buttons {
-        position: absolute;
-        right: 0;
-        top: 0;
-        display: none;
-    }
-
-    body.code_mode #header, body.code_mode #problem-list, body.code_mode #footer {
-        display: none;
-    }
-
-    body.code_mode #problem_description {
-        z-index: 100;
-        position: absolute;
-        left: 0;
-        top: 0;
-        bottom: 0;
-        right: 50%;
-        background-color: white;
-        overflow: auto;
-        padding: 20px;
-    }
-
-    body.code_mode #code_wrapper {
-        z-index: 100;
-        position: absolute;
-        right: 0;
-        top: 0;
-        bottom: 0;
-        left: 50%;
-        background-color: white;
-        margin: 0;
-    }
-
-    body.code_mode .CodeMirror {
-        height: 100%;
-        width: 100%;
-    }
-
-</style>
 <script type="text/javascript">
 
     jQuery(function ($) {
@@ -188,19 +145,27 @@
         };
         if($("#source_code").length == 0)
             return;
+        var mode = "clike";
+        var last_lang = 'not selected';
+        if($("#language").val() !== last_lang) {
+            last_lang = $("#language").val();
+            mode = lang_highlight[last_lang];
+        }
         var code = CodeMirror.fromTextArea($('#source_code')[0], {
-            'mode': 'clike',
+            'mode': mode,
             'theme': 'ambiance',
             'lineNumbers': true,
             'indentUnit': 4
         });
 
-        var last_lang = 'not selected';
         var update_lang = function (e) {
 
             lang_template[last_lang] = code.getValue();
 
             var lang = $('#language').val();
+            if(lang === last_lang) {
+                return;
+            }
             code.setOption('mode', lang_highlight[lang]);
             code.setValue(lang_template[lang]);
             last_lang = lang;
