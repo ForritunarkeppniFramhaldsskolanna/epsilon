@@ -47,10 +47,6 @@ table a {
     color: black;
 }*/
 
-
-#main {
-  padding: 0;
-}
 .wrapper {
   padding-left: 0;
   -webkit-transition: all 0.5s ease;
@@ -100,6 +96,10 @@ table a {
   .sidebar-wrapper {
     width: 250px;
   }
+  .sidebar-wrapper .problem-list {
+    padding-left: 15px;
+    padding-right: 0;
+  }
   .wrapper.active .content-wrapper {
     transform: none;
   }
@@ -109,8 +109,8 @@ table a {
 }
 .problem-list {
   background: #111;
-  padding-left: 15px;
-  padding-right: 0;
+  padding: 0;
+  overflow: hidden;
 }
 .problem-list a {
   color: #999999;
@@ -150,6 +150,11 @@ table a {
   color: #000;
 }
 
+/*The login/register windows */
+.form-signin {
+  margin: 0 auto;
+  max-width: 330px;
+}
 
 /*The problem description*/
 .content .problem {
