@@ -1,8 +1,18 @@
+html, body {
+  min-height: 100%;
+}
+body {
+  padding-top: 50px;
+
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
 table a {
     color: #1f84c7;
 }
 
-#header .dropdown-menu li a {
+/*#header .dropdown-menu li a {
     color: rgb(51, 51, 51);
     text-shadow: none;
 }
@@ -26,113 +36,151 @@ table a {
     padding-right: 15px;
 }
 
-#problem-list li.ac a {
+
+
+#problem-list .number {
+    color: black;
+}*/
+
+
+#main {
+  padding: 0;
+}
+#main .wrapper {
+    display: table;
+    margin-left: -1px; /* Fix the 1px border that appears */
+    margin-right: -1px;
+}
+
+.problem-list, .content {
+    float: none;
+    display: table-cell;
+    vertical-align: top;
+}
+.problem-list {
+  background: #111;
+  margin-left: -20px;
+  margin-top: -10px;
+  padding-left: 15px;
+  padding-right: 0;
+}
+.problem-list a {
+  color: #999999;
+}
+.problem-list .nav-header {
+  color: #aaa;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.problem-list li.ac a {
     background-color: #d5ecbf;
     color: #1f84c7;
 }
 
-#problem-list li.wa a {
+.problem-list li.wa a {
     background-color: #f2bdb1;
     color: #1f84c7;
 }
 
-#problem-list .number {
-    color: black;
-}
-
-#main {
-    margin-top: 20px;
-}
-
-#content .problem {
+.content .problem {
     max-width: 580px;
     margin: 0 auto;
     font-size: 1.2em;
+    margin-top: 20px;
 }
 
-#content .problem h1 {
+.content .problem h1 {
     font-size: 2.4em;
     margin-bottom: 0.6em;
 }
 
-#content .problem h2 {
+.content .problem h2 {
     margin-top: 0.8em;
     margin-bottom: 0.1em;
     font-size: 1.4em;
 }
 
-#content .problem p + p {
+.content .problem p + p {
     text-indent: 1em;
 }
 
-#content .problem fieldset legend h2 {
+.content .problem fieldset legend h2 {
     margin-top: 1.4em;
 }
 
-#content .problem table.example th {
+.content .problem table.example th {
     text-align: center;
     width: 50%;
 }
 
-#content .problem table.example td {
+.content .problem table.example td {
     white-space: pre-wrap;
     font-family: monospace;
     vertical-align: top;
     background-color: #f5f5f5;
 }
 
-#content .problem table.example td pre {
+.content .problem table.example td pre {
     border: 0;
     margin: 0;
     padding: 0;
+}
+
+.content .form-horizontal .form-group {
+  margin-left: 0;
+  margin-right: 0;
 }
 
 #problem_description {
     overflow: hidden;
 }
 
-#content table.scoreboard th, #content .scoreboard td {
+.content table.scoreboard th, .content .scoreboard td {
     text-align: center;
 }
 
-#content table.scoreboard td.ac {
+.content table.scoreboard td.ac {
     background-color: #d5ecbf;
 }
 
-#content table.scoreboard td.wa {
+.content table.scoreboard td.wa {
      background-color: #f2bdb1;
 }
 
-#content table.scoreboard td.new {
+.content table.scoreboard td.new {
     background-color: #a7dff1;
 }
 
-#content table.submissions .sub_time,
-#content table.submissions .sub_memory {
+.content table.submissions .sub_time,
+.content table.submissions .sub_memory {
     text-align: right;
 }
 
-#content table.submissions .sub_verdict,
-#content table.submissions .sub_submitted,
-#content table.submissions .sub_id {
+.content table.submissions .sub_verdict,
+.content table.submissions .sub_submitted,
+.content table.submissions .sub_id {
     text-align: center;
 }
 
-#content table.scoreboard td {
+.content table.scoreboard td {
     vertical-align: middle;
 }
 
-#content table.diff {font-family:Courier; border:medium;}
-#content .diff_header {background-color:#e0e0e0}
-#content td.diff_header {text-align:right}
-#content .diff_next {background-color:#c0c0c0}
-#content .diff_add {background-color:#aaffaa}
-#content .diff_chg {background-color:#ffff77}
-#content .diff_sub {background-color:#ffaaaa}
+.content table.diff {font-family:Courier; border:medium;}
+.content .diff_header {background-color:#e0e0e0}
+.content td.diff_header {text-align:right}
+.content .diff_next {background-color:#c0c0c0}
+.content .diff_add {background-color:#aaffaa}
+.content .diff_chg {background-color:#ffff77}
+.content .diff_sub {background-color:#ffaaaa}
 
-#footer {
-    margin-top: 20px;
+.footer {
     margin-bottom: 30px;
+    text-align: center;
+}
+.footer hr {
+  margin-top: 0;
 }
 
 .img-rounded {
@@ -157,6 +205,9 @@ table a {
 
 table.sample {
   width: 100%;
+  table-layout: fixed;
+  border-spacing: 5px;
+  border-collapse: separate;
 }
 
 table.sample th{
@@ -166,6 +217,7 @@ table.sample th{
 
 table.sample th, table.sample td{
   vertical-align: baseline;
+  width: 50%;
 }
 
 .problemheader h3{

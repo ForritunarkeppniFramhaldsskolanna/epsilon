@@ -14,3 +14,5 @@ __pycache__
 /venv
 
 .epsilon
+
+server/static/components

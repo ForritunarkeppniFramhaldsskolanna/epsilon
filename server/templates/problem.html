@@ -67,41 +67,38 @@
                     </div>
 
                     {% if team %}
-                        <div class="control-group">
+                        <div class="form-group">
                             <label class="control-label" for="language">Language</label>
-                            <div class="controls">
-                                <select name="language" id="language">
-                                    <option value="not selected">Choose language</option>
-                                    {% for _, lang in sorted(contest.languages.items()) %}
-                                        <option {{ 'selected' if lang.name == team.last_used_language else '' }} value="{{ lang.name }}">{{ lang.name }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
+                            <select class="form-control" name="language" id="language">
+                                <option value="not selected">Choose language</option>
+                                {% for _, lang in sorted(contest.languages.items()) %}
+                                    <option {{ 'selected' if lang.name == team.last_used_language else '' }} value="{{ lang.name }}">{{ lang.name }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
 
                         <div>
                             <label class="control-label" for="source_code">Source code</label>
                             <div id="code_wrapper">
-                                <textarea name="source_code" id="source_code" class="clear: both" rows="5"></textarea>
+                                <textarea name="source_code" id="source_code" class="form-control clearfix" rows="5"></textarea>
                             </div>
                             <div id="code_buttons" class="btn-group">
                                 <button id="code_normal_mode" class="btn btn-default btn-mini active">Normal</button>
                                 <button id="code_vim_mode" class="btn btn-default btn-mini">Vim</button>
                                 <button id="code_emacs_mode" class="btn btn-default btn-mini">Emacs</button>
-                                <button id="code_fullscreen" class="btn btn-default btn-mini"><span class="icon icon-fullscreen"></span></button>
+                                <button id="code_fullscreen" class="btn btn-default btn-mini"><span class="fa fa-arrows-alt"></span></button>
                             </div>
                         </div>
 
-                        <div class="control-group">
-                            <label class="control-label" for="source_file">Or choose file</label>
-                            <div class="controls">
-                                <input type="file" name="source_file" id="source_file" />
+                        <div class="form-group">
+                            <div class="col-sm-4 pull-right">
+                                <button class="btn btn-success form-control">Submit</button>
                             </div>
                         </div>
-
-                        <div class="control-group">
-                            <div class="controls">
-                                <button class="btn btn-success">Submit</button>
+                        <div class="form-group">
+                            <label class="col-sm-6 control-label text-left" for="source_file">Or choose file</label>
+                            <div class="col-sm-6">
+                                <input class="form-control" type="file" name="source_file" id="source_file" />
                             </div>
                         </div>
                     {% else %}

@@ -1,10 +1,12 @@
 {% extends "base.html" %}
 {% block body %}
 
-<div class="navbar navbar-static-top" id="header">
+<div class="navbar navbar-default navbar-fixed-top" id="header">
     <div class="navbar-inner">
         <div class="container-fluid">
-            <a class="brand" href="{{ url_for('index') }}">{{ contest.title }}</a>
+            <div class="navbar-header">
+                <a class="navbar-brand" href="{{ url_for('index') }}">{{ contest.title }}</a>
+            </div>
             {% if phase.status %}
                 <p class="navbar-text pull-left">{{ phase.status }}</p>
             {% endif %}
@@ -14,15 +16,15 @@
             <ul class="nav pull-right">
                 {% if team: %}
                     <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-user"></i> {{ team.name }} <b class="caret"></b></a>
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> {{ team.name }} <b class="caret"></b></a>
                         <ul class="dropdown-menu">
                             <li><a href="{{ url_for('default.logout') }}">Log out</a></li>
                         </ul>
                     </li>
                 {% else %}
-                    <li><a href="{{ url_for('default.login') }}"><i class="icon-user"></i> Log in</a></li>
+                    <li><a href="{{ url_for('default.login') }}"><i class="fa fa-user"></i> Log in</a></li>
                     {% if contest.register %}
-                        <li><a href="{{ url_for('default.register') }}"><i class="icon-plus-sign"></i> Register</a></li>
+                        <li><a href="{{ url_for('default.register') }}"><i class="fa fa-plus"></i> Register</a></li>
                     {% endif %}
                 {% endif %}
             </ul>
@@ -32,16 +34,16 @@
 
 <div class="container-fluid" id="main">
 
-    <div class="row-fluid">
-        <div class="span2">
-            <ul class="nav sidebar-nav nav-list well" id="problem-list">
+    <div class="row wrapper">
+        <div class="col-sm-2 col-md-3 problem-list">
+            <ul class="nav sidebar nav-stacked" id="problem-list">
                 {% if phase.scoreboard_problems %}
                     <li><a href="{{ url_for('default.view_scoreboard') }}">Scoreboard</a></li>
                 {% endif %}
                 {% if team %}
                     <li><a href="{{ url_for('default.list_submissions') }}">Submissions</a></i>
                 {% endif %}
-                <li class="nav-header">Problems</li>
+                <!-- <li class="nav-header">Problems</li> -->
                 {% if phase.problem_list %}
                     {% set cnt = 1 %}
                     {% for k, v in phase.problem_list %}
@@ -63,13 +65,14 @@
                 {% endif %}
             </ul>
         </div>
-        <div class="span10" id="content">
+        <div class="col-sm-10 col-md-9 content" id="content">
             {% block content %}{% endblock %}
         </div>
     </div>
-
-    <div class="row-fluid">
-        <div class="span12" id="footer" style="text-align: center">
+</div>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-xs-12 footer">
             <hr />
             generated in {{ "%.04f" % (g.request_time() * 1000.0) }}ms by <span class="epsilon" title="epsilon">&epsilon;</span>
         </div>
