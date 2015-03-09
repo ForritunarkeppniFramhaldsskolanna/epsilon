@@ -1,6 +1,9 @@
-
 jQuery(function ($) {
-
+    $(".sidebar-toggle").on('click', function(e) {
+        e.preventDefault();
+        $(this).toggleClass('collapsed');
+        $(".wrapper").toggleClass("active");
+    });
     var countdown = $('.countdown');
     setInterval(function () {
         var cur = countdown.text(),

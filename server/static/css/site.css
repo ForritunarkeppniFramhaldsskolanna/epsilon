@@ -52,19 +52,61 @@ table a {
   padding: 0;
 }
 .wrapper {
-    padding-left: 16%;
+  padding-left: 0;
+  -webkit-transition: all 0.5s ease;
+  -moz-transition: all 0.5s ease;
+  -o-transition: all 0.5s ease;
+  transition: all 0.5s ease;
 }
-
+.sidebar-toggle {
+  padding: 7px 10px;
+  margin-left: 5px;
+}
 .sidebar-wrapper {
   z-index: 100;
   position: absolute;
-  width: 16%;
-  left: 16%;
+  left: 250px;
   top: 0;
   bottom: 0;
-  margin-left: -16%;
+  width: 0;
+  margin-left: -250px;
   background: #111;
   padding-top: 50px;
+  overflow: hidden;
+  -webkit-transition: all 0.5s ease;
+  -moz-transition: all 0.5s ease;
+  -o-transition: all 0.5s ease;
+  transition: all 0.5s ease;
+}
+
+.content-wrapper {
+  width: 100%;
+  -webkit-transition: all 0.5s ease;
+  -moz-transition: all 0.5s ease;
+  -o-transition: all 0.5s ease;
+  transition: all 0.5s ease;
+}
+
+.wrapper.active .sidebar-wrapper {
+  width: 250px;
+}
+.wrapper.active .content-wrapper {
+  transform: translateX(250px);
+}
+@media (min-width: 768px) {
+  .content-wrapper {
+    padding: 20px;
+    position: relative;
+  }
+  .sidebar-wrapper {
+    width: 250px;
+  }
+  .wrapper.active .content-wrapper {
+    transform: none;
+  }
+  .wrapper {
+    padding-left: 250px;
+  }
 }
 .problem-list {
   background: #111;
@@ -103,11 +145,6 @@ table a {
   text-decoration: none;
 }
 
-.content-wrapper {
-  padding: 20px;
-  width: 100%;
-  position: relative;
-}
 
 /*The problem description*/
 .content .problem {

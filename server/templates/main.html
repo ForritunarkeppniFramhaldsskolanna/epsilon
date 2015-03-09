@@ -5,29 +5,41 @@
     <div class="navbar-inner">
         <div class="container-fluid">
             <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#topbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <button type="button" class="navbar-toggle pull-left collapsed sidebar-toggle">
+                    <span class="sr-only">Toggle sidebar</span>
+                    <i class="fa fa-arrow-left"></i>
+                </button>
                 <a class="navbar-brand" href="{{ url_for('index') }}">{{ contest.title }}</a>
-            </div>
-            {% if phase.status %}
-                <p class="navbar-text pull-left">{{ phase.status }}</p>
-            {% endif %}
-            {% if phase.countdown != None and phase.current_countdown() >= 0 %}
-                <p class="navbar-text pull-left countdown">{{ phase.current_countdown() | format_time }}</p>
-            {% endif %}
-            <ul class="nav pull-right">
-                {% if team: %}
-                    <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> {{ team.name }} <b class="caret"></b></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="{{ url_for('default.logout') }}">Log out</a></li>
-                        </ul>
-                    </li>
-                {% else %}
-                    <li><a href="{{ url_for('default.login') }}"><i class="fa fa-user"></i> Log in</a></li>
-                    {% if contest.register %}
-                        <li><a href="{{ url_for('default.register') }}"><i class="fa fa-plus"></i> Register</a></li>
-                    {% endif %}
+                {% if phase.status %}
+                    <p class="navbar-text">{{ phase.status }}</p>
                 {% endif %}
-            </ul>
+                {% if phase.countdown != None and phase.current_countdown() >= 0 %}
+                    <p class="navbar-text countdown">{{ phase.current_countdown() | format_time }}</p>
+                {% endif %}
+            </div>
+            <div class="collapse navbar-collapse" id="topbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    {% if team: %}
+                        <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> {{ team.name }} <b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="{{ url_for('default.logout') }}">Log out</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li><a href="{{ url_for('default.login') }}"><i class="fa fa-user"></i> Log in</a></li>
+                        {% if contest.register %}
+                            <li><a href="{{ url_for('default.register') }}"><i class="fa fa-plus"></i> Register</a></li>
+                        {% endif %}
+                    {% endif %}
+                </ul>
+            </div>
         </div>
     </div>
 </div>
