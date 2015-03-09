@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block body %}
 
-<div class="navbar navbar-default navbar-fixed-top" id="header">
+<div class="navbar navbar-default navbar-fixed-top header">
     <div class="navbar-inner">
         <div class="container-fluid">
             <div class="navbar-header">
@@ -32,45 +32,49 @@
     </div>
 </div>
 
-<div class="container-fluid" id="main">
 
-    <div class="row wrapper">
-        <div class="col-sm-2 col-md-3 problem-list">
-            <ul class="nav sidebar nav-stacked" id="problem-list">
-                {% if phase.scoreboard_problems %}
-                    <li><a href="{{ url_for('default.view_scoreboard') }}">Scoreboard</a></li>
-                {% endif %}
-                {% if team %}
-                    <li><a href="{{ url_for('default.list_submissions') }}">Submissions</a></i>
-                {% endif %}
-                <!-- <li class="nav-header">Problems</li> -->
-                {% if phase.problem_list %}
-                    {% set cnt = 1 %}
-                    {% for k, v in phase.problem_list %}
-                        {% if k == 'header' %}
-                            <li class="nav-header" style="font-size: 0.7em; margin-top: 0; margin-bottom: -6px;">{{ v }}</li>
-                        {% elif k == 'text' %}
-                            <li class="nav-header">{{ v }}</li>
-                        {% elif k == 'problem' %}
+<div class="wrapper">
+    <div class="sidebar-wrapper">
+        <ul class="nav sidebar nav-stacked problem-list">
+            {% if phase.scoreboard_problems %}
+                <li><a href="{{ url_for('default.view_scoreboard') }}">Scoreboard</a></li>
+            {% endif %}
+            {% if team %}
+                <li><a href="{{ url_for('default.list_submissions') }}">Submissions</a></i>
+            {% endif %}
+            <!-- <li class="nav-header">Problems</li> -->
+            {% if phase.problem_list %}
+                {% set cnt = 1 %}
+                {% for k, v in phase.problem_list %}
+                    {% if k == 'header' %}
+                        <li class="nav-header" style="font-size: 0.7em; margin-top: 0; margin-bottom: -6px;">{{ v }}</li>
+                    {% elif k == 'text' %}
+                        <li class="nav-header">{{ v }}</li>
+                    {% elif k == 'problem' %}
 
-                            <li class="problem {% if problem and problem.id == v %}active{% endif %} {% if v in solved %}ac{% elif v in tried %}wa{% endif %}">
-                                <a href="{{ url_for('default.view_problem', problem_id=v) }}"><span class="number">{{ cnt }}.</span> {{ contest.problems[v].title | safe }}</a>
-                            </li>
+                        <li class="problem {% if problem and problem.id == v %}active{% endif %} {% if v in solved %}ac{% elif v in tried %}wa{% endif %}">
+                            <a href="{{ url_for('default.view_problem', problem_id=v) }}" class="{% if problem and problem.id == v %}active{% endif %}"><span class="number">{{ cnt }}.</span> {{ contest.problems[v].title | safe }}</a>
+                        </li>
 
-                            {% set cnt = cnt + 1 %}
-                        {% endif %}
-                    {% endfor %}
-                {% else %}
-                    <li>No problems available</li>
-                {% endif %}
-            </ul>
-        </div>
-        <div class="col-sm-10 col-md-9 content" id="content">
-            {% block content %}{% endblock %}
+                        {% set cnt = cnt + 1 %}
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                <li>No problems available</li>
+            {% endif %}
+        </ul>
+    </div>
+    <div class="content-wrapper">
+        <div class="container-fluid" id="main">
+            <div class="row">
+                <div class="col-xs-12 content">
+                    {% block content %}{% endblock %}
+                </div>
+            </div>
         </div>
     </div>
 </div>
-<div class="container-fluid">
+<div class="container">
     <div class="row">
         <div class="col-xs-12 footer">
             <hr />

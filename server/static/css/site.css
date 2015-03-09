@@ -1,12 +1,19 @@
+html {
+  height: 100%;
+}
 html, body {
-  min-height: 100%;
+  /*min-height: 100%;*/
+  /*height: 100%;*/
 }
 body {
   padding-top: 50px;
+  min-height: 100%;
 
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
+
+  position: relative;
 }
 table a {
     color: #1f84c7;
@@ -22,9 +29,7 @@ table a {
     text-shadow: 1px 1px 0 rgba(0,0,0,0.2);
 }
 
-#problem-list li {
-    overflow-wrap: break-word;
-}
+
 
 #problem-list a {
 }
@@ -46,21 +51,23 @@ table a {
 #main {
   padding: 0;
 }
-#main .wrapper {
-    display: table;
-    margin-left: -1px; /* Fix the 1px border that appears */
-    margin-right: -1px;
+.wrapper {
+    padding-left: 16%;
 }
 
-.problem-list, .content {
-    float: none;
-    display: table-cell;
-    vertical-align: top;
+.sidebar-wrapper {
+  z-index: 100;
+  position: absolute;
+  width: 16%;
+  left: 16%;
+  top: 0;
+  bottom: 0;
+  margin-left: -16%;
+  background: #111;
+  padding-top: 50px;
 }
 .problem-list {
   background: #111;
-  margin-left: -20px;
-  margin-top: -10px;
   padding-left: 15px;
   padding-right: 0;
 }
@@ -73,16 +80,36 @@ table a {
   font-weight: bold;
 }
 
+.problem-list li {
+    overflow-wrap: break-word;
+}
+
 .problem-list li.ac a {
     background-color: #d5ecbf;
-    color: #1f84c7;
+    /*color: #1f84c7;*/
+    color: #444;
+
 }
 
 .problem-list li.wa a {
     background-color: #f2bdb1;
-    color: #1f84c7;
+    /*color: #1f84c7;*/
+    color: #444;
 }
 
+.problem-list>li.active>a, .problem-list>li>a:focus, .problem-list>li>a:hover {
+  background-color: #eee;
+  color: #111;
+  text-decoration: none;
+}
+
+.content-wrapper {
+  padding: 20px;
+  width: 100%;
+  position: relative;
+}
+
+/*The problem description*/
 .content .problem {
     max-width: 580px;
     margin: 0 auto;
@@ -109,22 +136,25 @@ table a {
     margin-top: 1.4em;
 }
 
-.content .problem table.example th {
-    text-align: center;
-    width: 50%;
+.content .problem table.sample {
+  width: 100%;
+  table-layout: fixed;
+  border-spacing: 5px;
+  border-collapse: separate;
 }
 
-.content .problem table.example td {
-    white-space: pre-wrap;
-    font-family: monospace;
-    vertical-align: top;
-    background-color: #f5f5f5;
+.content .problem table.sample th{
+  text-align: left;
 }
 
-.content .problem table.example td pre {
-    border: 0;
-    margin: 0;
-    padding: 0;
+.content .problem table.sample th, .content .problem table.sample td{
+  vertical-align: baseline;
+  width: 50%;
+}
+
+.problemheader h3{
+  font-size: 14px;
+  line-height: normal;
 }
 
 .content .form-horizontal .form-group {
@@ -135,7 +165,65 @@ table a {
 #problem_description {
     overflow: hidden;
 }
+/*CodeMirror setup*/
 
+.CodeMirror {
+    clear: both;
+    position: relative;
+}
+
+#code_wrapper {
+    margin-top: 10px;
+    margin-bottom: 30px;
+}
+
+#code_buttons {
+    position: absolute;
+    right: 0;
+    top: 0;
+    display: none;
+}
+
+body.code_mode .header, body.code_mode .sidebar-wrapper, body.code_mode .footer {
+    display: none;
+}
+body.code_mode .content, body.code_mode .content-wrapper {
+  position: static;
+}
+
+body.code_mode .wrapper {
+  padding-left: 0;
+}
+
+body.code_mode #problem_description {
+    z-index: 100;
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 50%;
+    background-color: white;
+    overflow: auto;
+    padding: 20px;
+}
+
+body.code_mode #code_wrapper {
+    z-index: 100;
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    background-color: white;
+    margin: 0;
+}
+
+body.code_mode .CodeMirror {
+    height: 100%;
+    width: 100%;
+}
+
+/*Scoreboard*/
 .content table.scoreboard th, .content .scoreboard td {
     text-align: center;
 }
@@ -152,6 +240,11 @@ table a {
     background-color: #a7dff1;
 }
 
+.content table.scoreboard td {
+    vertical-align: middle;
+}
+
+/*Submissions*/
 .content table.submissions .sub_time,
 .content table.submissions .sub_memory {
     text-align: right;
@@ -163,10 +256,7 @@ table a {
     text-align: center;
 }
 
-.content table.scoreboard td {
-    vertical-align: middle;
-}
-
+/*Submission page*/
 .content table.diff {font-family:Courier; border:medium;}
 .content .diff_header {background-color:#e0e0e0}
 .content td.diff_header {text-align:right}
@@ -175,6 +265,7 @@ table a {
 .content .diff_chg {background-color:#ffff77}
 .content .diff_sub {background-color:#ffaaaa}
 
+/*Footer */
 .footer {
     margin-bottom: 30px;
     text-align: center;
@@ -183,6 +274,8 @@ table a {
   margin-top: 0;
 }
 
+
+/*Image helpers*/
 .img-rounded {
   -webkit-border-radius: 6px;
   -moz-border-radius: 6px;
@@ -201,26 +294,4 @@ table a {
   -webkit-border-radius: 500px;
   -moz-border-radius: 500px;
   border-radius: 500px;
-}
-
-table.sample {
-  width: 100%;
-  table-layout: fixed;
-  border-spacing: 5px;
-  border-collapse: separate;
-}
-
-table.sample th{
-  text-align: left;
-  width: 50%;
-}
-
-table.sample th, table.sample td{
-  vertical-align: baseline;
-  width: 50%;
-}
-
-.problemheader h3{
-  font-size: 14px;
-  line-height: normal;
 }

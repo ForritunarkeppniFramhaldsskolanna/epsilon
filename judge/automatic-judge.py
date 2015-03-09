@@ -20,8 +20,6 @@ from jail import Jail
 
 USER_NO = None
 USER = None
-DISPLAY_DIFF = None
-DISPLAY_INPUT = None
 
 
 def process_submission(sub, checker, checker_options, time_limit, memory_limit, language, tests):
@@ -130,10 +128,10 @@ def process_submission(sub, checker, checker_options, time_limit, memory_limit, 
                     if first_wa:
                         first_wa = False
 
-                        if DISPLAY_INPUT:
+                        if j.DISPLAY_INPUT:
                             judge_response += """<h5>Input</h5><pre>%s</pre>""" % escape(test.input)
 
-                        if DISPLAY_DIFF:
+                        if j.DISPLAY_DIFF:
                             judge_response += wa_output(res, test)
 
             else:

@@ -1,10 +1,12 @@
 {% extends "judge/base.html" %}
 {% block body %}
 
-<div class="navbar navbar-static-top" id="header">
+<div class="navbar navbar-default navbar-fixed-top" id="header">
     <div class="navbar-inner">
         <div class="container-fluid">
-            <a class="brand" href="{{ url_for('judge.index') }}">{{ contest.title }}</a>
+            <div class="navbar-header">
+                <a class="navbar-brand" href="{{ url_for('judge.index') }}">{{ contest.title }}</a>
+            </div>
             {% if phase.status %}
                 <p class="navbar-text pull-left">{{ phase.status }}</p>
             {% endif %}
@@ -13,7 +15,7 @@
             {% endif %}
             <ul class="nav pull-right">
                 <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-user"></i> {{ judge.name }} <b class="caret"></b></a>
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> {{ judge.name }} <b class="caret"></b></a>
                     <ul class="dropdown-menu">
                         <li><a href="{{ url_for('judge.logout') }}">Log out</a></li>
                     </ul>
@@ -23,30 +25,33 @@
     </div>
 </div>
 
-<div class="container-fluid" id="main">
+<div class="wrapper">
+    <div class="sidebar-wrapper">
+        <ul class="nav sidebar nav-stacked problem-list">
+            {% if phase.scoreboard_problems %}
+                <li><a href="{{ url_for('judge.view_scoreboard') }}">Scoreboard</a></li>
+            {% endif %}
 
-    <div class="row-fluid">
-        <div class="span2">
-            <ul class="nav sidebar-nav nav-list well" id="problem-list">
-                {% if phase.scoreboard_problems %}
-                    <li><a href="{{ url_for('judge.view_scoreboard') }}">Scoreboard</a></li>
-                {% endif %}
-
-                <li><a href="{{ url_for('judge.list_submissions') }}">Submissions</a></i>
-                <li><a href="{{ url_for('judge.list_teams') }}">Teams</a></i>
-                <li><a href="{{ url_for('judge.balloons') }}">Balloons</a></i>
-                <li><a href="{{ url_for('judge.export') }}">Export</a></i>
-                <li><a href="{{ url_for('judge.resolver') }}">Resolver</a></i>
-                <li><a href="{{ url_for('judge.reload') }}">Reload Config</a></i>
-            </ul>
-        </div>
-        <div class="span10" id="content">
-            {% block content %}{% endblock %}
+            <li><a href="{{ url_for('judge.list_submissions') }}">Submissions</a></i>
+            <li><a href="{{ url_for('judge.list_teams') }}">Teams</a></i>
+            <li><a href="{{ url_for('judge.balloons') }}">Balloons</a></i>
+            <li><a href="{{ url_for('judge.export') }}">Export</a></i>
+            <li><a href="{{ url_for('judge.resolver') }}">Resolver</a></i>
+            <li><a href="{{ url_for('judge.reload') }}">Reload Config</a></i>
+        </ul>
+    </div>
+    <div class="content-wrapper">
+        <div class="container-fluid" id="main">
+            <div class="row">
+                <div class="col-xs-12 content">
+                {% block content %}{% endblock %}
+            </div>
         </div>
     </div>
-
-    <div class="row-fluid">
-        <div class="span12" id="footer" style="text-align: center">
+</div>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-xs-12 footer">
             <hr />
             generated in {{ "%.04f" % (g.request_time() * 1000.0) }}ms by <span class="epsilon" title="epsilon">&epsilon;</span>
         </div>
