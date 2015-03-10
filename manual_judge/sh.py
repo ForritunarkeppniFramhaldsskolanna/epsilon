@@ -105,14 +105,14 @@ def compile(arg, opts, parser, stdin=None):
 @arguments(
     ar(description='Execute current submission'),
     ar('test', nargs="?", default="", help="The test case to execute"),
-    ar('-d', '--detail', default=None, help="Print detailed output of the submission")
+    ar('-d', '--detail', action="store_true", help="Print detailed output of the submission")
 )
 def execute(arg, opts, parser, stdin=None):
     data = None
     if opts.test:
         path = os.path.join(os.getcwd(), "tests", opts.test + ".in")
         if not os.path.isfile(path):
-            return (None, "Test %s does not exist, exiting." % opts.test)
+            sys.stderr.write("Test %s does not exist, exiting.\n" % opts.test)
         with open(path, 'r', encoding='utf-8') as f:
             data = f.read()
         val = shell.execute(os.getcwd(), test=True, data=data)
