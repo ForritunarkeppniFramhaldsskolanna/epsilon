@@ -2,91 +2,62 @@
 
 import sys
 import os
-import argparse
-import readline
-import shlex
-import logging
-import cmd
-import tempfile
 import re
+import datetime
+import shutil
 
-from functools import wraps
-from subprocess import call, Popen, PIPE
+from subprocess import Popen, PIPE
 
 BASE_DIR = os.path.join(os.path.dirname(__file__), "..")
 sys.path.insert(0, BASE_DIR)
-import judge
+
+import lib.judgelib as j
+from lib.models import Submission, SubmissionQueue
+import lib.models as models
+from lib.yamllib import load, dump
+from lib.queue import Submissions
+
+contest = None
 
 SUBMISSION_WAIT = 1000  # ms
-EDITOR = os.environ.get('EDITOR', 'vim')  # that easy!
 contest = None
-ROOT = tempfile.mkdtemp(prefix="epsilon")
-judge.CWD = ROOT
-
-PROMPT = "ɛ %s > "
 
 
-# Decorator functions
-# for making sure the current directory is a submission directory
-def current(*arg, **kwarg):
-    error = True
-    if arg and not callable(arg[0]):
-        error = False
-    elif kwarg:
-        error = kwarg["error"]
-
-    def decorator(func):
-        @wraps(func)
-        def validate(*args, **kwargs):
-            if not os.path.isfile(os.path.join(args[0].cwd(), "submission.yaml")):
-                if error:
-                    print("Not in submission directory, exiting...")
-                return False
-            return func(*args, **kwargs)
-        return validate
-    if arg and callable(arg[0]):
-        return decorator(arg[0])
-    return decorator
+verdict_explanation = {
+    'QU': 'in queue',
+    'AC': 'accepted',
+    'PE': 'presentation error',
+    'WA': 'wrong answer',
+    'CE': 'compile time error',
+    'RE': 'runtime error',
+    'TL': 'time limit exceeded',
+    'ML': 'memory limit exceeded',
+    'SE': 'submission error',
+    'RF': 'restricted function',
+    'CJ': 'cannot judge',
+}
 
 
-# A cool helper function to make a tuple of arguments
-def ar(*args, **kwargs):
-    return args, kwargs
-
-
-# Runs argparse on the arguments passed before running the function
-def arguments(*gargs, **gkwargs):
-    def decorator(func):
-        if "prog" not in gargs[0][1]:
-            gargs[0][1]["prog"] = func.__name__[3:]
-        parser = argparse.ArgumentParser(*gargs[0][0], **gargs[0][1])
-        for i in range(1, len(gargs)):
-            parser.add_argument(*gargs[i][0], **gargs[i][1])
-
-        @wraps(func)
-        def args(*args, **kwargs):
-            opts = parser.parse_args(args[1])
-            args = args + (opts, parser)
-            return func(*args, **kwargs)
-        args.__doc__ = parser.format_help()
-        return args
-    return decorator
+def format_time(time):
+    if isinstance(time, datetime.datetime):
+        time = (time - contest["start"]).total_seconds()
+    return '%02d:%02d' % (int(time // 60), int(time) % 60)
 
 
 # Execute helper functions
 def execute(cwd, test=False, data=None):
-    subdetails = judge.load(os.path.join(cwd, 'submission.yaml'))
+    subdetails = load(os.path.join(cwd, 'submission.yaml'))
     sid = int(subdetails['id'])
 
-    db = judge.models.get_db(judge.j.DB_CONN_STRING)
+    db = models.get_db(j.DB_CONN_STRING)
     try:
         sess = db()
-        sub = sess.query(judge.Submission).filter_by(id=sid).first()
+        sub = sess.query(Submission).filter_by(id=sid).first()
         if not sub:
             sys.stderr.write('error: submission with id %d not found\n' % sid)
             exit(1)
 
-        lang = judge.load(judge.j.LANGUAGES_FILE)[sub.language]
+        lang = load(j.LANGUAGES_FILE)[sub.language]
         if test:
             return _exec(lang['execute'], cwd, stdin=data)
         else:
@@ -110,233 +81,178 @@ def getno(name):
     return int(ar[-1])
 
 
-class Cmd2(cmd.Cmd):
-
-    def __init__(self):
-        cmd.Cmd.__init__(self)
-
-    def onecmd(self, line):
-        """Mostly ripped from Python's cmd.py"""
-        cmd, arg, line = self.parseline(line)
-        if arg:
-            arg = shlex.split(arg)
-        else:
-            arg = []
-
-        if not line:
-            return self.emptyline()
-        if cmd is None:
-            return self.default(line)
-        self.lastcmd = line
-        if cmd == '':
-            return self.default(line)
-        else:
-            try:
-                func = getattr(self, 'do_' + cmd)
-            except AttributeError:
-                return self.default(line)
-            try:
-                return func(arg)
-            except (SystemExit, KeyboardInterrupt):
-                return False
-            except Exception:
-                logging.exception("%s failed" % (cmd))
-
-    def cmdloop(self, intro=None):
-        """Repeatedly issue a prompt, accept input, parse an initial prefix
-        off the received input, and dispatch to action methods, passing them
-        the remainder of the line as argument.
-
-        """
-
-        self.preloop()
-        if self.use_rawinput and self.completekey:
-            try:
-                import readline
-                self.old_completer = readline.get_completer()
-                readline.set_completer(self.complete)
-                readline.parse_and_bind(self.completekey + ": complete")
-            except ImportError:
-                pass
-        try:
-            if intro is not None:
-                self.intro = intro
-            if self.intro:
-                self.stdout.write(str(self.intro) + "\n")
-            stop = None
-            while not stop:
-                try:
-                    if self.cmdqueue:
-                        line = self.cmdqueue.pop(0)
-                    else:
-                        if self.use_rawinput:
-                            try:
-                                line = input(self.prompt)
-                            except EOFError:
-                                line = 'EOF'
-                        else:
-                            self.stdout.write(self.prompt)
-                            self.stdout.flush()
-                            line = self.stdin.readline()
-                            if not len(line):
-                                line = 'EOF'
-                            else:
-                                line = line.rstrip('\r\n')
-                    line = self.precmd(line)
-                    stop = self.onecmd(line)
-                    stop = self.postcmd(stop, line)
-                except KeyboardInterrupt:
-                    print("\nUse `exit` or EOF (C-D) to exit")
-            self.postloop()
-        finally:
-            if self.use_rawinput and self.completekey:
-                try:
-                    import readline
-                    readline.set_completer(self.old_completer)
-                except ImportError:
-                    pass
-
-
-class ManualJudge(Cmd2):
-    """ɛMJ Command line"""
-
-    def __init__(self):
-        Cmd2.__init__(self)
-        self.path = ""
-        self.prompt = PROMPT % self.path
-
-    def cwd(self):
-        return os.path.join(ROOT, self.path)
-
-    def update_prompt(self):
-        self.prompt = PROMPT % self.path
-
-    def do_help(self, arg):
-        return cmd.Cmd.do_help(self, " ".join(arg))
-
-    @arguments(
-        ar(description='List submissions'),
-        ar('type', help='which submissions to list'),
-        ar('-t', '--team', help='filter by team'),
-        ar('-p', '--problem', help='filter by problem')
-    )
-    def do_list(self, arg, opts, parser):
-        judge.do_list(opts, parser)
-
-    @arguments(
-        ar(description='Checkout submission'),
-        ar('id', help='which submissions to checkout')
-    )
-    def do_checkout(self, arg, opts, parser):
-        submission_id = judge.do_checkout(opts, parser)
-        self.path = submission_id
-        self.update_prompt()
-
-    @current
-    @arguments(
-        ar(description='Compile current submission')
-    )
-    def do_compile(self, arg, opts, parser):
-        judge.do_current_compile(opts, parser, cwd=self.cwd())
-
-    @current
-    @arguments(
-        ar(description='Execute current submission'),
-        ar('test', nargs="?", default="", help="The test case to execute"),
-        ar('-d', "--diff", const=True, nargs="?", help="diff")
-    )
-    def do_execute(self, arg, opts, parser):
-        data = None
-        if opts.test:
-            path = os.path.join(self.cwd(), "tests", opts.test + ".in")
-            if not os.path.isfile(path):
-                print("Test %s does not exist, exiting." % opts.test)
-                return False
-            with open(path, 'r', encoding='utf-8') as f:
-                data = f.read()
-            val = execute(self.cwd(), test=True, data=data)
-        else:
-            val = execute(self.cwd())
-
-        print("Return code %d." % val[0])
-        if val[1].strip():
-            print("stdout:\n%s" % val[1].strip())
-        if val[2].strip():
-            print("stderr:\n%s" % val[2].strip())
-
-    def complete_execute(self, *arg):
-        return [a for a in self.get_tests() if a.startswith(arg[0])]
-
-    @current
-    @arguments(
-        ar(description='submit the current submission'),
-        ar('verdict', help='the verdict  (see `verdicts` for explanations)', choices=judge.verdict_explanation.keys()),
-        ar('-m', '--message', help='a message with the verdict')
-    )
-    def do_submit(self, arg, opts, parser):
-        opts.verdict = opts.verdict.upper()
-        judge.do_current_submit(opts, parser, cwd=self.cwd())
-
-    def complete_submit(self, *arg):
-        return [k for k in judge.verdict_explanation.keys() if k.startswith(arg[0].upper())]
-
-    @current(error=False)
-    def get_tests(self):
-        files = [f[0:-3] for f in os.listdir(os.path.join(self.cwd(), "tests")) if f.endswith(".in")]
-        # Fix this sorting shit
-        files.sort(key=lambda s: (s.split("__")[0], getno(s)))
-        return files
-
-    @current
-    def do_tests(self, arg):
-        """Lists the available tests"""
-        for f in self.get_tests():
-            print(f)
-
-    def do_verdicts(self, arg):
-        """Lists the available verdicts"""
-        print("\n".join("%s: %s" % (k, v) for k, v in judge.verdict_explanation.items()))
-
-    def do_edit(self, arg):
-        """Open file in $EDITOR"""
-        call([EDITOR] + arg, cwd=self.cwd())
-
-    def do_shell(self, arg):
-        call(arg, cwd=self.cwd())
-
-    def do_ls(self, arg):
-        return self.do_shell(['ls'] + arg)
-
-    def do_cat(self, arg):
-        return self.do_shell(['cat'] + arg)
-
-    def do_cd(self, arg):
-        """Change working directory"""
-        path = os.path.normpath(os.path.join(self.path, arg[0]))
-        if path == ".":
-            path = ""
-        if not os.path.isdir(os.path.join(ROOT, path)):
-            print("cd: no such file or directory: %s" % arg[0])
-            return
-        self.path = path
-        self.update_prompt()
-
-    def do_exit(self, arg):
-        return True
-
-    do_EOF = do_exit
-
-
-def main(argv):
-    parser = argparse.ArgumentParser(description='An automatic programming contest judge.')
-    parser.add_argument('contest', help='the contest directory')
-    opts = parser.parse_args(argv)
-
-    judge.load_contest(opts.contest)
+def submissions(type, team=None, problem=None):
+    db = models.get_db(j.DB_CONN_STRING)
     try:
-        ManualJudge().cmdloop()
-    except KeyboardInterrupt:
-        sys.exit(0)
+        sess = db()
 
-if __name__ == '__main__':
-    main(sys.argv[1:])
+        if type == 'all':
+            subs = sess.query(Submission)
+        elif type == 'queue':
+            subs = sess.query(Submission, SubmissionQueue).join(SubmissionQueue, Submission.id == SubmissionQueue.submission_id)
+
+        if team:
+            subs = subs.filter(Submission.team == team)
+        if problem:
+            subs = subs.filter(Submission.problem == problem)
+
+        for item in subs.order_by(Submission.submitted).all():
+            sub = item
+            subq = None
+            if type == 'queue':
+                sub = item[0]
+                subq = item[1]
+
+            sys.stdout.write('%d\t%s\t%s\t%s\t%s\t%s\n' % (sub.id, format_time(sub.submitted), sub.team, sub.problem, sub.verdict, '' if subq is None else subq.dequeued_at))
+
+    finally:
+        sess.close()
+
+
+def checkout(id):
+    sub = None
+    if id == 'next':
+        sys.stdout.write('waiting for next submission...\n')
+
+        with Submissions(j.DB_CONN_STRING, timeout=False) as subs:
+            sub2 = next(subs)
+            id = sub2.id
+            sys.stdout.write('checking out submission %d\n' % id)
+            # Duplicate so we don't get a detached error
+            sub = Submission(sub2.team, sub2.problem, sub2.language, sub2.file, sub2.submitted, sub2.verdict, sub2.judge_response)
+            sub.id = sub2.id
+    else:
+        db = models.get_db(j.DB_CONN_STRING)
+        try:
+            sess = db()
+            id = int(id)
+
+            sub2 = sess.query(Submission).filter_by(id=id).first()
+            if not sub2:
+                sys.stderr.write('error: submission with id %d not found\n' % id)
+                exit(1)
+
+            qsub = sess.query(SubmissionQueue).filter_by(submission_id=id).first()
+            if qsub:
+                qsub.dequeued_at = datetime.datetime.now()
+                qsub.status = 1
+                sess.commit()
+            # Duplicate so we don't get a detached error
+            sub = Submission(sub2.team, sub2.problem, sub2.language, sub2.file, sub2.submitted, sub2.verdict, sub2.judge_response)
+            sub.id = sub2.id
+        finally:
+            sess.close()
+
+    lang = load(j.LANGUAGES_FILE)[sub.language]
+    path = os.path.join(os.getcwd(), str(id))
+    if os.path.isdir(path):
+        shutil.rmtree(path)
+
+    os.mkdir(path)
+    with open(os.path.join(path, 'submission.yaml'), 'w') as f:
+        f.write(dump({
+            'id': sub.id,
+            'team': sub.team,
+            'problem': sub.problem,
+            'submitted': sub.submitted,
+            'verdict': sub.verdict,
+            'judge_response': sub.judge_response,
+            'language': {
+                'name': sub.language,
+                'compile': lang.get('compile'),
+                'execute': lang.get('execute')
+            }
+        }))
+
+    with open(os.path.join(path, lang['filename']), 'w') as f:
+        f.write(sub.file)
+
+    test_dir = os.path.join(j.CONTEST_DIR, 'problems', sub.problem, '.epsilon', 'tests')
+    test_dst = os.path.abspath(os.path.join(path, 'tests'))
+
+    shutil.copytree(test_dir, test_dst,
+                    ignore=lambda dir, files: [f for f in files if not (f.endswith(".in") or f.endswith(".out"))])
+    return path
+
+
+def compile():
+    subdetails = load(os.path.join(os.getcwd(), 'submission.yaml'))
+    sid = int(subdetails['id'])
+
+    db = models.get_db(j.DB_CONN_STRING)
+    try:
+        sess = db()
+        sub = sess.query(Submission).filter_by(id=sid).first()
+        if not sub:
+            sys.stderr.write('error: submission with id %d not found\n' % id)
+            exit(1)
+
+        lang = load(j.LANGUAGES_FILE)[sub.language]
+
+        if 'compile' in lang:
+            proc = Popen(lang['compile'], stdin=PIPE, stdout=PIPE, stderr=PIPE, cwd=os.getcwd())
+            comp_err = proc.communicate()[1]
+            comp_err = '' if comp_err is None else comp_err.decode('utf-8')
+            if proc.wait() != 0:
+                sys.stdout.write('compile error:\n' + comp_err + '\n')
+            else:
+                sys.stdout.write('compile successful\n')
+        else:
+            sys.stdout.write('no compiler for this language\n')
+
+    finally:
+        sess.close()
+
+
+def submit(verdict, message=None):
+    verdict = verdict.upper()
+
+    subdetails = load(os.path.join(os.getcwd(), 'submission.yaml'))
+    sid = int(subdetails['id'])
+
+    db = models.get_db(j.DB_CONN_STRING)
+    try:
+        sess = db()
+        sub = sess.query(Submission).filter_by(id=sid).first()
+        if not sub:
+            sys.stderr.write('error: submission with id %d not found\n' % sid)
+            exit(1)
+
+        qsub = sess.query(SubmissionQueue).filter_by(submission_id=sid).first()
+        if verdict == 'QU':
+            if qsub:
+                qsub.dequeued_at = None
+                qsub.status = 0
+            else:
+                sess.add(SubmissionQueue(sid))
+        else:
+            if qsub:
+                sess.delete(qsub)
+                sess.commit()
+
+        sub.verdict = verdict
+        if message:
+            sub.judge_response = message
+
+        if sub.verdict == 'AC':
+            j.deliver_balloon(sess, sub)
+
+        sess.commit()
+
+    finally:
+        sess.close()
+
+
+def get_tests():
+    files = [f[0:-3] for f in os.listdir(os.path.join(os.getcwd(), "tests")) if f.endswith(".in")]
+    # Fix this sorting shit
+    files.sort(key=lambda s: (s.split("__")[0], getno(s)))
+    return files
+
+
+def load_contest(name=None):
+    global contest
+    if name:
+        contest = j.load_contest(name)
+    else:
+        contest = j.load_contest(os.getenv("CONTEST", name))
