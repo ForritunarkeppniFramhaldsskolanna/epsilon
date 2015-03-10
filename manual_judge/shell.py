@@ -59,14 +59,16 @@ def execute(cwd, test=False, data=None):
 
         lang = load(j.LANGUAGES_FILE)[sub.language]
         if test:
-            return _exec(lang['execute'], cwd, stdin=data)
+            return run(lang['execute'], cwd, stdin=data)
         else:
-            return _exec(lang['execute'], cwd, stdin=False)
+            return run(lang['execute'], cwd, stdin=False)
     finally:
         sess.close()
 
 
-def _exec(cmd, cwd, stdin=None):
+def run(cmd, cwd=None, stdin=None):
+    if cwd:
+        cwd = os.getcwd()
     if stdin is False:
         proc = Popen(cmd, stdin=None, stdout=PIPE, stderr=PIPE, cwd=cwd)
         stdout, stderr = proc.communicate()

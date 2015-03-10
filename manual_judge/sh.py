@@ -5,15 +5,17 @@ import argparse
 import builtins
 import shell
 import tempfile
+import shlex
 from functools import wraps
 
 BASE_DIR = os.path.dirname(__file__)
 sys.path.insert(0, os.path.join(BASE_DIR, "xonsh"))
 from xonsh.shell import Shell
 from xonsh.parser import Parser
+from xonsh.tools import TERM_COLORS
 
 parser2 = Parser(lexer_table='lexer_table', yacc_table='parser_table',
-       outputdir=os.path.join(BASE_DIR, "xonsh", "xonsh"))
+                 outputdir=os.path.join(BASE_DIR, "xonsh", "xonsh"))
 
 ROOT = tempfile.mkdtemp(prefix="epsilon")
 os.chdir(ROOT)
@@ -104,20 +106,10 @@ def compile(arg, opts, parser, stdin=None):
 @current
 @arguments(
     ar(description='Execute current submission'),
-    ar('test', nargs="?", default="", help="The test case to execute"),
     ar('-d', '--detail', action="store_true", help="Print detailed output of the submission")
 )
 def execute(arg, opts, parser, stdin=None):
-    data = None
-    if opts.test:
-        path = os.path.join(os.getcwd(), "tests", opts.test + ".in")
-        if not os.path.isfile(path):
-            sys.stderr.write("Test %s does not exist, exiting.\n" % opts.test)
-        with open(path, 'r', encoding='utf-8') as f:
-            data = f.read()
-        val = shell.execute(os.getcwd(), test=True, data=data)
-    else:
-        val = shell.execute(os.getcwd())
+    val = shell.execute(os.getcwd())
     if opts.detail:
         print("Return code %d." % val[0])
         if val[1].strip():
@@ -130,6 +122,64 @@ def execute(arg, opts, parser, stdin=None):
         if val[2].strip():
             sys.stderr.write(val[2])
 
+
+def run_test(test, detail=False, diff=True, diff_cmd="sdiff"):
+    path = os.path.join(os.getcwd(), "tests", test)
+    if not os.path.isfile(path):
+        sys.stderr.write("Test %s does not exist, exiting.\n" % test)
+        return
+
+    data = None
+    with open(path, 'r', encoding='utf-8') as f:
+        data = f.read()
+
+    val = shell.execute(os.getcwd(), test=True, data=data)
+    if diff and diff_cmd is not None:
+        print("Return code %d." % val[0])
+        if val[2].strip():
+            print("stderr:\n%s" % val[2].strip())
+        out = path[:-3] + ".out"
+        valdiff = shell.run(shlex.split(diff_cmd) + [out, "-"], stdin=val[1])
+        if valdiff[0] != 0:
+            print("diff returned non-zero return code! %d" % valdiff[0])
+            if valdiff[1].strip():
+                print("stdout:\n%s" % valdiff[1].strip())
+            if valdiff[2].strip():
+                print("stderr:\n%s" % valdiff[2].strip())
+        else:
+            print(valdiff[1])
+
+    else:
+        if detail:
+            print("Return code %d." % val[0])
+            if val[1].strip():
+                print("stdout:\n%s" % val[1].strip())
+            if val[2].strip():
+                print("stderr:\n%s" % val[2].strip())
+        else:
+            if val[1].strip():
+                sys.stdout.write(val[1])
+            if val[2].strip():
+                sys.stderr.write(val[2])
+
+
+@current
+@arguments(
+    ar(description='Run current submission against a test case'),
+    ar('test', nargs="?", default="all", help="The test case to execute"),
+    ar('-d', '--detail', action="store_true", help="Print detailed output of the submission"),
+    ar("-f", '--full', action="store_false", help="Print the full submission output"),
+    ar("--diff", default="sdiff", help="The diff command to run")
+)
+def test(arg, opts, parser, stdin=None):
+    if opts.test == "all":
+        for test in shell.get_tests():
+            print("\n%sRunning test case: %s%s%s" % (TERM_COLORS["BOLD_YELLOW"], TERM_COLORS["UNDERLINE_YELLOW"], test, TERM_COLORS["NO_COLOR"]))
+            run_test(test + ".in", detail=opts.detail, diff=opts.full, diff_cmd=opts.diff)
+    else:
+        if not opts.test.endswith(".in"):
+            opts.test += ".in"
+        run_test(opts.test, detail=opts.detail, diff=opts.full, diff_cmd=opts.diff)
 
 
 @current
@@ -145,7 +195,7 @@ def submit(arg, opts, parser, stdin=None):
 @current
 def tests(arg, stdin=None):
     """Lists the available tests"""
-    return "\n".join(f for f in shell.get_tests())
+    print("\n".join(f for f in shell.get_tests()))
 
 
 def verdicts(arg, stdin=None):
@@ -155,6 +205,7 @@ def verdicts(arg, stdin=None):
 
 def setup_aliases():
     builtins.aliases["execute"] = builtins.aliases["ex"] = execute
+    builtins.aliases["test"] = test
     builtins.aliases["submissions"] = builtins.aliases["subs"] = submissions
     builtins.aliases["checkout"] = builtins.aliases["ch"] = checkout
     builtins.aliases["compile"] = builtins.aliases["comp"] = compile
