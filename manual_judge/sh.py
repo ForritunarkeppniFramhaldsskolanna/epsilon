@@ -79,7 +79,7 @@ def arguments(*gargs, **gkwargs):
 
 @arguments(
     ar(description='List submissions'),
-    ar('type', help='which submissions to list'),
+    ar('type', nargs="?", default="queue", help='which submissions to list'),
     ar('-t', '--team', help='filter by team'),
     ar('-p', '--problem', help='filter by problem')
 )
@@ -89,10 +89,10 @@ def submissions(arg, opts, parser, stdin=None):
 
 @arguments(
     ar(description='Checkout submission'),
-    ar('id', help='which submissions to checkout')
+    ar('id', nargs="?", default="next", help='which submissions to checkout')
 )
 def checkout(arg, opts, parser, stdin=None):
-    return chdir(shell.checkout(opts.id))
+    return chdir(shell.checkout(opts.id, cwd=ROOT))
 
 
 @current
@@ -135,23 +135,29 @@ def run_test(test, detail=False, diff=True, diff_cmd="sdiff"):
 
     val = shell.execute(os.getcwd(), test=True, data=data)
     if diff and diff_cmd is not None:
-        print("Return code %d." % val[0])
+        print("Exit status: %d" % val[0])
         if val[2].strip():
             print("stderr:\n%s" % val[2].strip())
         out = path[:-3] + ".out"
         valdiff = shell.run(shlex.split(diff_cmd) + [out, "-"], stdin=val[1])
-        if valdiff[0] != 0:
-            print("diff returned non-zero return code! %d" % valdiff[0])
+
+        if valdiff[0] == 1:
+            print("diff: Output mismatch")
+            print(valdiff[1].strip())
+            return False
+        elif valdiff[0] == 0:
+            print("diff: Output matches")
+            return True
+        else:
+            print("diff returned non-zero exit status! %d" % valdiff[0])
             if valdiff[1].strip():
                 print("stdout:\n%s" % valdiff[1].strip())
             if valdiff[2].strip():
                 print("stderr:\n%s" % valdiff[2].strip())
-        else:
-            print(valdiff[1])
-
+            return None
     else:
         if detail:
-            print("Return code %d." % val[0])
+            print("Exit status %d." % val[0])
             if val[1].strip():
                 print("stdout:\n%s" % val[1].strip())
             if val[2].strip():
@@ -161,6 +167,7 @@ def run_test(test, detail=False, diff=True, diff_cmd="sdiff"):
                 sys.stdout.write(val[1])
             if val[2].strip():
                 sys.stderr.write(val[2])
+    return None
 
 
 @current
@@ -173,9 +180,21 @@ def run_test(test, detail=False, diff=True, diff_cmd="sdiff"):
 )
 def test(arg, opts, parser, stdin=None):
     if opts.test == "all":
+        accepted = True
+        errors = []
         for test in shell.get_tests():
             print("\n%sRunning test case: %s%s%s" % (TERM_COLORS["BOLD_YELLOW"], TERM_COLORS["UNDERLINE_YELLOW"], test, TERM_COLORS["NO_COLOR"]))
-            run_test(test + ".in", detail=opts.detail, diff=opts.full, diff_cmd=opts.diff)
+            ret = run_test(test + ".in", detail=opts.detail, diff=opts.full, diff_cmd=opts.diff)
+            if not ret:
+                accepted = False
+                errors.append(test)
+                if not opts.full:
+                    print("%sIncorrect output%s" % (TERM_COLORS["BACKGROUND_RED"], TERM_COLORS["NO_COLOR"]))
+        if accepted:
+            print("%sAccepted output%s" % (TERM_COLORS["BOLD_GREEN"], TERM_COLORS["NO_COLOR"]))
+        else:
+            print("%sIncorrect output%s" % (TERM_COLORS["BOLD_RED"], TERM_COLORS["NO_COLOR"]))
+            print("%sFirst incorrect output at: %s%s" % (TERM_COLORS["PURPLE"], errors[0], TERM_COLORS["NO_COLOR"]))
     else:
         if not opts.test.endswith(".in"):
             opts.test += ".in"
@@ -215,6 +234,26 @@ def setup_aliases():
     builtins.aliases["l"] = ["ls"]
     builtins.aliases["c"] = ["cd"]
 
+prompt_template = ('{GREEN}ɛ{BLUE} {cwd} {YELLOW}${NO_COLOR} ')
+
+
+def default_prompt():
+    env = builtins.__xonsh_env__
+    cwd = env['PWD']
+    p = prompt_template.format(
+        cwd=cwd.replace(env['HOME'], '~').replace(ROOT, 'judging'),
+        RED=TERM_COLORS['BOLD_RED'],
+        BLUE=TERM_COLORS['BOLD_BLUE'],
+        GREEN=TERM_COLORS['BOLD_GREEN'],
+        YELLOW=TERM_COLORS['BOLD_YELLOW'],
+        NO_COLOR=TERM_COLORS['NO_COLOR'],
+    )
+    return p
+
+
+def setup_env():
+    builtins.__xonsh_env__["PROMPT"] = default_prompt
+
 
 def main(argv):
     parser = argparse.ArgumentParser(description='An automatic programming contest judge.')
@@ -226,6 +265,7 @@ def main(argv):
     cmd = Shell()
     cmd.execer.parser = parser2
     setup_aliases()
+    setup_env()
     cmd.cmdloop()
 
 # def tracefunc(frame, event, arg, indent=[0]):

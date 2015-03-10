@@ -111,7 +111,7 @@ def submissions(type, team=None, problem=None):
         sess.close()
 
 
-def checkout(id):
+def checkout(id, cwd=None):
     sub = None
     if id == 'next':
         sys.stdout.write('waiting for next submission...\n')
@@ -146,7 +146,9 @@ def checkout(id):
             sess.close()
 
     lang = load(j.LANGUAGES_FILE)[sub.language]
-    path = os.path.join(os.getcwd(), str(id))
+    if cwd is None:
+        cwd = os.getcwd()
+    path = os.path.join(cwd, str(id))
     if os.path.isdir(path):
         shutil.rmtree(path)
 
@@ -174,6 +176,10 @@ def checkout(id):
 
     shutil.copytree(test_dir, test_dst,
                     ignore=lambda dir, files: [f for f in files if not (f.endswith(".in") or f.endswith(".out"))])
+
+    print("Language: %s" % sub.language)
+    print("Problem: %s" % sub.problem)
+    print("Team: %s" % sub.team)
     return path
 
 
