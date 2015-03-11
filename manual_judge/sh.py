@@ -190,11 +190,12 @@ def test(arg, opts, parser, stdin=None):
                 errors.append(test)
                 if not opts.full:
                     print("%sIncorrect output%s" % (TERM_COLORS["BACKGROUND_RED"], TERM_COLORS["NO_COLOR"]))
-        if accepted:
-            print("%sAccepted output%s" % (TERM_COLORS["BOLD_GREEN"], TERM_COLORS["NO_COLOR"]))
-        else:
-            print("%sIncorrect output%s" % (TERM_COLORS["BOLD_RED"], TERM_COLORS["NO_COLOR"]))
-            print("%sFirst incorrect output at: %s%s" % (TERM_COLORS["PURPLE"], errors[0], TERM_COLORS["NO_COLOR"]))
+        if not opts.full:
+            if accepted:
+                print("%sAccepted output%s" % (TERM_COLORS["BOLD_GREEN"], TERM_COLORS["NO_COLOR"]))
+            else:
+                print("%sIncorrect output%s" % (TERM_COLORS["BOLD_RED"], TERM_COLORS["NO_COLOR"]))
+                print("%sFirst incorrect output at: %s%s" % (TERM_COLORS["PURPLE"], errors[0], TERM_COLORS["NO_COLOR"]))
     else:
         if not opts.test.endswith(".in"):
             opts.test += ".in"
