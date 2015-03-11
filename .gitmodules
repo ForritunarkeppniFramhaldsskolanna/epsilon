@@ -4,7 +4,3 @@
 [submodule "judge/isolate"]
 	path = judge/isolate
 	url = https://github.com/jamiees2/isolate.git
-[submodule "manual_judge/xonsh"]
-	path = manual_judge/xonsh
-	url = https://github.com/jamiees2/xonsh.git
-	branch = pipes
