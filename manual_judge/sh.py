@@ -14,17 +14,13 @@ from xonsh.shell import Shell
 from xonsh.parser import Parser
 from xonsh.tools import TERM_COLORS
 
-parser2 = Parser(lexer_table='lexer_table', yacc_table='parser_table',
-                 outputdir=os.path.join(BASE_DIR, "xonsh", "xonsh"))
-
-ROOT = tempfile.mkdtemp(prefix="epsilon")
-os.chdir(ROOT)
-os.environ["USER"] = "ɛ"
+ROOT = None
 
 
 def chdir(d):
     os.chdir(d)
-    builtins.__xonsh_env__['PWD'] = os.getcwd()
+    if hasattr(builtins, "__xonsh_env__"):
+        builtins.__xonsh_env__['PWD'] = os.getcwd()
 
 
 # Decorator functions
@@ -99,7 +95,7 @@ def checkout(arg, opts, parser, stdin=None):
 @arguments(
     ar(description='Compile current submission')
 )
-def compile(arg, opts, parser, stdin=None):
+def compile_sub(arg, opts, parser, stdin=None):
     shell.compile()
 
 
@@ -190,7 +186,7 @@ def test(arg, opts, parser, stdin=None):
                 errors.append(test)
                 if not opts.full:
                     print("%sIncorrect output%s" % (TERM_COLORS["BACKGROUND_RED"], TERM_COLORS["NO_COLOR"]))
-        if not opts.full:
+        if opts.full:
             if accepted:
                 print("%sAccepted output%s" % (TERM_COLORS["BOLD_GREEN"], TERM_COLORS["NO_COLOR"]))
             else:
@@ -228,12 +224,15 @@ def setup_aliases():
     builtins.aliases["test"] = test
     builtins.aliases["submissions"] = builtins.aliases["subs"] = submissions
     builtins.aliases["checkout"] = builtins.aliases["ch"] = checkout
-    builtins.aliases["compile"] = builtins.aliases["comp"] = compile
+    builtins.aliases["compile"] = builtins.aliases["comp"] = compile_sub
     builtins.aliases["submit"] = builtins.aliases["subm"] = submit
     builtins.aliases["tests"] = tests
     builtins.aliases["verdicts"] = verdicts
+
+
+def setup_shortcuts():
     builtins.aliases["l"] = ["ls"]
-    builtins.aliases["c"] = ["cd"]
+    builtins.aliases["c"] = builtins.aliases["cd"]
 
 prompt_template = ('{GREEN}ɛ{BLUE} {cwd} {YELLOW}${NO_COLOR} ')
 
@@ -257,30 +256,24 @@ def setup_env():
 
 
 def main(argv):
+    global ROOT
     parser = argparse.ArgumentParser(description='An automatic programming contest judge.')
     parser.add_argument('contest', help='the contest directory')
     opts = parser.parse_args(argv)
 
+    sh_parser = Parser(lexer_table='lexer_table', yacc_table='parser_table', outputdir=os.path.join(BASE_DIR, "xonsh", "xonsh"))
+    ROOT = tempfile.mkdtemp(prefix="epsilon")
+    os.chdir(ROOT)
+    os.environ["USER"] = "ɛ"
+
     shell.load_contest(opts.contest)
 
     cmd = Shell()
-    cmd.execer.parser = parser2
+    cmd.execer.parser = sh_parser
+    setup_shortcuts()
     setup_aliases()
     setup_env()
     cmd.cmdloop()
 
-# def tracefunc(frame, event, arg, indent=[0]):
-#     if event == "call":
-#         indent[0] += 2
-#         print("-" * indent[0] + "> call function", frame.f_code.co_name)
-#     elif event == "return":
-#         print("<" + "-" * indent[0], "exit function", frame.f_code.co_name)
-#         indent[0] -= 2
-#     return tracefunc
-
-# import sys
-# sys.settrace(tracefunc)
-
 if __name__ == '__main__':
     main(sys.argv[1:])
-    # pass
