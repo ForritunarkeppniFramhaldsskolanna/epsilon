@@ -1,0 +1,30 @@
+#!/bin/bash
+relpath(){ python -c "import os.path; print(os.path.relpath('$1','${2:-$PWD}'))" ; } 
+case $1 in
+    "create")
+        if [ -z $CONTEST ]; then
+            echo "Please set \$CONTEST to continue"
+            exit 0
+        fi
+
+        if [ -z $USER ]; then
+            echo "Please set \$USER to continue"
+            exit 0
+        fi
+        echo "Creating directory $HOME/judging"
+        echo "Please run your judging session from there"
+        mkdir -p "judging"
+        EPSILON_IMAGE=${EPSILON_IMAGE:-epsilon_epsilon}
+        docker run -t -i -e CONTEST=$CONTEST \
+            --volumes-from=epsilon-data -v /sys/fs/cgroup:/sys/fs/cgroup --privileged=true \
+            --link epsilon-postgres:postgres --entrypoint=/epsilon/docker/entrypoint.sh \
+            -v "$HOME/judging":/judging -w /judging --name "epsilon-manual-$USER" \
+            -d $EPSILON_IMAGE /bin/bash
+    ;;
+    "exec")
+        shift
+        # docker start "epsilon-manual-$USER"
+        judging="/judging/$(relpath "$PWD" "$HOME/judging/")"
+        docker exec -t -i "epsilon-manual-$USER" /bin/bash -c "$@"
+    ;;
+esac

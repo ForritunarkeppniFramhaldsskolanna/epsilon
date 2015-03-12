@@ -11,7 +11,6 @@ if [ -z $NAME ]; then
 fi
 
 EPSILON_IMAGE=${EPSILON_IMAGE:-epsilon_epsilon}
-PORT=${PORT:-31415}
 docker run -t -i-e CONTEST=$CONTEST \
     --volumes-from=epsilon-data -v /sys/fs/cgroup:/sys/fs/cgroup --privileged=true \
     --link epsilon-postgres:postgres --entrypoint=/epsilon/docker/entrypoint.sh \
