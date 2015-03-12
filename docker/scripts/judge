@@ -27,4 +27,7 @@ case $1 in
         judging="/judging/$(relpath "$PWD" "$HOME/judging/")"
         docker exec -t -i "epsilon-manual-$USER" judge_exec $judging $@
     ;;
+    *)
+        echo "Available commands: create, exec"
+    ;;
 esac
