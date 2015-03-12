@@ -25,6 +25,6 @@ case $1 in
         shift
         # docker start "epsilon-manual-$USER"
         judging="/judging/$(relpath "$PWD" "$HOME/judging/")"
-        docker exec -t -i "epsilon-manual-$USER" /bin/bash -c "$@"
+        docker exec -t -i "epsilon-manual-$USER" /bin/bash -c "cd $judging; $@"
     ;;
 esac
