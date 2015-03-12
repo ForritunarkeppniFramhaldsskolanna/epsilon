@@ -5,6 +5,7 @@ import glob
 import yaml
 import stat
 import math
+import re
 from subprocess import Popen, PIPE
 DIR = os.path.dirname(os.path.abspath(__file__))
 PROBLEMTOOLS = os.getenv("PROBLEMTOOLS", os.path.join(DIR, 'problemtools'))
@@ -47,10 +48,9 @@ if p.wait() != 0:
     sys.exit(1)
 
 with open(os.path.join(output_dir, 'statement', 'index.html'), 'r') as f:
-    for line in f.read().split('\n'):
-        if '<h1>' in line:
-            problem_title = line.split('<h1>')[1].split('</h1>')[0]
-            break
+    mat = re.search('<h1>(.*?)</h1>', f.read(), re.DOTALL)
+    if mat:
+        problem_title = mat.group().split('<h1>')[1].split('</h1>')[0].replace('\n', ' ')
 
 tests = {'sample': [], 'secret': []}
 for test_type in tests:
