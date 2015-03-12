@@ -29,6 +29,7 @@ def main(argv):
 
     builtins.aliases = {}
     sh.setup_aliases()
+    builtins.aliases["list"] = builtins.aliases["subs"]
     if opts.command:
         try:
             builtins.aliases[opts.command[0]](opts.command[1:])

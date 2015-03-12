@@ -1,0 +1,7 @@
+#!/bin/bash
+volumes=""
+for i in "$@"; do 
+    volumes="$volumes -v $i"
+done
+echo "Starting container with volumes $volumes"
+docker run -v /var/lib/postgresql:/var/lib/postgresql  $volumes -d --name epsilon-data tianon/true

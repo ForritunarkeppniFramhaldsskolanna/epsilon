@@ -10,7 +10,6 @@ epsilon:
    - postgres
   environment:
     - CONTEST # Resolves to the host
-    - AUTOJUDGE
     - DEBUG
     - OPTS
   privileged: true

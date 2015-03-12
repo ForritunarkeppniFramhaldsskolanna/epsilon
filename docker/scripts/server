@@ -1,0 +1,19 @@
+#!/bin/bash
+
+if [ -z $CONTEST ]; then
+    echo "Please set \$CONTEST to continue"
+    exit 0
+fi
+
+if [ -z $NAME ]; then
+    echo "Please set \$NAME to continue"
+    exit 0
+fi
+
+EPSILON_IMAGE=${EPSILON_IMAGE:-epsilon_epsilon}
+PORT=${PORT:-31415}
+DEBUG=${DEBUG:-false}
+docker run -t -i -e CONTEST=$CONTEST \
+    --volumes-from=epsilon-data --privileged=true -p $PORT:31415 \
+    --link epsilon-postgres:postgres --entrypoint=/epsilon/docker/entrypoint.sh \
+    --name "epsilon-server-$NAME" -d $EPSILON_IMAGE epsilon $@
