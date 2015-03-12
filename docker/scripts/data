@@ -4,4 +4,5 @@ for i in "$@"; do
     volumes="$volumes -v $i"
 done
 echo "Starting container with volumes $volumes"
+echo "Please make sure that you have mounted a data volume for postgresql"
 docker run $volumes -d --name epsilon-data tianon/true

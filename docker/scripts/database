@@ -1,2 +1,2 @@
 #!/bin/bash
-docker run --volumes-from epsilon-data -d --name epsilon-postgres postgres:9.4.0
+docker run -e PGDATA=/data --volumes-from epsilon-data -d --name epsilon-postgres postgres:9.4.0
