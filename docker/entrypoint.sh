@@ -10,6 +10,7 @@ eval $(python3 $EPSILON_DIR/config/config.py export)
 if ! [ -z $CONTEST ]; then
     export CONTEST_PATH=$(cd $CONTEST && pwd)
     echo -e "#!/bin/bash \npython3 $EPSILON_PREFIX/manual_judge/judge.py \"$CONTEST_PATH\" -- \$@" > /usr/local/bin/judge
+    echo -e "#!/bin/bash \ncd \$1\nshift\n\$@" > /usr/local/bin/judge_exec
     echo -e "#!/bin/bash \npython3 $EPSILON_PREFIX/manual_judge/sh.py \"$CONTEST_PATH\" \$@" > /usr/local/bin/judgesh
     echo -e "#!/bin/bash \npython3 $EPSILON_PREFIX/judge/automatic-judge.py \"$CONTEST_PATH\" \$@" > /usr/local/bin/autojudge
     echo -e "#!/bin/bash \npython3 $EPSILON_PREFIX/server/epsilon.py -H 0.0.0.0 \"$CONTEST_PATH\" \$@" > /usr/local/bin/epsilon
@@ -19,7 +20,7 @@ else
     echo -e "#!/bin/bash \necho \"You need to set \\\$CONTEST to use this function\"" > /usr/local/bin/autojudge
     echo -e "#!/bin/bash \necho \"You need to set \\\$CONTEST to use this function\"" > /usr/local/bin/epsilon
 fi
-
+chmod +x /usr/local/bin/judge_exec
 chmod +x /usr/local/bin/judge
 chmod +x /usr/local/bin/judgesh
 chmod +x /usr/local/bin/autojudge
