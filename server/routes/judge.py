@@ -281,7 +281,7 @@ def export(no):
                     'verdict': sub.verdict,
                     'solved': 'True' if sub.verdict == 'AC' else 'False',
                     'team_id': teams[sub.team],
-                    'time': sub.submitted,
+                    'time': (sub.submitted - app.contest.start).total_seconds(),
                 }).encode('utf-8'))
 
             out.write(('''
