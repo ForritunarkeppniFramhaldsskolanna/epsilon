@@ -174,7 +174,7 @@ def run_test(test, detail=False, diff=True, diff_cmd=DEFAULT_DIFF):
     ar('test', nargs="?", default="all", help="The test case to execute"),
     ar('-d', '--detail', action="store_true", help="Print detailed output of the submission"),
     ar("-f", '--full', action="store_false", help="Print the full submission output"),
-    ar("diff", nargs=argparse.REMAINDER, default=DEFAULT_DIFF, help="The diff command to run")
+    ar("--diff", default=DEFAULT_DIFF, help="The diff command to run")
 )
 def test(arg, opts, parser, stdin=None):
     if opts.test == "all":
@@ -182,7 +182,7 @@ def test(arg, opts, parser, stdin=None):
         errors = []
         for test in shell.get_tests():
             print("\n%sRunning test case: %s%s%s" % (TERM_COLORS["BOLD_YELLOW"], TERM_COLORS["UNDERLINE_YELLOW"], test, TERM_COLORS["NO_COLOR"]))
-            ret = run_test(test + ".in", detail=opts.detail, diff=opts.full, diff_cmd=opts.diff)
+            ret = run_test(test + ".in", detail=opts.detail, diff=opts.full, diff_cmd=opts.diff.replace("+","-"))
             if not ret:
                 accepted = False
                 errors.append(test)
