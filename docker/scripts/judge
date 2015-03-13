@@ -21,11 +21,34 @@ case $1 in
             -v "$HOME/judging":/judging -w /judging --name "epsilon-manual-$USER" \
             -d $EPSILON_IMAGE /bin/bash
     ;;
+    "stop")
+        docker stop "epsilon-manual-$USER"
+    ;;
+    "start")
+        docker start "epsilon-manual-$USER"
+    ;;
+    "rm")
+        docker stop "epsilon-manual-$USER"
+        docker rm "epsilon-manual-$USER"
+    ;;
     "exec")
         shift
-        # docker start "epsilon-manual-$USER"
         judging="/judging/$(relpath "$PWD" "$HOME/judging/")"
-        docker exec -t -i "epsilon-manual-$USER" judge_exec $judging $@
+        docker exec -t -i "epsilon-manual-$USER" $@
+    ;;
+    "shell")
+        shift
+        docker exec -i "epsilon-manual-$USER" judgesh -d "/judging/"
+    ;;
+    "judge")
+        shift
+        judging="/judging/$(relpath "$PWD" "$HOME/judging/")"
+        docker exec -i "epsilon-manual-$USER" judge_exec $judging judge $@
+    ;;
+    "bash")
+        shift
+        judging="/judging/$(relpath "$PWD" "$HOME/judging/")"
+        docker exec -t -i "epsilon-manual-$USER" judge_exec $judging bash
     ;;
     *)
         echo "Available commands: create, exec"

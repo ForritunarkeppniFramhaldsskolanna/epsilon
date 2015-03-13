@@ -259,10 +259,14 @@ def main(argv):
     global ROOT
     parser = argparse.ArgumentParser(description='An automatic programming contest judge.')
     parser.add_argument('contest', help='the contest directory')
+    parser.add_argument('-d', "--directory", default=None, help="The root directory")
     opts = parser.parse_args(argv)
 
     sh_parser = Parser(lexer_table='lexer_table', yacc_table='parser_table', outputdir=os.path.join(BASE_DIR, "xonsh", "xonsh"))
-    ROOT = tempfile.mkdtemp(prefix="epsilon")
+    if opts.directory:
+        ROOT = opts.directory
+    else:
+        ROOT = tempfile.mkdtemp(prefix="epsilon")
     os.chdir(ROOT)
     os.environ["USER"] = "ɛ"
 
