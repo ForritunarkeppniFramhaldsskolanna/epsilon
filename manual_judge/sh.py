@@ -234,7 +234,7 @@ def verdicts(arg, stdin=None):
 
 
 def setup_aliases():
-    builtins.aliases["execute"] = builtins.aliases["ex"] = execute
+    builtins.aliases["execute"] = builtins.aliases["ex"] = builtins.aliases["run"] = execute
     builtins.aliases["test"] = test
     builtins.aliases["submissions"] = builtins.aliases["subs"] = submissions
     builtins.aliases["checkout"] = builtins.aliases["ch"] = checkout
