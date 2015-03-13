@@ -118,7 +118,7 @@ def execute(arg, opts, parser, stdin=None):
         if val[2].strip():
             sys.stderr.write(val[2])
 
-DEFAULT_DIFF = "sdiff --ignore-all-space --ignore-blank-lines --ignore-space-changes"
+DEFAULT_DIFF = "sdiff --ignore-all-space --ignore-blank-lines --ignore-space-change"
 
 
 def run_test(test, detail=False, diff=True, diff_cmd=DEFAULT_DIFF):
