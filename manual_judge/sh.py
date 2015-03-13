@@ -137,7 +137,9 @@ def run_test(test, detail=False, diff=True, diff_cmd=DEFAULT_DIFF):
         if val[2].strip():
             print("stderr:\n%s" % val[2].strip())
         out = path[:-3] + ".out"
-        valdiff = shell.run(shlex.split(diff_cmd) + [out, "-"], stdin=val[1])
+        if isinstance(diff_cmd, str):
+            diff_cmd = shlex.split(diff_cmd)
+        valdiff = shell.run(diff_cmd + [out, "-"], stdin=val[1])
 
         if valdiff[0] == 1:
             print("diff: Output mismatch")
@@ -174,15 +176,25 @@ def run_test(test, detail=False, diff=True, diff_cmd=DEFAULT_DIFF):
     ar('test', nargs="?", default="all", help="The test case to execute"),
     ar('-d', '--detail', action="store_true", help="Print detailed output of the submission"),
     ar("-f", '--full', action="store_false", help="Print the full submission output"),
-    ar("--diff", default=DEFAULT_DIFF, help="The diff command to run")
+    ar("diff", nargs=argparse.REMAINDER, default=None, help="The diff command to run")
 )
 def test(arg, opts, parser, stdin=None):
+    # Fix a stupid argparse bug
+    try:
+        i = arg.index("--")
+        if i + 1 < len(arg) and opts.test == arg[i + 1]:
+            opts.test = "all"
+            opts.diff = [arg[i + 1]] + opts.diff
+    except ValueError:
+        pass
+    print(opts)
     if opts.test == "all":
         accepted = True
         errors = []
+        diff = opts.diff if opts.diff else os.getenv("DIFF_CMD", DEFAULT_DIFF)
         for test in shell.get_tests():
             print("\n%sRunning test case: %s%s%s" % (TERM_COLORS["BOLD_YELLOW"], TERM_COLORS["UNDERLINE_YELLOW"], test, TERM_COLORS["NO_COLOR"]))
-            ret = run_test(test + ".in", detail=opts.detail, diff=opts.full, diff_cmd=opts.diff.replace("+","-"))
+            ret = run_test(test + ".in", detail=opts.detail, diff=opts.full, diff_cmd=diff)
             if not ret:
                 accepted = False
                 errors.append(test)
