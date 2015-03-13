@@ -118,8 +118,10 @@ def execute(arg, opts, parser, stdin=None):
         if val[2].strip():
             sys.stderr.write(val[2])
 
+DEFAULT_DIFF = "sdiff --ignore-all-space --ignore-blank-lines --ignore-space-changes"
 
-def run_test(test, detail=False, diff=True, diff_cmd="sdiff --ignore-all-space"):
+
+def run_test(test, detail=False, diff=True, diff_cmd=DEFAULT_DIFF):
     path = os.path.join(os.getcwd(), "tests", test)
     if not os.path.isfile(path):
         sys.stderr.write("Test %s does not exist, exiting.\n" % test)
@@ -172,7 +174,7 @@ def run_test(test, detail=False, diff=True, diff_cmd="sdiff --ignore-all-space")
     ar('test', nargs="?", default="all", help="The test case to execute"),
     ar('-d', '--detail', action="store_true", help="Print detailed output of the submission"),
     ar("-f", '--full', action="store_false", help="Print the full submission output"),
-    ar("diff", nargs=argparse.REMAINDER, default="sdiff --ignore-all-space", help="The diff command to run")
+    ar("diff", nargs=argparse.REMAINDER, default=DEFAULT_DIFF, help="The diff command to run")
 )
 def test(arg, opts, parser, stdin=None):
     if opts.test == "all":
