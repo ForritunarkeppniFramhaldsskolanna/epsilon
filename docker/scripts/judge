@@ -43,7 +43,7 @@ case $1 in
     "judge")
         shift
         judging="/judging/$(relpath "$PWD" "$HOME/judging/")"
-        docker exec -i "epsilon-manual-$USER" judge_exec $judging judge $@
+        docker exec -t -i "epsilon-manual-$USER" judge_exec $judging judge $@
     ;;
     "bash")
         shift
