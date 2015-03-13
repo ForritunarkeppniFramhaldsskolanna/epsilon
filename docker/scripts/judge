@@ -51,6 +51,6 @@ case $1 in
         docker exec -t -i "epsilon-manual-$USER" judge_exec $judging bash
     ;;
     *)
-        echo "Available commands: create, exec"
+        echo "Available commands: create, stop, start, rm, exec, shell, judge, bash"
     ;;
 esac
