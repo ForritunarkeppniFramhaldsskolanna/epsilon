@@ -29,7 +29,7 @@ case $1 in
     ;;
     "rm")
         docker stop "epsilon-manual-$USER"
-        docker rm "epsilon-manual-$USER"
+        docker rm -v "epsilon-manual-$USER"
     ;;
     "exec")
         shift
