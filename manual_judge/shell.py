@@ -198,11 +198,14 @@ def compile():
         lang = load(j.LANGUAGES_FILE)[sub.language]
 
         if 'compile' in lang:
-            proc = Popen(lang['compile'], stdin=PIPE, stdout=PIPE, stderr=PIPE, cwd=os.getcwd())
-            comp_err = proc.communicate()[1]
-            comp_err = '' if comp_err is None else comp_err.decode('utf-8')
-            if proc.wait() != 0:
-                sys.stdout.write('compile error:\n' + comp_err + '\n')
+            ret, stdout, stderr = run(lang['compile'])
+            if ret != 0:
+                sys.stdout.write('compile error:\n')
+                sys.stdout.write("Exit status %d.\n" % ret)
+                if stdout.strip():
+                    sys.stdout.write("stdout:\n%s\n" % stdout.strip())
+                if stderr.strip():
+                    sys.stdout.write("stderr:\n%s\n" % stderr.strip())
             else:
                 sys.stdout.write('compile successful\n')
         else:
