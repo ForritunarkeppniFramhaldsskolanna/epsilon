@@ -119,7 +119,7 @@ def execute(arg, opts, parser, stdin=None):
             sys.stderr.write(val[2])
 
 
-def run_test(test, detail=False, diff=True, diff_cmd="sdiff"):
+def run_test(test, detail=False, diff=True, diff_cmd="sdiff --ignore-all-space"):
     path = os.path.join(os.getcwd(), "tests", test)
     if not os.path.isfile(path):
         sys.stderr.write("Test %s does not exist, exiting.\n" % test)
