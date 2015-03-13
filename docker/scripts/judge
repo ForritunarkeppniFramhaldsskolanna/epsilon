@@ -1,5 +1,13 @@
 #!/bin/bash
 relpath(){ python -c "import os.path; print(os.path.relpath('$1','${2:-$PWD}'))" ; } 
+fixperms(){ docker exec -i "epsilon-manual-$USER" chmod -R 777 /judging; }
+limitjudge() { 
+
+    if [[ ! $PWD/ = $HOME/judging/* ]]; then
+        echo "This command must be run from within $HOME/judging"
+        exit 0
+    fi
+}
 case $1 in
     "create")
         if [ -z $CONTEST ]; then
@@ -31,24 +39,32 @@ case $1 in
         docker stop "epsilon-manual-$USER"
         docker rm -v "epsilon-manual-$USER"
     ;;
+    "fixperms")
+        fixperms
+    ;;
     "exec")
         shift
-        judging="/judging/$(relpath "$PWD" "$HOME/judging/")"
         docker exec -t -i "epsilon-manual-$USER" $@
+        fixperms
     ;;
     "shell")
         shift
         docker exec -i "epsilon-manual-$USER" judgesh -d "/judging/"
+        fixperms
     ;;
     "judge")
         shift
+        limitjudge
         judging="/judging/$(relpath "$PWD" "$HOME/judging/")"
         docker exec -t -i "epsilon-manual-$USER" judge_exec $judging judge $@
+        fixperms
     ;;
     "bash")
         shift
+        limitjudge
         judging="/judging/$(relpath "$PWD" "$HOME/judging/")"
         docker exec -t -i "epsilon-manual-$USER" judge_exec $judging bash
+        fixperms
     ;;
     *)
         echo "Available commands: create, stop, start, rm, exec, shell, judge, bash"
