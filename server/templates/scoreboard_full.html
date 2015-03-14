@@ -68,7 +68,7 @@
     jQuery(function ($) {
         var timeout = 10000;
         var refresh_body = function () {
-            $('#content').load(window.location + " #content", function () {
+            $('.content').load(window.location + " .content", function () {
                 setTimeout(refresh_body, timeout);
             });
         };
