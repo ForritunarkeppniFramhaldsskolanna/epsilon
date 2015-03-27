@@ -24,7 +24,7 @@ project any further, unless maybe for next year's contest. If you are planning
 to hold your own contest, epsilon, being specifically designed for this one
 contest, may or may not fit your needs (probably not though). I recommend
 taking a look at better developed programming contest environments such as
-[DOMJudge](http://www.domjudge.org/).
+[Kattis](https://www.kattis.com/) or [DOMJudge](http://www.domjudge.org/).
 
 Installing
 ----------
