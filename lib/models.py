@@ -1,6 +1,7 @@
 # from flask.ext.sqlalchemy import SQLAlchemy
 # db = SQLAlchemy()
 import datetime
+import sqlalchemy
 from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime, ForeignKey, Boolean
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
@@ -85,4 +86,6 @@ def register_base(db):
     db.Model = Base
     for c in Base._decl_class_registry.values():
         # Add the query class to each of the models.
+        if type(c) is sqlalchemy.ext.declarative.clsregistry._ModuleMarker:
+            continue
         c.query = db.session.query_property()
