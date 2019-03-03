@@ -139,11 +139,11 @@ class Problem:
         statement = os.path.splitext(path)[0] + '.md'
         md = True
 
-        if not os.path.isfile(md):
+        if not os.path.isfile(statement):
             statement = pjoin(os.path.dirname(path), 'statement.md')
             md = True
 
-        if not os.path.isfile(md):
+        if not os.path.isfile(statement):
             statement = pjoin(os.path.dirname(path), 'statement', 'index.html')
             md = False
 

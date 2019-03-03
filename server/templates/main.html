@@ -56,7 +56,7 @@
             {% endif %}
             <!-- <li class="nav-header">Problems</li> -->
             {% if phase.problem_list %}
-                {% set cnt = 1 %}
+                {% set ns = namespace(cnt=1) %}
                 {% for k, v in phase.problem_list %}
                     {% if k == 'header' %}
                         <li class="nav-header" style="font-size: 0.7em; margin-top: 0; margin-bottom: -6px;">{{ v }}</li>
@@ -65,10 +65,10 @@
                     {% elif k == 'problem' %}
 
                         <li class="problem {% if problem and problem.id == v %}active{% endif %} {% if v in solved %}ac{% elif v in tried %}wa{% endif %}">
-                            <a href="{{ url_for('default.view_problem', problem_id=v) }}" class="{% if problem and problem.id == v %}active{% endif %}"><span class="number">{{ cnt }}.</span> {{ contest.problems[v].title | safe }}</a>
+                            <a href="{{ url_for('default.view_problem', problem_id=v) }}" class="{% if problem and problem.id == v %}active{% endif %}"><span class="number">{{ ns.cnt }}.</span> {{ contest.problems[v].title | safe }}</a>
                         </li>
 
-                        {% set cnt = cnt + 1 %}
+                        {% set ns.cnt = ns.cnt + 1 %}
                     {% endif %}
                 {% endfor %}
             {% else %}

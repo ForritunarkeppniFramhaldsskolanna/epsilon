@@ -1,6 +1,7 @@
 import sys
 import os
 import math
+import shutil
 from subprocess import Popen, PIPE
 from tempfile import mkstemp
 
@@ -35,6 +36,9 @@ class Jail:
 
     def _get_tempfile(self, dir=None):
         return mkstemp(prefix='epsilon', dir=dir)
+
+    def _fix_perms(self, path):
+        os.chmod(path, 0o666)
 
     def init(self):
         # TODO: add more directories, probably
@@ -78,6 +82,7 @@ class Jail:
             dirs = []
         dirs.append('/epsilon/judge/scripts')
         dirs.append('/usr/lib')
+        dirs.append('/usr/lib/x86_64-linux-gnu')
         dirs.append('/usr/local/lib')
         dirs.append('/usr/include')
         dirs.append('/usr/local/include')
@@ -93,14 +98,17 @@ class Jail:
             handle, stdin_file = self._get_tempfile(self.box_dir)
             with os.fdopen(handle, 'w') as f:
                 f.write(stdin)
+            self._fix_perms(stdin_file)
             args += ['--stdin=%s' % os.path.join('/box', os.path.relpath(stdin_file, self.box_dir))]
 
         handle, stdout_file = self._get_tempfile(self.box_dir)
         os.close(handle)
+        self._fix_perms(stdout_file)
         args += ['--stdout=%s' % os.path.join('/box', os.path.relpath(stdout_file, self.box_dir))]
 
         handle, stderr_file = self._get_tempfile(self.box_dir)
         os.close(handle)
+        self._fix_perms(stderr_file)
         args += ['--stderr=%s' % os.path.join('/box', os.path.relpath(stderr_file, self.box_dir))]
 
         handle, meta_file = self._get_tempfile()
@@ -150,20 +158,21 @@ class Jail:
 
     def cleanup(self):
         self._execute(['--cleanup'])
+        shutil.rmtree(self.jail_dir)
 
-# if __name__ == '__main__':
-#     jail = Jail(0)
-#     try:
-#         jail.init()
-#         # os.system('/bin/bash')
-#         res = jail.run(['/bin/bash'],
-#                 stdin='echo moooo',
-#                 processes=10,
-#                 timelim=3,
-#                 memlim=100*1024,
-#             )
-#     finally:
-#         jail.cleanup()
-#
-#     for k, v in sorted(res.items()):
-#         print(k, v)
+if __name__ == '__main__':
+    jail = Jail(0)
+    try:
+        jail.init()
+        # os.system('/bin/bash')
+        res = jail.run(['/bin/bash'],
+                stdin='echo moooo',
+                processes=10,
+                timelim=3,
+                memlim=100*1024,
+            )
+    finally:
+        jail.cleanup()
+
+    for k, v in sorted(res.items()):
+        print(k, v)

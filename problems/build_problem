@@ -14,14 +14,14 @@ problem_dir = os.path.abspath(sys.argv[1])
 output_dir = os.path.join(problem_dir, '.epsilon')
 
 print('Verifying problem')
-p = Popen([os.path.join(PROBLEMTOOLS, 'verifyproblem.py'), problem_dir], cwd=PROBLEMTOOLS, stdout=PIPE)
+p = Popen([os.path.join(PROBLEMTOOLS, 'verifyproblem.py'), problem_dir], stdout=PIPE)
 stdout, _ = p.communicate()
 stdout = stdout.decode('utf-8')
 
 errors = 1
 for line in stdout.split('\n'):
     if 'tested:' in line:
-        errors = int(line.split('tested:')[1].split('errors')[0].strip())
+        errors = int(line.split('tested:')[1].split('error')[0].strip())
         break
 
 if errors > 0:
