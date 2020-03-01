@@ -158,7 +158,7 @@ class Jail:
 
     def cleanup(self):
         self._execute(['--cleanup'])
-        shutil.rmtree(self.jail_dir)
+        #shutil.rmtree(self.jail_dir)
 
 if __name__ == '__main__':
     jail = Jail(0)

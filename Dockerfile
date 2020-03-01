@@ -1,10 +1,11 @@
-FROM ubuntu:trusty
+FROM ubuntu:xenial
 
 ENV TERM xterm
 ENV DEBIAN_FRONTEND noninteractive
 ENV SHELL /bin/bash
 
 
+RUN apt-get update && apt-get install -y locales sudo
 RUN locale-gen en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
@@ -31,7 +32,7 @@ RUN pip3 install -r requirements.txt
 RUN mkdir -p judge/isolate
 ADD ./judge/isolate /epsilon_setup/judge/isolate
 WORKDIR /epsilon_setup/judge/isolate
-RUN make && sudo ./fix_mod.sh
+RUN make && ./fix_mod.sh
 RUN cp isolate /usr/local/bin/isolate
 RUN chown root /usr/local/bin/isolate && chmod u+s /usr/local/bin/isolate
 WORKDIR /epsilon_setup

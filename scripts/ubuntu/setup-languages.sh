@@ -2,7 +2,7 @@
 
 set -e
 
-sudo apt-get install -y g++ gcc python2.7 openjdk-7-jdk openjdk-7-jre fpc perl octave
+sudo apt-get install -y g++ gcc python2.7 openjdk-8-jdk openjdk-8-jre fpc perl octave
 
 # # Ruby
 sudo apt-add-repository -y ppa:brightbox/ruby-ng

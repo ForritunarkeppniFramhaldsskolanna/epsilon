@@ -39,11 +39,11 @@
 
             return 0;
         }
-"Python 3.4.0":
+"Python 3.5.2":
     filename: "sol.py"
     execute: ["__EPSILON_EXE_PYTHON3__", "sol.py"]
     highlight: 'python'
-"Python 2.7.6":
+"Python 2.7.12":
     filename: "sol.py"
     compile: ["__EPSILON_PREFIX__/judge/scripts/compile_py2.sh"]
     execute: ["__EPSILON_EXE_PYTHON2__", "sol.py"]
